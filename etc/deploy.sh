@@ -19,12 +19,16 @@ apt-get install monit
 
 cp -r monit/* /etc/monit/
 
+cd /home/nodeapp/etc
+
 #install nginx
 sh ./install-nginx.sh
 
 cp init.d/nginx.sh /etc/init.d/nginx
 chmod +x /etc/init.d/nginx
 /usr/sbin/update-rc.d -f nginx defaults
+
+cp nginx.conf /opt/nginx/conf/nginx.conf
 
 #install nodejs
 sh ./install-nodejs.sh
@@ -35,7 +39,8 @@ chmod +x /etc/init.d/nodeapp
 
 #installing redis and use default redis configuration
 sh ./install-redis.sh
-cp /opt/redis/redis.conf.default /opt/redis/redis.conf
+
+cp redis.conf /opt/redis/nginx.conf
 
 cp init.d/redis.sh /etc/init.d/redis
 chmod +x /etc/init.d/redis

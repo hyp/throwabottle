@@ -3,7 +3,10 @@ echo 'Inital server user setup...'
 
 adduser --system --no-create-home --disabled-login --disabled-password --group nginx
 
-adduser --system --disabled-login --disabled-password --group nodeapp
+mkdir /var/log/nginx
+
+addgroup --system --gid 1000 nodeapp
+adduser --system --disabled-login --disabled-password --uid 1000 --gid 1000 nodeapp
 
 touch /var/log/nodeapp.log
 chown nodeapp:nodeapp /var/log/nodeapp.log

@@ -1,7 +1,7 @@
-check host nodeapp with address 127.0.0.1
-     start program = "/etc/init.d/nodeapp start"
-     stop program  = "/etc/init.d/nodeapp stop"
-     if failed port 8000 protocol HTTP
-         request /api/query
-         with timeout 30 seconds
-         then restart
+check process nodeapp with pidfile "/var/run/nodeapp.pid"
+	start program = "/etc/init.d/nodeapp start" as uid 1000 with gid 1000
+	stop program  = "/etc/init.d/nodeapp stop" as uid 1000 with gid 1000
+	if failed port 8000 protocol HTTP
+		request /api/query
+		with timeout 30 seconds
+		then restart

@@ -6,7 +6,7 @@ set mailserver localhost
 set mail-format { from: monit@your_domain.com }
 
 set alert glasswall13@rambler.ru
-set httpd port 2812 and
-     allow user:password
+set httpd port 2812
+     allow hauk:"password"
 
 include /etc/monit/conf.d/*

@@ -14,16 +14,17 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 APP=server.js
+DIR=/home/nodeapp
 DESC="Node.JS application $APP"
 
-su - nodeapp
+cd $DIR
 
-function start_app {
+start_app() {
   node "$APP" 1>>'/var/log/nodeapp.log'  2>&1 &
   echo $! > '/var/run/nodeapp.pid'
 }
 
-function stop_app {
+stop_app() {
   kill `cat /var/run/nodeapp.pid`
 }
 
