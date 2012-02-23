@@ -1,0 +1,9 @@
+{
+  "name": "throwabottleserver",
+  "version": "0.5.0",
+  "dependencies": {
+	"redis": ">=0.0.1",
+    "mongoskin": ">=0.0.1",
+    "fbgraph": ">=0.0.1"
+  }
+}

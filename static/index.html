@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<!-- Conditional comment for mobile ie7 blogs.msdn.com/b/iemobile/ -->
+<!--[if IEMobile 7 ]>    <html class="no-js iem7" lang="en"> <![endif]-->
+<!--[if (gt IEMobile 7)|!(IEMobile)]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+<title>Throw a bottle</title>
+
+<!-- Mobile viewport optimization h5bp.com/ad -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- iOS web app, delete if not needed. https://github.com/h5bp/mobile-boilerplate/issues/94 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-touch-fullscreen" content="yes" />
+  
+<!-- Mobile IE allows us to activate ClearType technology for smoothing fonts for easy reading -->
+<meta http-equiv="cleartype" content="on">
+  
+<link rel="stylesheet/less" type="text/css" href="style.less" />
+<script src="less.js"></script>
+
+</head>
+<body>
+
+<!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
+
+
+
+<script type="text/javascript"> 
+var netCount = 3;
+var bottleCount = 6;
+
+function toggle(x) {
+	//IE8 no opacity support :(
+	if ( $.browser.msie && $.browser.version < 9) {
+		if($('#dimmer').css('display') === 'none')
+			$('#dimmer').css('display','block');
+		else
+			$('#dimmer').css('display','none');
+	}
+	else $('#dimmer').fadeToggle('slow',function(){});
+	$(x).slideToggle('slow',function(){});
+}
+function swapScreen(x,y){
+	$(x).css('display','none');
+	$(y).css('display','block');
+}
+function bottleCaught(data){
+	if(data.r >= 0){
+		netCount = data.r;
+		$('#btn_net_counter').html(netCount.toString());
+		$('#recievedMessage').html(data.msg.replace(/\n/g, "<br/>"));
+		toggle('#bottle_caught');
+	}
+	else alert('Bottle failed catching! Error:' + data.error);	
+}
+function bottleSent(data){
+	if(data.r >= 0){
+		bottleCount = data.r;	
+		$('#btn_bottle_counter').html(bottleCount.toString());
+	}
+	else alert('Bottle failed sending! Error:' + data.error);
+	toggle('#new_bottle');
+}
+
+function signIn(){
+	swapScreen('#main','#login');
+}
+$(document).ready(function(){
+
+   $.get('api/query',function(response){
+		if(response.r === 0){
+			bottleCount = response.b;
+			$('#btn_bottle_counter').html(bottleCount.toString());
+			netCount = response.n;
+			$('#btn_net_counter').html(netCount.toString());
+		}else{
+			toggle('#main');
+		}
+   },'json');
+
+   $('#btn_bottle').click(function(){
+		if(bottleCount === 0){
+			alert('No more bottles remaining!');
+		}else{
+			toggle('#new_bottle');
+		}
+   });
+   
+   $('#btn_net').click(function(){
+		if(netCount === 0){
+			alert('No more nets remaining!');
+		}else{
+			$('#btn_net_counter').html((netCount-1).toString());
+			$.get('api/catch',bottleCaught,'json');
+		}
+   });
+
+   $('#throwback').click(function(){
+        $.get('api/throwback',function(data){ toggle('#bottle_caught'); },'json');
+   });
+   
+   $('#facebook_signin').click(function(){
+		window.location.href = 'https://www.facebook.com/dialog/oauth/?client_id=233473013410744&display=touch&redirect_uri=http%3A%2F%2F192.168.124.144%2Fapi%2Ffblogin&response_type=code';	
+   });
+
+   $('#form').submit(function(){
+	  $('#btn_bottle_counter').html((bottleCount-1).toString());
+      $.post('api/throw', $(this).serialize(), bottleSent,'json');
+      return false;
+   });
+   
+   $('#loginForm').submit(function(){
+	var userid = $('#loginUser').val();
+	var password = $('#loginPassword').val();
+	$.post('api/login','userid='+userid+'&pwd='+password,function(response){
+		if(response.r === 0){
+			bottleCount = response.b;
+			$('#btn_bottle_counter').html(bottleCount.toString());
+			netCount = response.n;
+			$('#btn_net_counter').html(netCount.toString());
+			toggle('#login');
+		}else{
+			alert('Wrong username or password!');
+		}
+	},'json');
+	return false;
+   });
+   
+});
+</script>
+
+<div class="fixedBg" id="sky">
+	<img src="images/sun3.png" alt="" id="sun"/>
+	<img src="images/cloud.png" alt="" id="cloud3"/>
+	<img src="images/cloud.png" alt="" id="cloud2"/>
+	<img src="images/cloud.png" alt="" id="cloud1"/>
+</div>
+<div class="fixedBg" id="water"></div>
+<div class="fixedBg" id="waterbot"></div>
+<div class="fixedBg" id="sand"></div>
+
+
+
+<img src="images/background.svg" alt="" style="position:fixed;left:0;top:0%;;width:100%;height:100%;"/>
+<img src="images/sun3.png" alt="" style="position:fixed;left:50%;top:20px;width:92px;height:92px;"/>
+
+	
+<img src="images/bottle2.png" alt="" class="side_button" id="btn_bottle"/>
+<div class="side_note" id="btn_bottle_counter">6</div>
+<img src="images/net.png" alt="" class="side_button" id="btn_net"/>
+<div class="side_note" id="btn_net_counter">3</div>
+
+<script type="text/javascript"> 
+function cloud1(){  
+    $("#cloud1").animate({left:"+=120%"},49000,'linear',function(){ $('#cloud1').css('left','-120px'); });  
+    setTimeout("cloud1()",49000);  
+}  
+function cloud2(){  
+    $("#cloud2").animate({left:"+=120%"},39000,'linear',function(){ $('#cloud2').css('left','-120px'); }); 
+    setTimeout("cloud2()",39000);  
+}  
+function cloud3(){  
+    $("#cloud3").animate({left:"+=120%"},34000,'linear',function(){ $('#cloud3').css('left','-120px'); });
+    setTimeout("cloud3()",34000);  
+}  
+function animate(){
+    cloud1();  
+    cloud2(); 
+	cloud3();
+}
+setTimeout("animate()",300);  
+</script>
+
+
+<div id="dimmer"></div>
+
+<div class="popup" id="main">
+<h2>Throw a bottle</h2>
+<hr>
+<p>What is throw a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>
+<p>This will be the main welcome page. In here the user will be asked to sign in. We also will have a description and shit</p>
+
+
+<div class="singleButton">
+	<button id="signin" type="button" onClick="signIn();">Sign in</button>
+</div>
+<br style="line-height:3em;">
+
+<div class="doubleButtons">
+	<button id="facebook_signin" type="button">Sign in with Facebook</button>
+	<button id="twitter_signin" type="button" onClick="signIn();">Sign in with Twitter</button>
+</div>
+
+<span class="smallPrint">&copy; Eastern fold 2012.</span>
+</div>
+
+<div class="popup" id="login">
+<h2>Throw a bottle</h2>
+<hr>
+<form id="loginForm" action="signin">
+	<label for="userid" style="display:block;text-align:center;">User ID:</label>
+	<input style="display:block;width:200px;height: 1.5em;margin: 5px auto;" type="text" id="loginUser" name="userid" required/>
+
+	<label for="password" style="display:block;text-align:center;">Password:</label>
+	<input style="display:block;width:200px;height: 1.5em;margin: 5px auto;" type="password" id="loginPassword" name="password" required/>
+	
+<div class="singleButton">
+	<input type="submit" value="Log in"/>
+</div>
+</form>
+</div>
+
+<div class="popup" id="new_bottle">
+<h3>Please enter the bottled message:</h3>
+<form id="form" action="submit_bottle">
+<div id="messageContainer"><textarea name="msg" id="message" maxlength="500" required></textarea></div>
+<div id="messageBottom">
+	<div>
+		<input type="button" value="never mind." onClick="toggle('#new_bottle');"/>
+		<input type="submit" value="Throw!"/>
+	</div>
+</div>
+</form>
+</div>
+
+<div class="popup" id="bottle_caught">
+<div id="recievedMessage"></div>
+<div id="messageBottom">
+	<div>
+		<input type="button" value="Throw it back" id="throwback"/>
+		<input type="submit" value="Reply" id="accept"/>
+	</div>
+</div>
+</div>
+
+<!-- JavaScript at the bottom for fast page loading -->
+
+<!-- scripts concatenated and minified via ant build script -->
+<script src="js/helper.js"></script>
+
+<script>
+ //iPhone Scale Bug Fix, read this when using http://www.blog.highub.com/mobile-2/a-fix-for-iphone-viewport-scale-bug/
+ MBP.scaleFix();
+ MBP.hideUrlBar();
+</script>
+
+</body>
+</html>
+
+
