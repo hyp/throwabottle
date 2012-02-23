@@ -290,14 +290,14 @@ function onFBlogin(request,response,query){
         console.log('Successfull FB login with code: ' + query.code);
         fbapi.authorize({
             "client_id":        '233473013410744'
-            , "redirect_uri":   'http://192.168.124.144/api/fblogin'
+            , "redirect_uri":   'http://199.30.59.142/api/fblogin'
             , "client_secret":  facebookSecret
             , "code":           query.code
         }, function (err, fbres) {
             if(err){
                 console.log("FB authorization failed!");
                 response.writeHead(200);
-                response.end("<script>window.location.href = 'http://192.168.124.144'</script>");
+                response.end("<script>window.location.href = 'http://199.30.59.142'</script>");
             }else{
                 console.log("FB authorized - " + fbres.access_token + "; expires:" + fbres.expires);
                 fbapi.get('me',function(err,fbdata){
@@ -307,7 +307,7 @@ function onFBlogin(request,response,query){
                         var uid = 'x' + fbdata.id;
                         addExternalUser(uid);
                         response.writeHead(200,{'Set-Cookie':genSessionCookie(uid,fbres.expires)});
-                        response.end("<script>window.location.href = 'http://192.168.124.144'</script>");
+                        response.end("<script>window.location.href = 'http://199.30.59.142'</script>");
                     }
                 });
 
