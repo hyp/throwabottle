@@ -9,13 +9,17 @@ var mongo = require('mongoskin');
 var fbapi = require('fbgraph');
 
 //settings
-var settings = require('./settings');
-var facebookSecret = settings.facebookSecret;
-var sessionSecret = settings.sessionSecret;
-var refreshTime = settings.userRefreshTime;
+//cat this file with secret settings on the server
+var facebookId = ''
+var facebookSecret = '';
+var sessionSecret = '';
+var passwordSecret = '';
+var mongourl = '';
+var refreshTime = 60000; //ms
+
 
 function errorHandler(err,data){
-    if(err) console.error('Error!\n' + err + err.stack + '\ndata:' + data);
+    if(err) console.error((new Date()).toString() + ' - Error!\n' + err + err.stack + '\ndata:' + data);
 }
 
 //Connect to MongoDB data
@@ -30,8 +34,6 @@ function sendMessage(dest,msg){
 
 }
 
-sendMessage(".testMsg",{s:".msgBot",m:"Testing messaging system - " + (new Date()).toTimeString()});
-
 //Connect to Redis data
 var redisData = redis.createClient();
 redisData.on("connect",function(reply){ console.log("Redis is connected!"); });
@@ -42,6 +44,7 @@ redisData.on("error", function (err) {
 
 function info(){
     console.log("\n# Server info:");
+	console.log('It is ' + Date.now() + ' - ' + (new Date()).toString());
     redisData.info(function(err,reply){
         console.log("## Redis info");
         console.log(reply);
@@ -76,25 +79,26 @@ function sessionExpired(response){
 }
 
 function addUser(userid,pwd){
-    var hash = crypto.createHmac('sha1',userid).update(pwd).digest('base64');
+    var hash = crypto.createHmac('sha1',userid).update(pwd).update(passwordSecret).digest('base64');
     users.insert({_id:userid,p:hash},{safe:true},errorHandler);
     redisData.hmset('u' + userid,{"t": Date.now() + refreshTime,"b":6,"n":4});
 }
 
 function onDebug(request,response){
     response.writeHead(200,{'Content-type':'text/html'});
-
+	
+	response.write('It is ' + Date.now() + ' - ' + (new Date()).toString());
     redisData.keys("*", function (err, keys) {
+		response.write('<h2>Redis keys:</h2><br>\n');
         keys.forEach(function (key, pos) {
-            response.write('<h2>Redis keys:</h2><br>');
             redisData.type(key, function (err, keytype) {
-                response.write(key + " : " + keytype + '<br>');
+                response.write(key + " : " + keytype + '<br>\n');
                 
             });
 
         });
     });
-    setTimeout('response.end()',100);
+    setTimeout('response.end()',300);
 }
 
 redisData.hmset('uadmin',{"t": Date.now() + refreshTime,"b":6,"n":4});
@@ -164,8 +168,9 @@ function onQuery(request,response){
 }
 
 function genSessionCookie(uid,expires){
-    var sid = crypto.createHash('md5').update(uid).update(sessionSecret).digest('hex');
+    var sid = crypto.createHash('md5').update(uid).update(sessionSecret).update(Date.now().toString()).digest('hex');
     console.log("New session created - " + sid + ':' + uid);
+	//TODO check for collisions
     redisData.set(sid,uid);
     redisData.expire(sid,expires); //session expiration (seconds)
     return 'sid='+sid+'; Path=/api/; Max-Age='+expires+'; HttpOnly';
@@ -349,6 +354,7 @@ function respond(request,response){
                 var POST = qs.parse(body);
                 // use POST
                 if(request.url === '/api/throw') onBottle(request,response,POST);
+				else if(request.url === '/api/reply') onReply(request,response,POST);
                 else if(request.url === '/api/login') onLogin(response,POST);
                 else
                     respondError(response,'Invalid POST url: ' + request.url);
@@ -365,5 +371,5 @@ function respond(request,response){
 var server = http.createServer(respond);
 server.listen(8000);
 console.log("Bottle server up & running at http://127.0.0.1:8000/");
-console.log('It is ' + (new Date()).toDateString());
+console.log('It is ' + (new Date()).toString());
 
