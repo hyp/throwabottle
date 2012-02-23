@@ -9,12 +9,7 @@ var mongo = require('mongoskin');
 var fbapi = require('fbgraph');
 
 //settings
-//cat this file with secret settings on the server
-var facebookId = ''
-var facebookSecret = '';
-var sessionSecret = '';
-var passwordSecret = '';
-var mongourl = '';
+//mor settings are on server
 var refreshTime = 60000; //ms
 
 
@@ -23,7 +18,7 @@ function errorHandler(err,data){
 }
 
 //Connect to MongoDB data
-var mongoData= mongo.db(settings.mongourl);
+var mongoData= mongo.db(mongourl);
 var users = mongoData.collection('user');
 var messages = mongoData.collection('messages');
 
