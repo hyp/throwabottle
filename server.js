@@ -1,6 +1,4 @@
-var fs = require('fs');
 var http = require("http");
-var https = require("https");
 var url = require('url');
 var qs = require('querystring');
 var crypto = require("crypto");
@@ -11,14 +9,13 @@ var fbapi = require('fbgraph');
 //settings
 //more settings are on the server
 var refreshTime = 60000; //ms
-var junkProbability = 10;
 
 //
 var appHandlers = {};
 var app = {};
 app.on = function(name,callback){
     appHandlers[name] = callback;
-}
+};
 
 function errorHandler(err,data){
     if(err) console.error((new Date()).toString() + ' - Error!\n' + err + err.stack + '\ndata:' + data);
@@ -255,7 +252,7 @@ function popBottle(userid,handler,probability){
         });
     }
     else{
-        console.log('Junk popped!');
+        console.log('Junk popped !');
         handler({j:'Junk'});
     }
 }
