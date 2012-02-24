@@ -13,7 +13,7 @@ var fbapi = require('fbgraph');
 var refreshTime = 60000; //ms
 
 //
-var appHandlers = {};
+var appHandlers = new Array();
 var app = {};
 app.on = function(name,callback){
     appHandlers[name] = callback;
@@ -121,6 +121,7 @@ function touchUserData(userid,handler){
 //returns the userid from session cookie
 function getUserId(request,response,handler){
     var sid = request.cookies['sid'];
+    console.log('SID - ' + sid.toString());
     if(sid){
         console.log('SID - ' + sid);
         redisData.get(sid,function(err,userid){
@@ -337,7 +338,7 @@ function respond(request,response){
             var handler = appHandlers[request.parsedUrl.pathname];
             if(handler){
                 //parse cookies
-                request.cookies = {};
+                request.cookies = new Array();
                 request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
                     var split= cookie.split('=');
                     request.cookies[split[0]]=split[1];
