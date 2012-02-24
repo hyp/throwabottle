@@ -217,6 +217,11 @@ app.on('/api/throw',function(request,response,data){
 });
 
 
+function catchJunk(){
+    console.log('Junk caught instead.');
+    return {j:'Junk'};
+}
+
 function popBottle(userid,handler,probability){
     if(!probability) probability = 0.1;
     console.log('Trying to catch a bottle with probability of ' + probability + ' by ' + userid);
@@ -232,13 +237,10 @@ function popBottle(userid,handler,probability){
                 }
                 else handler(bottle);
             }
-            else{
-                console.log(' error popping bottle - junk will be popped!');
-                handler({j:'Junk'});
-            }
+            else handler(catchJunk());
         });
     }
-    else handler({j:'Junk'});
+    else handler(catchJunk());
 }
 
 app.on('/api/catch',function (request,response){
