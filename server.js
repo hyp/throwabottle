@@ -288,8 +288,6 @@ app.on('/api/bottle/reply',function(request,response,data){
     });
 });
 
-messages.update({'_id':token,'r':userid},{'$set':{'t':45}},{safe:true},errorHandler);
-
 app.on('/api/bottle/recycle',function (request,response){
     getUserId(request,response,function(userid){
         var token = request.cookies['tt'];
