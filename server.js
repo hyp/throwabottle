@@ -240,22 +240,19 @@ function popBottle(userid,handler,probability){
                 console.log(' bottle popped ' + bottle);
                 bottle = JSON.parse(bottle);
                 if(bottle.s === userid){
-                    console.log('Sender is reciever!');
+                    console.log(' Sender is reciever! - going for one more round');
                     redisData.lpush('_bottles',JSON.stringify(bottle));
                     popBottle(userid,handler,probability + 0.4);
                 }
                 else handler(bottle);
             }
             else{
-                console.log('error popping bottle - junk will be popped!');
+                console.log(' error popping bottle - junk will be popped!');
                 handler({j:'Junk'});
             }
         });
     }
-    else{
-        console.log('Junk popped !');
-        handler({j:'Junk'});
-    }
+    else handler({j:'Junk'});
 }
 
 app.on('/api/catch',function (request,response){
@@ -265,15 +262,12 @@ app.on('/api/catch',function (request,response){
                 if(bottle.m){
                     //Send message to the user
                     var token = Date.now();
-                    messages.insert({_id:token,d:userid,s:bottle.s,m:bottle.m},{safe:true},errorHandler);
-
                     response.writeHead(200, {
                         'Content-Type':'text/json',
                         'Set-Cookie':'tt='+token+'; Path=/api/throwback; HttpOnly' //send back a token which is needed for throwback
                     });
                     response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
-
-                    console.log(' Bottle caught - {sender: ' + bottle.s +' msg: ' + bottle.m + ' } ');
+                    messages.insert({_id:token,d:userid,s:bottle.s,m:bottle.m},{safe:true},errorHandler);
                 }
                 else{
                     response.writeHead(200, { 'Content-Type':'text/json' });
@@ -292,8 +286,13 @@ app.on('/api/throwback',function (request,response){
         if(token !== null){
             token = Number(token);
             console.log('Throwing back a bottle with token - '+token);
-
-            messages.remove({_id:token,d:userid},errorHandler);
+            messages.findAndModify({_id:token,d:userid},[['s','asc']],{},{remove:true},function(err,bottle){
+                if(!err){
+                    console.log('Bottle is being recycled!');
+                    redisData.lpush('_bottles','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
+                }
+            });
+            //messages.remove({_id:token,d:userid},errorHandler);
             response.writeHead(200, {
                 'Content-Type':'text/json',
                 'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
