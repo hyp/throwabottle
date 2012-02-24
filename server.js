@@ -286,8 +286,8 @@ app.on('/api/bottle/reply',function(request,response,data){
             //notify reciever
             messages.find({_id:token,r:userid},{s:1},{limit: 1},function(err,data){
                 if(!err){
-                    console.log('Notifying sender - ' + data.s);
-                    redisData.hincrby(data.s,'e',1,errorHandler);
+                    console.log('Notifying sender - ' + data + ' : ' + data.s);
+                    //redisData.hincrby(data.s,'e',1,errorHandler);
                 }
             });
         }
