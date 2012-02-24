@@ -87,26 +87,7 @@ function addUser(userid,pwd){
 
 redisData.hmset('uadmin',{"t": Date.now() + refreshTime,"b":6,"n":4});
 
-app.on('/api/debug',function(request,response){
-    response.writeHead(200,{'Content-type':'text/html'});
 
-    response.write('It is ' + Date.now() + ' - ' + (new Date()).toString());
-    redisData.keys("*", function (err, keys) {
-        response.write('<h2>Redis keys:</h2><br>\n');
-        keys.forEach(function (key, pos) {
-            redisData.type(key, function (err, keytype) {
-                response.write(key + " : " + keytype + '<br>\n');
-
-            });
-
-        });
-    });
-    setTimeout('response.end()',150);
-});
-
-app.on('/api/query',function(request,response){
-
-});
 
 
 
@@ -139,31 +120,18 @@ function touchUserData(userid,handler){
 
 //returns the userid from session cookie
 function getUserId(request,response,handler){
-    var found = false;
-    request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
-        var split= cookie.split('=');
-        if(split[0].trim() === 'sid'){
-            var sid = split[1].trim();
-            redisData.get(sid,function(err,userid){
-                if(userid !== null){
-                    handler(userid);
-                }
-                else sessionExpired(response);
-            });
-            found=true;
-        }
-    });
-    if(found === false) sessionExpired(response);
+    var sid = request.cookies['sid'];
+    if(sid){
+        redisData.get(sid,function(err,userid){
+            if(userid !== null){
+                handler(userid);
+            }
+            else sessionExpired(response);
+        });
+    }
+    else sessionExpired(response);
 }
 
-function getCookies(request){
-    request.cookies = {};
-    request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
-        var split= cookie.split('=');
-        request.cookies[split[0]]=split[1];
-        console.log('Cookie - ' + request.cookies[split[0]]);
-    });
-}
 
 function getUser(request,response,handler){
     getUserId(request,response,function(userid){
@@ -173,8 +141,24 @@ function getUser(request,response,handler){
     });
 }
 
-//onQuery
-function onQuery(request,response){
+app.on('/api/debug',function(request,response){
+    response.writeHead(200,{'Content-type':'text/html'});
+
+    response.write('It is ' + Date.now() + ' - ' + (new Date()).toString());
+    redisData.keys("*", function (err, keys) {
+        response.write('<h2>Redis keys:</h2><br>\n');
+        keys.forEach(function (key, pos) {
+            redisData.type(key, function (err, keytype) {
+                response.write(key + " : " + keytype + '<br>\n');
+
+            });
+
+        });
+    });
+    setTimeout('response.end()',150);
+});
+
+app.on('/api/query',function(request,response){
     getUserId(request,response,function(userid){
         touchUserData(userid,function(user){
             console.log(' Logged in as ' + userid);
@@ -182,7 +166,11 @@ function onQuery(request,response){
             response.end('{"r":0,"b":'+user.b+',"n":'+user.n+'}');
         });
     });
-}
+});
+
+app.on('/api/login',function(request,response){
+
+});
 
 function genSessionCookie(uid,expires){
     var sid = crypto.createHash('md5').update(uid).update(sessionSecret).update(Date.now().toString()).digest('hex');
@@ -254,7 +242,7 @@ function popBottle(userid,handler){
 	});
 }
 
-function onNet(request,response){
+app.on('/api/catch',function (request,response){
 	getUser(request,response,function(userid,user){
 		console.log('Catching net by ' + userid);
         redisData.hincrby(userid,'n',-1,function(err,nets){
@@ -274,18 +262,12 @@ function onNet(request,response){
             else hackError(response);
         });
 	});
-}
+});
 
 
-function onThrowback(request,response){
+app.on('/api/throwback',function (request,response){
     getUserId(request,response,function(userid){
-        var token = null;
-        request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
-            var split= cookie.split('=');
-            if(split[0].trim() === 'tt'){
-                token = split[1].trim();
-            }
-        });
+        var token = request.cookies['tt'];
         if(token !== null){
             token = Number(token);
             console.log('Throwing back a bottle with token - '+token);
@@ -299,7 +281,7 @@ function onThrowback(request,response){
         }
         else hackError(response);
     });
-}
+});
 
 function respondError(response,msg){
     response.writeHead(500, {'content-type': 'text/plain' });
@@ -307,14 +289,15 @@ function respondError(response,msg){
     response.end('\n');	
 }
 
-function onFBlogin(request,response,query){
-    if(query.code){
+app.on('/api/fblogin',function(request,response){
+    var code = request.parsedUrl.query.code;
+    if(code){
         console.log('Successfull FB login with code: ' + query.code);
         fbapi.authorize({
             "client_id":        '233473013410744'
             , "redirect_uri":   'http://199.30.59.142/api/fblogin'
             , "client_secret":  facebookSecret
-            , "code":           query.code
+            , "code":           code
         }, function (err, fbres) {
             if(err){
                 console.log("FB authorization failed!");
@@ -341,24 +324,28 @@ function onFBlogin(request,response,query){
         console.log('FB login unsucessfull: ' + query.error + query.error.description);
         respondError(response,'fuu');
     }
-}
+});
 
 function respond(request,response){
     try {
         console.log((new Date()).toString() + ' - Request recieved ' + request.url + ' method:' + request.method);
         if(request.method === 'GET'){
-            if(request.url === '/api/query') onQuery(request,response);
-            else if(request.url === '/api/catch') onNet(request,response);
-            else if(request.url === '/api/throwback') onThrowback(request,response);
-            else {
-                var u = url.parse(request.url,true);
-                if(u.pathname == '/api/fblogin') onFBlogin(request,response,u.query);
-                else {
-                    var handler = appHandlers[u.pathname];
-                    if(handler) handler(request,response);
-                    else respondError(response,'Invalid url ' + u.pathname);
-                }
+
+            request.parsedUrl = url.parse(request.url,true);
+
+            var handler = appHandlers[request.parsedUrl.pathname];
+            if(handler){
+                //parse cookies
+                request.cookies = {};
+                request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
+                    var split= cookie.split('=');
+                    request.cookies[split[0]]=split[1];
+                    console.log('Cookie - ' + request.cookies[split[0]]);
+                });
+                handler(request,response);
             }
+            else respondError(response,'Invalid url ' + u.pathname);
+
 
         }
         else if(request.method === 'POST'){
