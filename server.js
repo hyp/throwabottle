@@ -233,17 +233,18 @@ app.on('/api/reply',function(request,response,data){
 
 function popBottle(userid,handler,probability){
     if(!probability) probability = 0.1;
-    console.log('Trying to catch a bottle with probability of ' + probability);
+    console.log('Trying to catch a bottle with probability of ' + probability + ' by ' + userid);
     if(Math.random() > probability){
         redisData.rpop('_bottles',function(err,bottle){
             if(bottle !== null){
                 console.log(' bottle popped ' + bottle);
+                bottle = JSON.parse(bottle);
                 if(bottle.s === userid){
                     console.log('Sender is reciever!');
                     redisData.lpush('_bottles',bottle);
                     popBottle(userid,handler,prob + 0.4);
                 }
-                else handler(JSON.parse(bottle));
+                else handler(bottle);
             }
             else{
                 console.log('error popping bottle - junk will be popped!');
@@ -358,7 +359,6 @@ function respond(request,response){
                 var parts = cookie.split('=');
                 request.cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
             });
-            console.log('handler launched SID - ' + request.cookies['sid']);
             //select method
             if(request.method === 'POST'){
                 var body = '';
