@@ -226,13 +226,13 @@ app.on('/api/throw',function(request,response,data){
 //onReply
 app.on('/api/reply',function(request,response,data){
     getUser(request,response,function(userid,user){
-        conseo.log('Replying');
+        console.log('Replying');
     });
 });
 
 
 function popBottle(userid,handler,probability){
-    if(probability === null) probability = 0.1;
+    if(!probability) probability = 0.1;
     console.log('Trying to catch a bottle with probability of ' + probability);
     if(Math.random() > probability){
         redisData.rpop('_bottles',function(err,bottle){
