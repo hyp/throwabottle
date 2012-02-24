@@ -107,9 +107,15 @@ $(document).ready(function(){
    });
 
    $('#throwback').click(function(){
-        $.get('api/throwback',function(data){ toggle('#bottle_caught'); },'json');
+        $.get('api/bottle/recycle');
+       toggle('#bottle_caught');
    });
-   
+
+    $('#reply').click(function(){
+        $.post('api/bottle/reply','m=thisisreply');
+        toggle('#bottle_caught');
+    });
+
    $('#facebook_signin').click(function(){
 		window.location.href = 'https://www.facebook.com/dialog/oauth/?client_id=233473013410744&display=touch&redirect_uri=http%3A%2F%2F199.30.59.142%2Fapi%2Ffblogin&response_type=code';	
    });
@@ -239,7 +245,7 @@ setTimeout("animate()",300);
 <div id="messageBottom">
 	<div>
 		<input type="button" value="Throw it back" id="throwback"/>
-		<input type="submit" value="Reply" id="accept"/>
+		<input type="submit" value="Reply" id="reply"/>
 	</div>
 </div>
 </div>

@@ -8,7 +8,7 @@ var fbapi = require('fbgraph');
 
 //settings
 //more settings are on the server
-var refreshTime = 60000; //ms
+var refreshTime = 180 * 1000; //ms
 
 //
 var appHandlers = {};
@@ -24,14 +24,8 @@ function errorHandler(err,data){
 //Connect to MongoDB data
 var mongoData= mongo.db(mongourl);
 var users = mongoData.collection('user');
+var conversations = mongoData.collection('conversations');
 var messages = mongoData.collection('messages');
-
-//mongoDB operations
-function sendMessage(dest,msg){
-
-    messages.insert({_id:Date.now(),d:dest,s:msg.s,m:msg.m},{safe:true},errorHandler);
-
-}
 
 //Connect to Redis data
 var redisData = redis.createClient();
@@ -92,7 +86,6 @@ redisData.hmset('uadmin',{"t": Date.now() + refreshTime,"b":6,"n":4});
 
 function addExternalUser(id,callback){
     redisData.exists(id,function(err,exists){
-        console.log(' ' + (typeof exists) + ' : ' + exists);
         if(!exists){
             console.log('New external user' + id);
             redisData.hmset(id,{"t": Date.now() + refreshTime,"b":6,"n":4});
@@ -223,13 +216,6 @@ app.on('/api/throw',function(request,response,data){
 	});
 });
 
-//onReply
-app.on('/api/reply',function(request,response,data){
-    getUser(request,response,function(userid,user){
-        console.log('Replying');
-    });
-});
-
 
 function popBottle(userid,handler,probability){
     if(!probability) probability = 0.1;
@@ -264,10 +250,16 @@ app.on('/api/catch',function (request,response){
                     var token = Date.now();
                     response.writeHead(200, {
                         'Content-Type':'text/json',
-                        'Set-Cookie':'tt='+token+'; Path=/api/throwback; HttpOnly' //send back a token which is needed for throwback
+                        'Set-Cookie':'tt='+token+'; Path=/api/bottle/; HttpOnly' //send back a token which is needed for throwback
                     });
                     response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
-                    messages.insert({_id:token,d:userid,s:bottle.s,m:bottle.m},{safe:true},errorHandler);
+                    messages.insert({
+                        _id:token,t:token,
+                        r:userid,s:bottle.s,
+                        d:[
+                            {s:bottle.s,m:bottle.m}
+                        ]
+                    });
                 }
                 else{
                     response.writeHead(200, { 'Content-Type':'text/json' });
@@ -279,34 +271,43 @@ app.on('/api/catch',function (request,response){
 	});
 });
 
+//onReply
+app.on('/api/bottle/reply',function(request,response,data){
+    getUserId(request,response,function(userid){
+        var token = request.cookies['tt'];
+        if(token !== null){
+            console.log('Reply to a bottle by user ' + userid + ' : ' + data.m);
+            messages.update({_id:token,$or:[{s:userid},{r:userid}]},
+                { $set: { t:Date.now() } , $inc: { e:1 } ,$push: { d:{s:userid,m:data.m}} },{safe:true},errorHandler);
 
-app.on('/api/throwback',function (request,response){
+        }
+        response.writeHead(200, {
+            'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
+        });
+        response.end();
+    });
+});
+
+app.on('/api/bottle/recycle',function (request,response){
     getUserId(request,response,function(userid){
         var token = request.cookies['tt'];
         if(token !== null){
             token = Number(token);
             console.log('Throwing back a bottle with token - '+token);
-            messages.findAndModify({_id:token,d:userid},[['s','asc']],{},{remove:true},function(err,bottle){
+            messages.findAndModify({_id:token,r:userid},[['s','asc']],{},{remove:true},function(err,bottle){
                 if(!err){
                     console.log('Bottle is being recycled!');
                     redisData.lpush('_bottles','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
                 }
             });
-            response.writeHead(200, {
-                'Content-Type':'text/json',
-                'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
-            });
-            response.end('{"r":0}');
         }
-        else hackError(response);
+        response.writeHead(200, {
+            'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
+        });
+        response.end();
     });
 });
 
-function respondError(response,msg){
-    response.writeHead(500, {'content-type': 'text/plain' });
-    response.write('ERROR:' + msg);
-    response.end('\n');	
-}
 
 app.on('/api/fblogin',function(request,response){
     var code = request.parsedUrl.query.code;
@@ -377,8 +378,8 @@ function respond(request,response){
         else request.connection.destroy();
     }
     catch(exeption){
-        console.warn('Exeption caught - ' + exeption.toString());
-        respondError(response,'Error: ' + JSON.stringify(exeption));
+        console.error('Exeption caught - ' + exeption.toString());
+        request.connection.destroy();
         exit();
     }
 }
