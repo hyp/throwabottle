@@ -276,8 +276,10 @@ app.on('/api/bottle/reply',function(request,response,data){
     getUserId(request,response,function(userid){
         var token = request.cookies['tt'];
         if(token !== null){
+            token = Number(token);
             console.log('Reply to a bottle by user ' + userid + ' : ' + data.m + ' with token ' + token);
-            messages.update({_id:token,r:userid},{ $set:{t:Date.now()} },{safe:true},errorHandler); //$push: { d:data.m }$set: { t:Date.now() } , $inc: { e:1 }
+            messages.update({_id:token,r:userid},
+                {$set:{t:date.now()},$inc: { e:1 },$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler); //$push: { d:data.m }$set: { t:Date.now() } , $inc: { e:1 }
         }
         response.writeHead(200, {
             'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
@@ -286,13 +288,15 @@ app.on('/api/bottle/reply',function(request,response,data){
     });
 });
 
+messages.update({'_id':token,'r':userid},{'$set':{'t':45}},{safe:true},errorHandler);
+
 app.on('/api/bottle/recycle',function (request,response){
     getUserId(request,response,function(userid){
         var token = request.cookies['tt'];
         if(token !== null){
             token = Number(token);
             console.log('Throwing back a bottle with token - '+token);
-            messages.findAndModify({_id:token,r:userid},[['s','asc']],{},{remove:true},function(err,bottle){
+            messages.findAndModify({'_id':token,'r':userid},[['s','asc']],{},{remove:true},function(err,bottle){
                 if(!err){
                     console.log('Bottle is being recycled!');
                     redisData.lpush('_bottles','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
