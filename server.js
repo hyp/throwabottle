@@ -277,7 +277,7 @@ app.on('/api/bottle/reply',function(request,response,data){
         var token = request.cookies['tt'];
         if(token !== null){
             console.log('Reply to a bottle by user ' + userid + ' : ' + data.m + ' with token ' + token);
-            messages.update({_id:token,r:userid},{ $push: { d:{s:userid,m:data.m} } },{safe:true},errorHandler); //$set: { t:Date.now() } , $inc: { e:1 }
+            messages.update({_id:token,r:userid},{ $push: { d:data.m } },{safe:true},errorHandler); //$set: { t:Date.now() } , $inc: { e:1 }
         }
         response.writeHead(200, {
             'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
