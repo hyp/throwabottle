@@ -292,7 +292,6 @@ app.on('/api/throwback',function (request,response){
                     redisData.lpush('_bottles','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
                 }
             });
-            //messages.remove({_id:token,d:userid},errorHandler);
             response.writeHead(200, {
                 'Content-Type':'text/json',
                 'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
@@ -312,7 +311,7 @@ function respondError(response,msg){
 app.on('/api/fblogin',function(request,response){
     var code = request.parsedUrl.query.code;
     if(code){
-        console.log('Successfull FB login with code: ' + query.code);
+        console.log('Successfull FB login with code: ' + code);
         fbapi.authorize({
             "client_id":        '233473013410744'
             , "redirect_uri":   'http://199.30.59.142/api/fblogin'
@@ -341,8 +340,9 @@ app.on('/api/fblogin',function(request,response){
         });
     }
     else{
-        console.log('FB login unsucessfull: ' + query.error + query.error.description);
-        respondError(response,'fuu');
+        console.log('FB login unsucessfull: ' + request.parsedUrl.query.error + request.parsedUrl.query.description);
+        response.writeHead(200);
+        response.end("<script>window.location.href = 'http://199.30.59.142'</script>");
     }
 });
 
@@ -377,6 +377,7 @@ function respond(request,response){
         else request.connection.destroy();
     }
     catch(exeption){
+        console.warn('Exeption caught - ' + exeption.toString());
         respondError(response,'Error: ' + JSON.stringify(exeption));
         exit();
     }
