@@ -281,7 +281,13 @@ app.on('/api/bottle/reply',function(request,response,data){
             console.log('Reply to a bottle by user ' + userid + ' : ' + data.m + ' with token ' + token);
             messages.update({_id:token,r:userid},
                 {$set:{t:Date.now()},$inc: { e:1 },$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
-            //messages.
+            //notify reciever
+            messages.find({_id:token,r:userid},{s:1},{limit: 1},function(err,data){
+                if(!err){
+                    console.log('Notifying sender - ' + data.s);
+                    redisData.hincrby(data.s,'e',1,errorHandler);
+                }
+            });
         }
         response.writeHead(200, {
             'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
