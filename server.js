@@ -242,7 +242,7 @@ function popBottle(userid,handler,probability){
                 if(bottle.s === userid){
                     console.log('Sender is reciever!');
                     redisData.lpush('_bottles',bottle);
-                    popBottle(userid,handler,prob + 0.4);
+                    popBottle(userid,handler,probability + 0.4);
                 }
                 else handler(bottle);
             }
