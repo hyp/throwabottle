@@ -287,7 +287,7 @@ app.on('/api/bottle/reply',function(request,response,data){
             messages.find({_id:token,r:userid},{s:true},{limit: 1},function(err,cursor){
                 if(!err) cursor.nextObject(function(err,thread){
                     if(thread !== null){
-                        console.log('Notifying sender - ' + thread + ' : ' + thread.s );
+                        console.log('Notifying sender - ' + thread.s );
                         redisData.hincrby(thread.s,'e',1,errorHandler);
                     }
                 });

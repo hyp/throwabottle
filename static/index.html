@@ -112,8 +112,10 @@ $(document).ready(function(){
    });
 
     $('#reply').click(function(){
-        $.post('api/bottle/reply','m=thisisreply');
+        console.log($('#reply_form').serialize());
+        $.post('api/bottle/reply', $('#reply_form').serialize());
         toggle('#bottle_caught');
+        return false;
     });
 
    $('#facebook_signin').click(function(){
@@ -242,12 +244,17 @@ setTimeout("animate()",300);
 
 <div class="popup" id="bottle_caught">
 <div id="recievedMessage"></div>
+Write reply here:<br>
+<form id="reply_form">
+  <textarea name="m" maxlength="500"></textarea>
+</form>
 <div id="messageBottom">
 	<div>
 		<input type="button" value="Throw it back" id="throwback"/>
-		<input type="submit" value="Reply" id="reply"/>
+        <input type="submit" value="Reply" id="reply"/>
 	</div>
 </div>
+
 </div>
 
 <!-- JavaScript at the bottom for fast page loading -->
