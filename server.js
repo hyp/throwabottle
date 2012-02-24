@@ -350,7 +350,6 @@ function respond(request,response){
             if(request.url === '/api/query') onQuery(request,response);
             else if(request.url === '/api/catch') onNet(request,response);
             else if(request.url === '/api/throwback') onThrowback(request,response);
-            else if(request.url === '/api/debug') onDebug(request,response);
             else {
                 var u = url.parse(request.url,true);
                 if(u.pathname == '/api/fblogin') onFBlogin(request,response,u.query);
