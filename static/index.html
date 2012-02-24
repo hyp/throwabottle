@@ -56,9 +56,11 @@ function swapScreen(x,y){
 function bottleCaught(data){
 	if(data.r >= 0){
 		netCount = data.r;
-		$('#btn_net_counter').html(netCount.toString());
-		$('#recievedMessage').html(data.msg.replace(/\n/g, "<br/>"));
-		toggle('#bottle_caught');
+		if(data.m){			
+			$('#btn_net_counter').html(netCount.toString());
+			$('#recievedMessage').html(data.m.replace(/\n/g, "<br/>"));
+			toggle('#bottle_caught');
+		}else alert("You've caught some " + data.j);
 	}
 	else alert('Bottle failed catching! Error:' + data.error);	
 }

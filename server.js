@@ -11,9 +11,10 @@ var fbapi = require('fbgraph');
 //settings
 //more settings are on the server
 var refreshTime = 60000; //ms
+var junkProbability = 10;
 
 //
-var appHandlers = new Array();
+var appHandlers = {};
 var app = {};
 app.on = function(name,callback){
     appHandlers[name] = callback;
@@ -169,9 +170,7 @@ app.on('/api/query',function(request,response){
     });
 });
 
-app.on('/api/login',function(request,response){
 
-});
 
 function genSessionCookie(uid,expires){
     var sid = crypto.createHash('md5').update(uid).update(sessionSecret).update(Date.now().toString()).digest('hex');
@@ -183,9 +182,9 @@ function genSessionCookie(uid,expires){
 }
 
 //onLogin - data := { userid , pwd }
-function onLogin(response,data){
+app.on('/api/login',function(request,response,data){
     var userid = data.userid;
-	var hash = crypto.createHmac('sha1',userid).update(data.pwd).digest('base64');
+    var hash = crypto.createHmac('sha1',userid).update(data.pwd).digest('base64');
 
     //Query user collection for the appropriate user
     users.findOne({_id:userid},function(err,user){
@@ -194,7 +193,7 @@ function onLogin(response,data){
         }
         else if(user !== null && user.p == hash){
             userid = 'u' + userid;
-             //Query userdata collection for relevent userdata
+            //Query userdata collection for relevent userdata
             touchUserData(userid,function(userdata){
                 response.writeHead(200, {
                     'Content-Type': 'text/json',
@@ -208,10 +207,10 @@ function onLogin(response,data){
             response.end('{"r":-1}');
         }
     });
-}
+});
 
 //onBottle - data := { msg }
-function onBottle(request,response,data){
+app.on('/api/throw',function(request,response,data){
 	getUser(request,response,function(userid,user){
         redisData.hincrby(userid,'b',-1,function(err,bottles){
             if(bottles >= 0) {
@@ -219,46 +218,69 @@ function onBottle(request,response,data){
                 response.end('{"r":'+bottles+'}');
 
                 var bottle = '{"s":"'+userid+'","m":"'+data.msg+'"}';
-                redisData.lpush('bottle',bottle);
+                redisData.lpush('_bottles',bottle);
                 console.log(' Submitted new bottle - usr: ' + JSON.stringify(user) +' msg: ' + bottle);
             }
             else hackError(response);
         });
 	});
-}
+});
+
+//onReply
+app.on('/api/reply',function(request,response,data){
+    getUser(request,response,function(userid,user){
+        conseo.log('Replying');
+    });
+});
 
 
-function popBottle(userid,handler){
-	redisData.rpop('bottle',function(err,bottle){
-		console.log(' bottle popped ' + bottle);
-		if(bottle !== null){
-            if(bottle.s === userid){
-                console.log('Sender is reciever!');
+function popBottle(userid,handler,probability){
+    if(probability === null) probability = 0.1;
+    console.log('Trying to catch a bottle with probability of ' + probability);
+    if(Math.random() > probability){
+        redisData.rpop('_bottles',function(err,bottle){
+            if(bottle !== null){
+                console.log(' bottle popped ' + bottle);
+                if(bottle.s === userid){
+                    console.log('Sender is reciever!');
+                    redisData.lpush('_bottles',bottle);
+                    popBottle(userid,handler,prob + 0.4);
+                }
+                else handler(JSON.parse(bottle));
             }
-			handler(JSON.parse(bottle));
-		}
-		else{
-			console.log('error popping bottle');
-		}
-	});
+            else{
+                console.log('error popping bottle - junk will be popped!');
+                handler({j:'Junk'});
+            }
+        });
+    }
+    else{
+        console.log('Junk popped!');
+        handler({j:'Junk'});
+    }
 }
 
 app.on('/api/catch',function (request,response){
 	getUser(request,response,function(userid,user){
-		console.log('Catching net by ' + userid);
         redisData.hincrby(userid,'n',-1,function(err,nets){
             if(nets >= 0) popBottle(userid,function(bottle){
-                //Send message to the user
-                var token = Date.now();
-                messages.insert({_id:token,d:userid,s:bottle.s,m:bottle.m},{safe:true},errorHandler);
+                if(bottle.m){
+                    //Send message to the user
+                    var token = Date.now();
+                    messages.insert({_id:token,d:userid,s:bottle.s,m:bottle.m},{safe:true},errorHandler);
 
-                response.writeHead(200, {
-                    'Content-Type':'text/json',
-                    'Set-Cookie':'tt='+token+'; Path=/api/throwback; HttpOnly' //send back a token which is needed for throwback
-                });
-                response.end('{"r":'+nets+',"msg":"'+bottle.m+'"}');
+                    response.writeHead(200, {
+                        'Content-Type':'text/json',
+                        'Set-Cookie':'tt='+token+'; Path=/api/throwback; HttpOnly' //send back a token which is needed for throwback
+                    });
+                    response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
 
-                console.log(' Bottle caught - {sender: ' + bottle.s +' msg: ' + bottle.m + ' } ');
+                    console.log(' Bottle caught - {sender: ' + bottle.s +' msg: ' + bottle.m + ' } ');
+                }
+                else{
+                    response.writeHead(200, { 'Content-Type':'text/json' });
+                    response.end('{"r":'+nets+',"j":"'+bottle.j+'"}');
+                }
             });
             else hackError(response);
         });
@@ -330,46 +352,33 @@ app.on('/api/fblogin',function(request,response){
 function respond(request,response){
     try {
         console.log((new Date()).toString() + ' - Request recieved ' + request.url + ' method:' + request.method);
-        if(request.method === 'GET'){
-
-            request.parsedUrl = url.parse(request.url,true);
-
-            var handler = appHandlers[request.parsedUrl.pathname];
-            if(handler){
-                //parse cookies
-                request.cookies = new Array();
-                request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
-                    var split= cookie.split('=');
-                    request.cookies[split[0]]=split[1];
-                    console.log('Cookie - ' + request.cookies[split[0]] + ' ' + split[0]);
+        request.parsedUrl = url.parse(request.url,true);
+        var handler = appHandlers[request.parsedUrl.pathname];
+        if(handler){
+            //parse cookies
+            request.cookies = {};
+            request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
+                var parts = cookie.split('=');
+                request.cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
+            });
+            console.log('handler launched SID - ' + request.cookies['sid']);
+            //select method
+            if(request.method === 'POST'){
+                var body = '';
+                request.on('data', function (data) {
+                    body += data;
+                    if (body.length > 100000) {
+                        // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
+                        request.connection.destroy();
+                    }
                 });
-                console.log('handler launched SID - ' + request.cookies['sid']);
-                handler(request,response);
+                request.on('end', function () {
+                    handler(request,response,qs.parse(body));
+                });
             }
-            else respondError(response,'Invalid url ' + u.pathname);
-
-
+            else handler(request,response);
         }
-        else if(request.method === 'POST'){
-            var body = '';
-            request.on('data', function (data) {
-                body += data;
-                if (body.length > 100000) {
-                    // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
-                    request.connection.destroy();
-                }
-            });
-            request.on('end', function () {
-                var POST = qs.parse(body);
-                // use POST
-                if(request.url === '/api/throw') onBottle(request,response,POST);
-				else if(request.url === '/api/reply') onReply(request,response,POST);
-                else if(request.url === '/api/login') onLogin(response,POST);
-                else
-                    respondError(response,'Invalid POST url: ' + request.url);
-
-            });
-        }else respondError(response,'Invalid method ' + request.method);
+        else request.connection.destroy();
     }
     catch(exeption){
         respondError(response,'Error: ' + JSON.stringify(exeption));
