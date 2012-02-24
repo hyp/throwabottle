@@ -284,7 +284,7 @@ app.on('/api/bottle/reply',function(request,response,data){
             messages.update({_id:token,r:userid},
                 {$set:{t:Date.now()},$inc: { e:1 },$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
             //notify reciever
-            messages.find({_id:token,r:userid},{s:1},{limit: 1},function(err,data){
+            messages.find({_id:token,r:userid},{s:true},{limit: 1},function(err,data){
                 if(!err){
                     console.log('Notifying sender - ' + data + ' : ' + data.s);
                     //redisData.hincrby(data.s,'e',1,errorHandler);
