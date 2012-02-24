@@ -9,9 +9,15 @@ var mongo = require('mongoskin');
 var fbapi = require('fbgraph');
 
 //settings
-//mor settings are on server
+//more settings are on the server
 var refreshTime = 60000; //ms
 
+//
+var appHandlers = {};
+var app = {};
+app.on = function(name,callback){
+    appHandlers[name] = callback;
+}
 
 function errorHandler(err,data){
     if(err) console.error((new Date()).toString() + ' - Error!\n' + err + err.stack + '\ndata:' + data);
@@ -79,24 +85,31 @@ function addUser(userid,pwd){
     redisData.hmset('u' + userid,{"t": Date.now() + refreshTime,"b":6,"n":4});
 }
 
-function onDebug(request,response){
+redisData.hmset('uadmin',{"t": Date.now() + refreshTime,"b":6,"n":4});
+
+app.on('/api/debug',function(request,response){
     response.writeHead(200,{'Content-type':'text/html'});
-	
-	response.write('It is ' + Date.now() + ' - ' + (new Date()).toString());
+
+    response.write('It is ' + Date.now() + ' - ' + (new Date()).toString());
     redisData.keys("*", function (err, keys) {
-		response.write('<h2>Redis keys:</h2><br>\n');
+        response.write('<h2>Redis keys:</h2><br>\n');
         keys.forEach(function (key, pos) {
             redisData.type(key, function (err, keytype) {
                 response.write(key + " : " + keytype + '<br>\n');
-                
+
             });
 
         });
     });
-    setTimeout('response.end()',300);
-}
+    setTimeout('response.end()',150);
+});
 
-redisData.hmset('uadmin',{"t": Date.now() + refreshTime,"b":6,"n":4});
+app.on('/api/query',function(request,response){
+
+});
+
+
+
 
 function addExternalUser(id,callback){
     redisData.exists(id,function(err,exists){
@@ -141,6 +154,15 @@ function getUserId(request,response,handler){
         }
     });
     if(found === false) sessionExpired(response);
+}
+
+function getCookies(request){
+    request.cookies = {};
+    request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
+        var split= cookie.split('=');
+        request.cookies[split[0]]=split[1];
+        console.log('Cookie - ' + request.cookies[split[0]]);
+    });
 }
 
 function getUser(request,response,handler){
@@ -303,7 +325,7 @@ function onFBlogin(request,response,query){
                 fbapi.get('me',function(err,fbdata){
                     if(err) console.log("FB me failed!");
                     else {
-                        console.log("FB me succedded - " + JSON.stringify(fbdata));
+                        console.log("FB me succedded - ");
                         var uid = 'x' + fbdata.id;
                         addExternalUser(uid);
                         response.writeHead(200,{'Set-Cookie':genSessionCookie(uid,fbres.expires)});
@@ -323,7 +345,7 @@ function onFBlogin(request,response,query){
 
 function respond(request,response){
     try {
-        console.log('Request recieved ' + request.url + ' method:' + request.method);
+        console.log((new Date()).toString() + ' - Request recieved ' + request.url + ' method:' + request.method);
         if(request.method === 'GET'){
             if(request.url === '/api/query') onQuery(request,response);
             else if(request.url === '/api/catch') onNet(request,response);
@@ -332,7 +354,11 @@ function respond(request,response){
             else {
                 var u = url.parse(request.url,true);
                 if(u.pathname == '/api/fblogin') onFBlogin(request,response,u.query);
-                else respondError(response,'Invalid url ' + request.url);
+                else {
+                    var handler = appHandlers[u.pathname];
+                    if(handler) handler(request,response);
+                    else respondError(response,'Invalid url ' + u.pathname);
+                }
             }
 
         }
