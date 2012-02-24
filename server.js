@@ -284,10 +284,10 @@ app.on('/api/bottle/reply',function(request,response,data){
             messages.update({_id:token,r:userid},
                 {$set:{t:Date.now()},$inc: { e:1 },$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
             //notify reciever
-            messages.find({_id:token,r:userid},{s:true},{limit: 1},function(err,data){
+            messages.find({_id:token,r:userid},{s:true},{limit: 1},function(err,thread){
                 if(!err){
-                    console.log('Notifying sender - ' + data + ' : ' + data.s);
-                    //redisData.hincrby(data.s,'e',1,errorHandler);
+                    console.log('Notifying sender - ' + thread + ' : ' + thread.s + ' : ' + JSON.stringify(thread));
+                    //redisData.hincrby(thread.s,'e',1,errorHandler);
                 }
             });
         }
@@ -304,7 +304,7 @@ app.on('/api/bottle/recycle',function (request,response){
         if(token !== null){
             token = Number(token);
             console.log('Throwing back a bottle with token - '+token);
-            messages.findAndModify({'_id':token,'r':userid},[['s','asc']],{},{remove:true},function(err,bottle){
+            messages.findAndModify({_id:token,r:userid},[['s','asc']],{},{remove:true},function(err,bottle){
                 if(!err){
                     console.log('Bottle is being recycled!');
                     redisData.lpush('_bottles','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
