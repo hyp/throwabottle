@@ -122,6 +122,7 @@ function touchUserData(userid,handler){
 function getUserId(request,response,handler){
     var sid = request.cookies['sid'];
     if(sid){
+        console.log('SID - ' + sid);
         redisData.get(sid,function(err,userid){
             if(userid !== null){
                 handler(userid);
@@ -340,8 +341,9 @@ function respond(request,response){
                 request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
                     var split= cookie.split('=');
                     request.cookies[split[0]]=split[1];
-                    console.log('Cookie - ' + request.cookies[split[0]]);
+                    console.log('Cookie - ' + request.cookies[split[0]] + ' ' + split[0]);
                 });
+                console.log('handler launched');
                 handler(request,response);
             }
             else respondError(response,'Invalid url ' + u.pathname);
