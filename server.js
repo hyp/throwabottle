@@ -121,7 +121,6 @@ function touchUserData(userid,handler){
 //returns the userid from session cookie
 function getUserId(request,response,handler){
     var sid = request.cookies['sid'];
-    console.log('SID - ' + sid.toString());
     if(sid){
         console.log('SID - ' + sid);
         redisData.get(sid,function(err,userid){
@@ -344,7 +343,7 @@ function respond(request,response){
                     request.cookies[split[0]]=split[1];
                     console.log('Cookie - ' + request.cookies[split[0]] + ' ' + split[0]);
                 });
-                console.log('handler launched');
+                console.log('handler launched SID - ' + request.cookies['sid']);
                 handler(request,response);
             }
             else respondError(response,'Invalid url ' + u.pathname);
