@@ -286,7 +286,7 @@ app.on('/api/bottle/reply',function(request,response,data){
             //notify reciever
             messages.find({_id:token,r:userid},{s:true},{limit: 1},function(err,cursor){
                 if(!err) cursor.nextObject(function(err,thread){
-                    if(!thread){
+                    if(thread !== null){
                         console.log('Notifying sender - ' + thread + ' : ' + thread.s );
                         redisData.hincrby(thread.s,'e',1,errorHandler);
                     }
