@@ -245,22 +245,23 @@ app.on('/api/catch',function (request,response){
 	getUser(request,response,function(userid,user){
         redisData.hincrby(userid,'n',-1,function(err,nets){
             if(nets >= 0) popBottle(userid,function(bottle){
-                if(bottle.m){
-                    //Send message to the user
-                    var token = Date.now();
-                    response.writeHead(200, {
-                        'Content-Type':'text/json',
-                        'Set-Cookie':'tt='+token+'; Path=/api/bottle/; HttpOnly' //send back a token which is needed for throwback
+                if(bottle.m) redisData.incr('_bid',function(err,bottleId){
+                        if(!err){
+                            //Send message to the user
+                            response.writeHead(200, {
+                                'Content-Type':'text/json',
+                                'Set-Cookie':'tt='+bottleId+'; Path=/api/bottle/; HttpOnly' //send back a token which is needed for throwback
+                            });
+                            response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
+                            messages.insert({
+                                _id:bottleId,t:Date.now(),
+                                r:userid,s:bottle.s,
+                                d:[
+                                    {s:bottle.s,m:bottle.m}
+                                ]
+                            });
+                        }else request.connection.destroy();
                     });
-                    response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
-                    messages.insert({
-                        _id:token,t:token,
-                        r:userid,s:bottle.s,
-                        d:[
-                            {s:bottle.s,m:bottle.m}
-                        ]
-                    });
-                }
                 else{
                     response.writeHead(200, { 'Content-Type':'text/json' });
                     response.end('{"r":'+nets+',"j":"'+bottle.j+'"}');
@@ -279,7 +280,8 @@ app.on('/api/bottle/reply',function(request,response,data){
             token = Number(token);
             console.log('Reply to a bottle by user ' + userid + ' : ' + data.m + ' with token ' + token);
             messages.update({_id:token,r:userid},
-                {$set:{t:Date.now()},$inc: { e:1 },$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler); //$push: { d:data.m }$set: { t:Date.now() } , $inc: { e:1 }
+                {$set:{t:Date.now()},$inc: { e:1 },$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
+            //messages.
         }
         response.writeHead(200, {
             'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
