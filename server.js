@@ -207,7 +207,7 @@ app.on('/api/throw',function(request,response,data){
                 response.writeHead(200, {'Content-Type':'text/json'});
                 response.end('{"r":'+bottles+'}');
 
-                var bottle = '{"s":"'+userid+'","m":"'+data.msg+'"}';
+                var bottle = JSON.stringify({s:userid,m:data.m});
                 redisData.lpush('_bottles',bottle);
                 console.log(' Submitted new bottle - usr: ' + JSON.stringify(user) +' msg: ' + bottle);
             }
@@ -250,7 +250,7 @@ app.on('/api/catch',function (request,response){
                 response.writeHead(200, { 'Content-Type':'text/json' });
                 if(bottle.m){
                     response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
-                    redisData.hset(userid,'c','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
+                    redisData.hset(userid,'c',JSON.stringify(bottle));
                 }
                 else
                     response.end('{"r":'+nets+',"j":"'+bottle.j+'"}');
