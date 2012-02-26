@@ -250,18 +250,16 @@ app.on('/api/catch',function (request,response){
                 if(bottle.m) redisData.incr('_bid',function(err,bottleId){
                         if(!err){
                             //Send message to the user
-                            response.writeHead(200, {
-                                'Content-Type':'text/json',
-                                'Set-Cookie':'tt='+bottleId+'; Path=/api/bottle/; HttpOnly' //send back a token which is needed for throwback
-                            });
+                            response.writeHead(200, { 'Content-Type':'text/json' });
                             response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
-                            messages.insert({
+                            redisData.hset(userid,'c','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
+                            /*messages.insert({
                                 _id:bottleId,t:Date.now(),
                                 r:userid,s:bottle.s,
                                 d:[
                                     {s:bottle.s,m:bottle.m}
                                 ]
-                            });
+                            });*/
                         }else request.connection.destroy();
                     });
                 else{
@@ -302,20 +300,15 @@ app.on('/api/bottle/reply',function(request,response,data){
 
 app.on('/api/bottle/recycle',function (request,response){
     getUserId(request,response,function(userid){
-        var token = request.cookies['tt'];
-        if(token !== null){
-            token = Number(token);
-            console.log('Throwing back a bottle with token - '+token);
-            messages.findAndModify({_id:token,r:userid},[['s','asc']],{},{remove:true},function(err,bottle){
-                if(!err){
-                    console.log('Bottle is being recycled!');
-                    redisData.lpush('_bottles','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
-                }
-            });
-        }
-        response.writeHead(200, {
-            'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
+        console.log('Recycling a bottle by ' + userid);
+        redisData.hget(userid,'c',function(err,bottle){
+           if(bottle !== null){
+               console.log(' Bottle recovered ' + bottle);
+               redisData.hdel(userid,'c');
+               redisData.lpush('_bottles',bottle);
+           }
         });
+        response.writeHead(200);
         response.end();
     });
 });
