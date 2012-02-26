@@ -8,7 +8,7 @@ var fbapi = require('fbgraph');
 
 //settings
 //more settings are on the server
-var refreshTime = 180 * 1000; //ms
+var refreshTime = 10 * 60 * 1000; //ms
 
 //
 var appHandlers = {};
@@ -76,12 +76,6 @@ function addUser(userid,pwd){
     users.insert({_id:userid,p:hash},{safe:true},errorHandler);
     redisData.hmset('u' + userid,{"t": Date.now() + refreshTime,"b":6,"n":4});
 }
-
-redisData.hmset('uadmin',{"t": Date.now() + refreshTime,"b":6,"n":4});
-
-
-
-
 
 
 function addExternalUser(id,callback){
@@ -155,7 +149,8 @@ app.on('/api/query',function(request,response){
         touchUserData(userid,function(user){
             console.log(' Logged in as ' + userid);
             response.writeHead(200, {'Content-Type':'text/json'});
-            response.end('{"r":0,"b":'+user.b+',"n":'+user.n+'}');
+            if(user.e) response.end('{"r":0,"b":'+user.b+',"n":'+user.n+',"e":'+user.e+'}');
+            else response.end('{"r":0,"b":'+user.b+',"n":'+user.n+'}');
         });
     });
 });
@@ -260,6 +255,22 @@ app.on('/api/catch',function (request,response){
 	});
 });
 
+app.on('/api/bottle/recycle',function (request,response){
+    getUserId(request,response,function(userid){
+        console.log('Recycling a bottle by ' + userid);
+        redisData.hget(userid,'c',function(err,bottle){
+            if(bottle !== null){
+                console.log(' Bottle recovered ' + bottle);
+                redisData.hdel(userid,'c');
+                redisData.lpush('_bottles',bottle);
+            }
+        });
+        response.writeHead(200);
+        response.end();
+    });
+});
+
+
 //onReply
 app.on('/api/bottle/reply',function(request,response,data){
     getUserId(request,response,function(userid){
@@ -286,35 +297,35 @@ app.on('/api/bottle/reply',function(request,response,data){
         });
         response.writeHead(200);
         response.end();
-        /*messages.update({_id:token,r:userid},
-            {$set:{t:Date.now()},$inc: { e:1 },$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
-        //notify reciever
-        messages.find({_id:token,r:userid},{s:true},{limit: 1},function(err,cursor){
-            if(!err) cursor.nextObject(function(err,thread){
-                if(thread !== null){
-                    console.log('Notifying sender - ' + thread.s );
-                    redisData.hincrby(thread.s,'e',1,errorHandler);
-                }
-            });
-        });*/
     });
 });
 
-app.on('/api/bottle/recycle',function (request,response){
+app.on('/api/reply',function(request,response,data){
+    //TODO test
+    //data.i data.m
     getUserId(request,response,function(userid){
-        console.log('Recycling a bottle by ' + userid);
-        redisData.hget(userid,'c',function(err,bottle){
-           if(bottle !== null){
-               console.log(' Bottle recovered ' + bottle);
-               redisData.hdel(userid,'c');
-               redisData.lpush('_bottles',bottle);
-           }
+        console.log('Reply to a message ' + data.i +' by ' + userid + ' : ' + data.m);
+        messages.find({_id:data.i,$or:[{r:userid},{s:userid}]},{s:true,r:true},{limit:1},function(err,cursor){
+            if(!err) cursor.nextObject(function(err,thread){
+                if(thread !== null){
+                    var reciever,eventInc;
+                    if(thread.s === userid){
+                        reciever = thread.r;
+                        eventInc = { er: 1 };
+                    }else{
+                        reciever = thread.s;
+                        eventInc = { es: 1 };
+                    }
+                    messages.update({_id:data.i,r:thread.r},
+                            {$set:{t:Date.now()},$inc: eventInc,$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
+                    redisData.hincrby(reciever,'e',1,errorHandler);
+                }
+            });
         });
         response.writeHead(200);
         response.end();
     });
 });
-
 
 app.on('/api/fblogin',function(request,response){
     var code = request.parsedUrl.query.code;
