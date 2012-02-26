@@ -247,25 +247,13 @@ app.on('/api/catch',function (request,response){
 	getUser(request,response,function(userid,user){
         redisData.hincrby(userid,'n',-1,function(err,nets){
             if(nets >= 0) popBottle(userid,function(bottle){
-                if(bottle.m) redisData.incr('_bid',function(err,bottleId){
-                        if(!err){
-                            //Send message to the user
-                            response.writeHead(200, { 'Content-Type':'text/json' });
-                            response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
-                            redisData.hset(userid,'c','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
-                            /*messages.insert({
-                                _id:bottleId,t:Date.now(),
-                                r:userid,s:bottle.s,
-                                d:[
-                                    {s:bottle.s,m:bottle.m}
-                                ]
-                            });*/
-                        }else request.connection.destroy();
-                    });
-                else{
-                    response.writeHead(200, { 'Content-Type':'text/json' });
-                    response.end('{"r":'+nets+',"j":"'+bottle.j+'"}');
+                response.writeHead(200, { 'Content-Type':'text/json' });
+                if(bottle.m){
+                    response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
+                    redisData.hset(userid,'c','{"s":"'+bottle.s+'","m":"'+bottle.m+'"}');
                 }
+                else
+                    response.end('{"r":'+nets+',"j":"'+bottle.j+'"}');
             });
             else hackError(response);
         });
@@ -275,26 +263,40 @@ app.on('/api/catch',function (request,response){
 //onReply
 app.on('/api/bottle/reply',function(request,response,data){
     getUserId(request,response,function(userid){
-        var token = request.cookies['tt'];
-        if(token !== null){
-            token = Number(token);
-            console.log('Reply to a bottle by user ' + userid + ' : ' + data.m + ' with token ' + token);
-            messages.update({_id:token,r:userid},
-                {$set:{t:Date.now()},$inc: { e:1 },$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
-            //notify reciever
-            messages.find({_id:token,r:userid},{s:true},{limit: 1},function(err,cursor){
-                if(!err) cursor.nextObject(function(err,thread){
-                    if(thread !== null){
-                        console.log('Notifying sender - ' + thread.s );
-                        redisData.hincrby(thread.s,'e',1,errorHandler);
+        console.log('Reply to a bottle by user ' + userid + ' : ' + data.m);
+        redisData.hget(userid,'c',function(err,bottle){
+            if(bottle !== null){
+                console.log(' Bottle recovered ' + bottle);
+                redisData.hdel(userid,'c');
+                redisData.incr('_mid',function(err,bottleId){
+                    if(!err){
+                        bottle = JSON.parse(bottle);
+                        messages.insert({
+                            _id:bottleId,t:Date.now(),
+                            r:userid,s:bottle.s,es:1,
+                            d:[
+                                {s:bottle.s,m:bottle.m},
+                                {s:userid,m:data.m}
+                            ]
+                        });
+                        redisData.hincrby(bottle.s,'e',1);
                     }
                 });
-            });
-        }
-        response.writeHead(200, {
-            'Set-Cookie':'tt=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly' //delete throwback cookie
+            }
         });
+        response.writeHead(200);
         response.end();
+        /*messages.update({_id:token,r:userid},
+            {$set:{t:Date.now()},$inc: { e:1 },$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
+        //notify reciever
+        messages.find({_id:token,r:userid},{s:true},{limit: 1},function(err,cursor){
+            if(!err) cursor.nextObject(function(err,thread){
+                if(thread !== null){
+                    console.log('Notifying sender - ' + thread.s );
+                    redisData.hincrby(thread.s,'e',1,errorHandler);
+                }
+            });
+        });*/
     });
 });
 
@@ -354,7 +356,7 @@ app.on('/api/fblogin',function(request,response){
 
 function respond(request,response){
     try {
-        console.log((new Date()).toString() + ' - Request recieved ' + request.url + ' method:' + request.method);
+        console.log((new Date()).toString() + ' - Request recieved ' + request.url);
         request.parsedUrl = url.parse(request.url,true);
         var handler = appHandlers[request.parsedUrl.pathname];
         if(handler){
