@@ -327,6 +327,14 @@ app.on('/api/reply',function(request,response,data){
     });
 });
 
+app.on('/api/messages',function(request,response){
+
+});
+
+app.on('/api/register',function(request,response){
+
+});
+
 app.on('/api/fblogin',function(request,response){
     var code = request.parsedUrl.query.code;
     if(code){

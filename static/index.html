@@ -112,7 +112,6 @@ $(document).ready(function(){
    });
 
     $('#reply').click(function(){
-        console.log($('#reply_form').serialize());
         $.post('api/bottle/reply', $('#reply_form').serialize());
         toggle('#bottle_caught');
         return false;
@@ -148,26 +147,22 @@ $(document).ready(function(){
 });
 </script>
 
-<div class="fixedBg" id="sky">
-	<img src="images/sun3.png" alt="" id="sun"/>
-	<img src="images/cloud.png" alt="" id="cloud3"/>
-	<img src="images/cloud.png" alt="" id="cloud2"/>
-	<img src="images/cloud.png" alt="" id="cloud1"/>
-</div>
-<div class="fixedBg" id="water"></div>
-<div class="fixedBg" id="waterbot"></div>
-<div class="fixedBg" id="sand"></div>
+
 
 
 
 <img src="images/background.svg" alt="" style="position:fixed;left:0;top:0%;;width:100%;height:100%;"/>
-<img src="images/sun3.png" alt="" style="position:fixed;left:50%;top:20px;width:92px;height:92px;"/>
+	<img src="images/cloud.png" alt="" id="cloud3"/>
+	<img src="images/cloud.png" alt="" id="cloud2"/>
+	<img src="images/cloud.png" alt="" id="cloud1"/>
+<img src="images/sun3.png" alt="" style="position:fixed;margin-left:-46px;left:50%;top:20px;width:92px;height:92px;"/>
 
 	
-<img src="images/bottle2.png" alt="" class="side_button" id="btn_bottle"/>
+<img src="images/bottle5.png" alt="" class="side_button" id="btn_bottle"/>
 <div class="side_note" id="btn_bottle_counter">6</div>
-<img src="images/net.png" alt="" class="side_button" id="btn_net"/>
+<img src="images/net2.png" alt="" class="side_button" id="btn_net"/>
 <div class="side_note" id="btn_net_counter">3</div>
+<img src="images/chest.png" alt="" class="side_button" id="btn_history"/>
 
 <script type="text/javascript"> 
 function cloud1(){  
@@ -191,7 +186,7 @@ setTimeout("animate()",300);
 </script>
 
 
-<div id="dimmer"></div>
+<div class="fullscreen" id="dimmer"></div>
 
 <div class="popup" id="main">
 <h2>Throw a bottle</h2>
@@ -229,8 +224,8 @@ setTimeout("animate()",300);
 </form>
 </div>
 
-<div class="popup" id="new_bottle">
-<h3>Please enter the bottled message:</h3>
+<!--<div class="popup" id="new_bottle">
+<h3>Say something:</h3>
 <form id="form" action="submit_bottle">
 <div id="messageContainer"><textarea name="m" id="message" maxlength="500" required></textarea></div>
 <div id="messageBottom">
@@ -240,6 +235,17 @@ setTimeout("animate()",300);
 	</div>
 </div>
 </form>
+</div>-->
+
+<div class="inputMessage">
+    <h3>Say something:</h3>
+    <form action="submit_bottle">
+        <div class="taWrapper"><textarea name="m" id="message" maxlength="500" required></textarea></div>
+        <div class="inputButtons">
+            <input type="button" value="never mind." onClick="toggle('#new_bottle');"/>
+            <input type="submit" value="Throw!"/>
+        </div>
+    </form>
 </div>
 
 <div class="popup" id="bottle_caught">

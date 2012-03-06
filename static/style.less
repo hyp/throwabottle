@@ -289,21 +289,23 @@ p{
 	width: 155px * 2;
 }
 
+@buttonWidth: 155px;
+@buttonHeight: 60px;
+
 button, input[type="button"], input[type="submit"] {
-	display: block; text-align: center; cursor:pointer;  position: relative; margin: .5em 5px; padding: 0;
+	display: block; text-align: center; cursor:pointer;  position: relative; margin: 10px 5px 10px 5px; padding: 0;
 	float:left;
 
-	width: 145px;
-	height: 38px;
+	width: 135px;
+	height: 40px;
 	border: 1px solid #222222;
 	.rounded-corners(14px);
 	.glowing-shadow(3px,#111111);	
 
 	color: #202020;
 	font-weight:bold;	
-	font-size: 13px;
+	font-size: 16px;
 	text-align: center;
-	text-shadow: 0 1px 1px #FFFFFF;
 	
 	font-family: Helvetica, Arial, sans-serif /*{global-font-family}*/;
 	
@@ -334,15 +336,17 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 
 
 
+.fullscreen {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+}
 
 #dimmer {
-	position: fixed;
-	top: 0;
-	bottom: 0;
-	right: 0;
-	left: 0;
-	margin: 0;
-	padding: 0;
 	.opacity(0.4);
 	background-color: #000000;
 	display:none;
@@ -352,18 +356,17 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 .popup {
 	@popupOffset: 60px;
 	position: fixed;
-	top: 15px;
-	bottom: 15px;
-	right: 15px;
-	left: 15px;	
+	top: 5px;
+	bottom: 5px;
+	right: 5px;
+	left: 5px;	
 	display: none;
 	
-	border: solid 3px #707070;
-	background-color: #e0e0e0;
-	//background: url('paper2.jpg') fixed no-repeat right top;
-	//background-size: 100%;
+	//border: solid 3px #707070;
+	//background-color: #f0f0f0;
+	background: none;
 	.rounded-corners(5px);
-	.glowing-shadow(15px,#111111);
+	//.glowing-shadow(15px,#111111);
 	overflow: auto;
 }
 
@@ -376,6 +379,57 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 .popup hr {
 	color: #222222;
 }
+
+/**
+*Layouts for text input
+*/
+.inputMessage {
+    position: fixed;
+    left:0;right:0;
+    width:100%;height:100%;
+    background:none;
+}
+
+.inputMessage h3 {
+    font-size: 30px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	text-align:center;
+	margin-left: 0px;
+	color:white;
+}
+
+.taWrapper {
+    position:absolute;
+    top:40px;
+    left:15px;
+    right:30px;
+    bottom:@buttonHeight + 10px;
+}
+
+.taWrapper textarea {
+    border: solid 1px #707070;
+    padding: 4px;
+    width:100%;height:100%;
+    margin:0;
+	resize: none;
+	.rounded-corners(15px);
+
+	font-size: 25px;
+
+	background-color: #fcfcfc;
+	.glowing-shadow(15px,#111111);
+}
+
+.inputButtons {
+    position:absolute;
+    bottom:0px;
+    height:@buttonHeight;
+    width: @buttonWidth * 2;
+    left:50%;
+    margin-left: -@buttonWidth;
+}
+
 
 
 .popup h2 {
@@ -392,12 +446,13 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 
 @popupTitleMargin: 10px;
 .popup h3 {
-	font-size: 1.2em;
+	font-size: 30px;
 	margin-top: @popupTitleMargin;
 	margin-bottom: @popupTitleMargin;
 	color: #222222;
-	text-align:left;
-	margin-left: 15px;
+	text-align:center;
+	margin-left: 0px;
+	color:white;
 }
 
 
@@ -412,7 +467,7 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 }
 
 #form textarea {
-background: url('paper2.png') fixed repeat right top;
+//background: url('images/paper.png') fixed repeat left top;
 }
 
 @messageSideExtra: 5px;
@@ -422,11 +477,12 @@ background: url('paper2.png') fixed repeat right top;
 	width:100%;
 	height:100%;
 	resize: none;
-	.rounded-corners(4px);
+	.rounded-corners(15px);
 	border: solid 1px #707070;
-	font-size: 1.2em;
+	font-size: 25px;
 	padding: 4px;
 	background-color: #fcfcfc;
+	.glowing-shadow(15px,#111111);
 }
 
 #messageContainer {
@@ -469,14 +525,14 @@ background: url('paper2.png') fixed repeat right top;
 
 
 
-
+@sideButtonSize: 128px;
 
 .side_button {
    position: absolute;
    left: 15px;
-   width: 92px;
-   height: 92px;
-   margin-top: -46px; /* Half the height */
+   width: @sideButtonSize;
+   height: @sideButtonSize;
+   margin-top:  - @sideButtonSize / 2; /* Half the height */
    
 /*transition:transform 350ms;
 -moz-transition:margin-top 400ms,margin-left 400ms,width 400ms,height 400ms; 
@@ -484,10 +540,10 @@ background: url('paper2.png') fixed repeat right top;
 -o-transition: -o-transform 350ms; */
 }
 .side_button:hover{
-	margin-top: -51px;
-	margin-left:-5px;
-	width:102px;
-	height:102px;
+	margin-top: - @sideButtonSize / 2 - 5;
+	margin-left: - @sideButtonSize / 2 - 5;
+	width:@sideButtonSize + 10;
+	height:@sideButtonSize + 10;
 	
 
 /*transform: scale(1.15,1.15);
@@ -538,20 +594,6 @@ background: url('paper2.png') fixed repeat right top;
 	top: 83%;
 }
 
-/*
-*Background elements
-*/
-.fixedBg {
-	position: fixed;
-	right: 0;left: 0;
-	overflow: hidden;
-}
-
-#sky {
-	top: 0;
-	bottom: 66%;
-	.gradient(@skyColor,@skyColor+#222222);
-}
 
 #sun {
 display: block;
@@ -583,22 +625,4 @@ width: 72px;
 .opacity(0.5);
 }
 
-#water {
-	top: 34%;
-	bottom: 62%;
-	.gradient(darken(@waterColor,12%),@waterColor);
-}
-
-#waterbot {
-	top: 62%;
-	bottom: 31.5%;
-	.gradient(@waterColor,white);
-}
-
-#sand {
-	top: 67.5%;
-	bottom: 0;
-	background-color: 	@sandColor;
-	.top-rounded-corners(5px);
-}
 
