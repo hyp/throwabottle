@@ -289,7 +289,7 @@ p{
 	width: 155px * 2;
 }
 
-@buttonWidth: 155px;
+@buttonWidth: 145px;
 @buttonHeight: 60px;
 
 button, input[type="button"], input[type="submit"] {
@@ -335,13 +335,14 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 #facebook_signin:active { .gradient(#355c9d,#5c7ab3); }
 
 
+#background {
+    z-index: -1;
+}
 
 .fullscreen {
     position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
+    top: 0;left: 0;
+    width:100%;height:100%;
     margin: 0;
     padding: 0;
 }
@@ -524,40 +525,31 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 
 
 
-
-@sideButtonSize: 128px;
+/**
+*Side buttons
+*/
+@sideButtonSize: 92px;
 
 .side_button {
-   position: absolute;
+   position: fixed;
    left: 15px;
    width: @sideButtonSize;
    height: @sideButtonSize;
-   margin-top:  - @sideButtonSize / 2; /* Half the height */
-   
-/*transition:transform 350ms;
--moz-transition:margin-top 400ms,margin-left 400ms,width 400ms,height 400ms; 
--webkit-transition:-webkit-transform 350ms; 
--o-transition: -o-transform 350ms; */
+   margin:  -(@sideButtonSize / 2) 0 0 0;
 }
 .side_button:hover{
-	margin-top: - @sideButtonSize / 2 - 5;
-	margin-left: - @sideButtonSize / 2 - 5;
+    margin:  -(@sideButtonSize / 2)-5 0 0 0;
+    left:10px;
 	width:@sideButtonSize + 10;
 	height:@sideButtonSize + 10;
-	
-
-/*transform: scale(1.15,1.15);
- -ms-transform: scale(1.15,1.15); 
- -webkit-transform: scale(1.15,1.15); 
- -o-transform: scale(1.15,1.15); 
- -moz-transform: scale(1.15,1.15);*/ 
 }
 
 .side_note {
-   position: absolute;
+   position: fixed;
    left: 84px;
    width: 24px;
    height: 32px;
+   margin:  -(@sideButtonSize / 2)-16px 0 0 0;
    
    @color: #209020;
    background-color: @color;
@@ -569,25 +561,22 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
    font-size: 22px;
    font-weight: bold;
    .rounded-corners(7px);
-   margin-top: -36px; /* Half the height */
    
     box-shadow: 1px 1px 4px #114411;
     -webkit-box-shadow: 1px 1px 4px #114411;
     -moz-box-shadow: 1px 1px 4px #114411;
-	
 }
 
 
-#btn_bottle_counter { top: 17%;
- }
+#btn_bottle_counter { top: 33%; }
 
-#btn_net_counter { top: 50%; }
+#btn_net_counter { top: 66%; }
 
 #btn_bottle {
-	top: 17%;
+	top: 33%;
 }
 #btn_net {
-	top: 50%;
+	top: 66%;
 }
 
 #btn_history {
@@ -624,5 +613,31 @@ height: 62px;
 width: 72px;
 .opacity(0.5);
 }
+
+/*
+ * Media queries for responsive design github.com/h5bp/mobile-boilerplate/wiki/The-Style
+ */
+
+
+/* Styles for desktop and large screen ----------- */
+
+/*styles for 800px and up!*/
+@media only screen and (min-width: 800px) {
+  /* Styles */
+  @sideButtonSize: 128px;
+ .side_button {
+    width: @sideButtonSize;
+    height: @sideButtonSize;
+    margin:  -(@sideButtonSize / 2) 0 0 0;
+ }
+ .side_button:hover{
+    margin:  -(@sideButtonSize / 2)-5 0 0 0;
+ 	width:@sideButtonSize + 10;
+ 	height:@sideButtonSize + 10;
+ }
+.side_note {
+   margin:  -(@sideButtonSize / 2)-16px 0 0 0;
+ }
+}/*/mediaquery*/
 
 

@@ -117,10 +117,9 @@ $(document).ready(function(){
 
 
 
-<img src="images/background.svg" alt="" style="position:fixed;left:0;top:0%;;width:100%;height:100%;"/>
-	<img src="images/cloud.png" alt="" id="cloud3"/>
-	<img src="images/cloud.png" alt="" id="cloud2"/>
-	<img src="images/cloud.png" alt="" id="cloud1"/>
+<img src="images/cloud.png" alt="" id="cloud3"/>
+<img src="images/cloud.png" alt="" id="cloud2"/>
+<img src="images/cloud.png" alt="" id="cloud1"/>
 <img src="images/sun3.png" alt="" style="position:fixed;margin-left:-46px;left:50%;top:20px;width:92px;height:92px;"/>
 
 	
@@ -197,6 +196,10 @@ setTimeout("animate()",300);
 <script src="js/helper.js"></script>
 
 <script>
+ var mobile = (/iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
+ //append background
+ $('body').append('<img src="images/'+(mobile ? 'bg/lowv.png' : 'background.svg')+'" alt="" class="fullscreen" id="background">');
+ //
  //iPhone Scale Bug Fix, read this when using http://www.blog.highub.com/mobile-2/a-fix-for-iphone-viewport-scale-bug/
  MBP.scaleFix();
  MBP.hideUrlBar();
@@ -254,7 +257,6 @@ setTimeout("animate()",300);
  var newBottle = new MessagePopup('Say something:',[{text:'never mind',action:'newBottle.close()'},{text:'throw!',action:'$(\'#btn_bottle_counter\').html((bottleCount-1).toString());newBottle.send(\'api/throw\',bottleSent)'}]);
 
  var recievedBottle = new MessagePopup('New bottle:',[{text:'throw back',action:'recievedBottle.close();$.get(\'api/bottle/recycle\');'},{text:'reply',action:'recievedBottle.transition(replyToBottle)'}],{readonly:true});
- recievedBottle.setText('ha\nsg').show();
 
  var replyToBottle = new MessagePopup('Reply:',[{text:'cancel',action:'replyToBottle.close()'},{text:'send reply',action:'replyToBottle.send(\'api/bottle/reply\')'}]);
 
