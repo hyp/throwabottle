@@ -61,50 +61,6 @@ function toggle(x) {
 }
 
 
-function swapScreen(x,y){
-	$(x).css('display','none');
-	$(y).css('display','block');
-}
-
-
-
-function signIn(){
-	swapScreen('#main','#login');
-}
-
-
-
-$(document).ready(function(){
-
-
-
-
-
-
-   $('#facebook_signin').click(function(){
-		window.location.href = 'https://www.facebook.com/dialog/oauth/?client_id=233473013410744&display=touch&redirect_uri=http%3A%2F%2F199.30.59.142%2Fapi%2Ffblogin&response_type=code';	
-   });
-
-   
-   $('#loginForm').submit(function(){
-	var userid = $('#loginUser').val();
-	var password = $('#loginPassword').val();
-	$.post('api/login','userid='+userid+'&pwd='+password,function(response){
-		if(response.r === 0){
-			bottleCount = response.b;
-			$('#btn_bottle_counter').html(bottleCount.toString());
-			netCount = response.n;
-			$('#btn_net_counter').html(netCount.toString());
-			toggle('#login');
-		}else{
-			alert('Wrong username or password!');
-		}
-	},'json');
-	return false;
-   });
-
-
-});
 </script>
 
 
@@ -150,41 +106,6 @@ setTimeout("animate()",300);
 
 <div class="fullscreen" id="dimmer"></div>
 
-<div class="popup" id="main">
-<h2>Throw a bottle</h2>
-<hr>
-<p>What is throw a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>
-<p>This will be the main welcome page. In here the user will be asked to sign in. We also will have a description and shit</p>
-
-
-<div class="singleButton">
-	<button id="signin" type="button" onClick="signIn();">Sign in</button>
-</div>
-<br style="line-height:3em;">
-
-<div class="doubleButtons">
-	<button id="facebook_signin" type="button">Sign in with Facebook</button>
-	<button id="twitter_signin" type="button" onClick="signIn();">Sign in with Twitter</button>
-</div>
-
-<span class="smallPrint">&copy; Eastern fold 2012.</span>
-</div>
-
-<div class="popup" id="login">
-<h2>Throw a bottle</h2>
-<hr>
-<form id="loginForm" action="signin">
-	<label for="userid" style="display:block;text-align:center;">User ID:</label>
-	<input style="display:block;width:200px;height: 1.5em;margin: 5px auto;" type="text" id="loginUser" name="userid" required/>
-
-	<label for="password" style="display:block;text-align:center;">Password:</label>
-	<input style="display:block;width:200px;height: 1.5em;margin: 5px auto;" type="password" id="loginPassword" name="password" required/>
-	
-<div class="singleButton">
-	<input type="submit" value="Log in"/>
-</div>
-</form>
-</div>
 
 
 <!-- JavaScript at the bottom for fast page loading -->
@@ -197,6 +118,8 @@ setTimeout("animate()",300);
  //iPhone Scale Bug Fix, read this when using http://www.blog.highub.com/mobile-2/a-fix-for-iphone-viewport-scale-bug/
  MBP.scaleFix();
  MBP.hideUrlBar();
+
+
 
  var ids=0;
 
@@ -212,6 +135,12 @@ setTimeout("animate()",300);
      alert('Ajax error: '  + status.statusText);
  });
 
+ function Popup(title,body){
+     this.id='_'+ids;ids++;
+     $('body').append('<div class="fullscreen inputMessage" id="'+this.id+'" style="display:none;"><h3>'+title+'</h3>' +
+        '<div class="popupWrapper">'+body+'</div></div>');
+ }
+
  function MessagePopup(title,buttons,settings){
      settings = settings == null ? {} : settings;
      this.id='_'+ids;ids++;
@@ -219,7 +148,7 @@ setTimeout("animate()",300);
 
      var extras = settings.readonly ? ' readonly' : '';
 
-     var s = '<div class="inputMessage" id="'+this.id+'" style="display:none;"><h3>'+title+'</h3>' +
+     var s = '<div class="fullscreen inputMessage" id="'+this.id+'" style="display:none;"><h3>'+title+'</h3>' +
              '<form><div class="taWrapper"><textarea name="m" id="msg'+this.id+'" maxlength="500" required'+extras+'></textarea></div>' +
              '<div class="inputButtons"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
              '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form></div>';
@@ -227,7 +156,7 @@ setTimeout("animate()",300);
      $('body').append(s);
  }
 
- MessagePopup.prototype.close = function(){
+ Popup.prototype.close = MessagePopup.prototype.close = function(){
      $('#'+this.id).fadeOut('slow');
      dimmer.hide();
      return this;
@@ -243,12 +172,12 @@ setTimeout("animate()",300);
      $('#msg'+this.id).val(text);
      return this;
  }
- MessagePopup.prototype.show = function(){
+ Popup.prototype.show = MessagePopup.prototype.show = function(){
      dimmer.show();
      $('#'+this.id).fadeIn('slow');
      return this;
  }
- MessagePopup.prototype.transition = function(other){
+ Popup.prototype.transition = MessagePopup.prototype.transition = function(other){
      $('#'+this.id).fadeOut('slow');
      $('#'+other.id).fadeIn('slow');
      return this;
@@ -261,6 +190,37 @@ setTimeout("animate()",300);
      }
      else alert('Bottle failed sending! Error:' + data.error);
  }
+
+ var welcome = new Popup('Welcome',
+         '<p>What is throw a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>' +
+         '<p>This will be the main welcome page. In here the user will be asked to sign in. We also will have a description and shit</p>' +
+         '<button type="button" class="centeredButton" onClick="welcome.transition(signin);">Sign in</button>' +
+         '<button type="button" class="centeredButton" id="facebook_signin">Sign in with facebook</button>');
+
+ $('#facebook_signin').click(function(){
+     window.location.href = 'https://www.facebook.com/dialog/oauth/?client_id=233473013410744&display='+(mobile ? 'touch' : 'page')+'&redirect_uri=http%3A%2F%2F199.30.59.142%2Fapi%2Ffblogin&response_type=code';
+ });
+
+ var signin = new Popup('Log In',
+         '<form id="loginForm">' +
+         '<label for="userid">User ID:</label>' +
+         '<input type="text" id="loginUser" name="userid" required/>' +
+          '<label for="password">Password:</label>'+
+          '<input type="password" id="loginPassword" name="password" required/>' +
+          '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
+ welcome.show();
+
+
+ $('#loginForm').submit(function(){
+     var userid = $('#loginUser').val();
+     var password = $('#loginPassword').val();
+     $.post('api/login','userid='+userid+'&pwd='+password,function(response){
+         if(response.r === 0) handleQuery(response);
+         else alert('Wrong username or password!');
+     },'json');
+     return false;
+ });
+
 
  var newBottle = new MessagePopup('Say something:',[{text:'never mind',action:'newBottle.close()'},{text:'throw!',action:'$(\'#btn_bottle_counter\').html((bottleCount-1).toString());newBottle.send(\'api/throw\',bottleSent)'}]);
 
@@ -313,13 +273,12 @@ setTimeout("animate()",300);
          netCount = response.n;
          $('#btn_net_counter').html(netCount.toString());
          notifications.count(response.e ? response.e : 0);
-     }else{
-         toggle('#main');
      }
+     else welcome.show();
  }
 
  $(document).ready(function(){
-     $.get('/api/query',handleQuery);
+     $.get('api/query',handleQuery);
  });
 
 

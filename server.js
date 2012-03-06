@@ -328,7 +328,12 @@ app.on('/api/reply',function(request,response,data){
 });
 
 app.on('/api/messages',function(request,response){
+    getUserId(request,response,function(userid){
+       console.log('Retrieving user messages');
+        messages.find({$or:[{r:userid},{s:userid}]},{},{limit:10},function(err,cursor){
 
+        });
+    });
 });
 
 app.on('/api/register',function(request,response){
