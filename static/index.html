@@ -249,7 +249,6 @@ setTimeout("animate()",300);
          $('#btn_bottle_counter').html(bottleCount.toString());
      }
      else alert('Bottle failed sending! Error:' + data.error);
-     toggle('#new_bottle');
  }
 
  var newBottle = new MessagePopup('Say something:',[{text:'never mind',action:'newBottle.close()'},{text:'throw!',action:'$(\'#btn_bottle_counter\').html((bottleCount-1).toString());newBottle.send(\'api/throw\',bottleSent)'}]);
