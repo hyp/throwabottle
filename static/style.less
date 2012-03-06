@@ -528,7 +528,7 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 /**
 *Side buttons
 */
-@sideButtonSize: 92px;
+@sideButtonSize: 128px;
 
 .side_button {
    position: fixed;
@@ -546,9 +546,10 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 
 .side_note {
    position: fixed;
-   left: 84px;
+
    width: 24px;
    height: 32px;
+   left: @sideButtonSize - 10px;
    margin:  -(@sideButtonSize / 2)-16px 0 0 0;
    
    @color: #209020;
@@ -636,6 +637,7 @@ width: 72px;
  	height:@sideButtonSize + 10;
  }
 .side_note {
+   left: @sideButtonSize - 10px;
    margin:  -(@sideButtonSize / 2)-16px 0 0 0;
  }
 }/*/mediaquery*/
