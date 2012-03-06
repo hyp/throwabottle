@@ -123,11 +123,11 @@ $(document).ready(function(){
 <img src="images/sun3.png" alt="" style="position:fixed;margin-left:-46px;left:50%;top:20px;width:92px;height:92px;"/>
 
 	
-<img src="images/bottle5.png" alt="" class="side_button" id="btn_bottle"/>
+<img src="images/bottle5.png" alt="" class="side_button left_side" id="btn_bottle"/>
 <div class="side_note" id="btn_bottle_counter">6</div>
-<img src="images/net2.png" alt="" class="side_button" id="btn_net"/>
+<img src="images/net2.png" alt="" class="side_button left_side" id="btn_net"/>
 <div class="side_note" id="btn_net_counter">3</div>
-<img src="images/chest.png" alt="" class="side_button" id="btn_history"/>
+<img src="images/chest.png" alt="" class="side_button right_side" id="btn_history"/>
 
 <script type="text/javascript"> 
 function cloud1(){  
@@ -206,6 +206,14 @@ setTimeout("animate()",300);
 
  var ids=0;
 
+ var dimmer = $('#dimmer');
+ dimmer.hide = function(){
+     this.fadeOut('slow');
+ }
+ dimmer.show = function(){
+     $('#dimmer').fadeTo('slow', 0.4);
+ }
+
  function MessagePopup(title,buttons,settings){
      settings = settings == null ? {} : settings;
      this.id='_'+ids;ids++;
@@ -222,7 +230,8 @@ setTimeout("animate()",300);
      this.close();
  }
  MessagePopup.prototype.close = function(){
-     $('#'+this.id).hide();
+     $('#'+this.id).fadeOut('slow');
+     dimmer.hide();
      return this;
  }
  MessagePopup.prototype.send = function(url,handler){
@@ -237,12 +246,13 @@ setTimeout("animate()",300);
      return this;
  }
  MessagePopup.prototype.show = function(){
-     $('#'+this.id).show();
+     dimmer.show();
+     $('#'+this.id).fadeIn('slow');
      return this;
  }
  MessagePopup.prototype.transition = function(other){
-     this.close();
-     other.show();
+     $('#'+this.id).fadeOut('slow');
+     $('#'+other.id).fadeIn('slow');
      return this;
  }
 

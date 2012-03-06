@@ -528,20 +528,31 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 /**
 *Side buttons
 */
-@sideButtonSize: 128px;
+@sideButtonSize: 92px;
 
 .side_button {
    position: fixed;
-   left: 15px;
    width: @sideButtonSize;
    height: @sideButtonSize;
    margin:  -(@sideButtonSize / 2) 0 0 0;
 }
 .side_button:hover{
     margin:  -(@sideButtonSize / 2)-5 0 0 0;
-    left:10px;
 	width:@sideButtonSize + 10;
 	height:@sideButtonSize + 10;
+}
+
+.left_side {
+    left: 5px;
+}
+.left_side:hover {
+    left:0px;
+}
+.right_side {
+    right: 5px;
+}
+.right_side:hover {
+    right:0px;
 }
 
 .side_note {
@@ -581,7 +592,7 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 }
 
 #btn_history {
-	top: 83%;
+	top: 50%;
 }
 
 
