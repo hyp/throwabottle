@@ -524,32 +524,33 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 #btn_net_counter { top: 66%; }
 
 @keyframes notificationsFrames {
-    0% { top:50% }
-    50% { top:49% }
-    100% { top:50% }
+    0% { background: rgba(140,32,32,0.5); }
+    50% { background: rgba(140,32,32,1.0); }
+    100% { background: rgba(140,32,32,0.5); }
 }
 @-moz-keyframes notificationsFrames {
-    0% { top:50% }
-    50% { top:49% }
-    100% { top:50% }
+    0% { background: rgba(140,32,32,0.5); }
+    50% { background: rgba(140,32,32,1.0); }
+    100% { background: rgba(140,32,32,0.5); }
 }
 @-webkit-keyframes notificationsFrames {
-    0% { top:50% }
-    50% { top:49% }
-    100% { top:50% }
+    0% { background: rgba(140,32,32,0.5); }
+    50% { background: rgba(140,32,32,1.0); }
+    100% { background: rgba(140,32,32,0.5); }
 }
 
 #notifications {
     position: fixed;
     display:none;
-   width: 32px;
+
    height: 48px;
-   right: @sideButtonSize / 2 + 5px - 16px;
+   padding: 0 8px 0 8px;
+   right: 5px;
    top:50%;
    margin:  -(@sideButtonSize / 2)-32px 0 0 0;
 
    @color: #902020;
-   background-color: @color;
+   background: rgba(140,32,32,0.5);
    border: 1px solid @color - #111111;
    color: #f0f0f0;
 
@@ -563,9 +564,9 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
     -webkit-box-shadow: 1px 1px 4px #114411;
     -moz-box-shadow: 1px 1px 4px #114411;
 
-    animation: notificationsFrames 1.6s linear 1s infinite normal;
-    -moz-animation: notificationsFrames 1.6s linear 1s infinite normal;
-    -webkit-animation: notificationsFrames 1.6s linear 1s infinite normal;
+    animation: notificationsFrames 3s ease 1s infinite normal;
+    -moz-animation: notificationsFrames 3s ease 1s infinite normal;
+    -webkit-animation: notificationsFrames 3s ease 1s infinite normal;
 }
 
 #btn_bottle {

@@ -78,16 +78,7 @@ $(document).ready(function(){
 
 
 
-   $.get('api/query',function(response){
-		if(response.r === 0){
-			bottleCount = response.b;
-			$('#btn_bottle_counter').html(bottleCount.toString());
-			netCount = response.n;
-			$('#btn_net_counter').html(netCount.toString());
-		}else{
-			toggle('#main');
-		}
-   },'json');
+
 
 
    $('#facebook_signin').click(function(){
@@ -131,9 +122,9 @@ $(document).ready(function(){
 <div class="side_note" id="btn_net_counter">3</div>
 <img src="images/net2.png" alt="" class="side_button left_side" id="btn_net"/>
 
-<div id="notifications"></div>
-<img src="images/chest.png" alt="" class="side_button right_side" id="btn_history"/>
 
+<img src="images/chest.png" alt="" class="side_button right_side" id="btn_history"/>
+<div id="notifications"></div>
 
 <script type="text/javascript"> 
 function cloud1(){  
@@ -202,13 +193,6 @@ setTimeout("animate()",300);
 <script src="js/helper.js"></script>
 
 <script>
-
- function showNotifications(n){
-     $('#notifications').html(n.toString());
-     $('#notifications').show();
- }
-
- showNotifications(2);
 
  //iPhone Scale Bug Fix, read this when using http://www.blog.highub.com/mobile-2/a-fix-for-iphone-viewport-scale-bug/
  MBP.scaleFix();
@@ -307,6 +291,38 @@ setTimeout("animate()",300);
          $.get('api/catch',bottleCaught,'json');
      }
  });
+
+
+ var notifications = $('#notifications');
+ notifications.count = function(n){
+     if(n > 0){
+         this.html(n.toString());
+         this.show();
+     }else this.hide();
+ }
+
+ $('#btn_history').click(function(){
+     notifications.count(0);
+
+ });
+
+ function handleQuery(response){
+     if(response.r === 0){
+         bottleCount = response.b;
+         $('#btn_bottle_counter').html(bottleCount.toString());
+         netCount = response.n;
+         $('#btn_net_counter').html(netCount.toString());
+         notifications.count(response.e ? response.e : 0);
+     }else{
+         toggle('#main');
+     }
+ }
+
+ $(document).ready(function(){
+     $.get('/api/query',handleQuery);
+ });
+
+
 </script>
 
 </body>
