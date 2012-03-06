@@ -38,6 +38,13 @@
 var netCount = 3;
 var bottleCount = 6;
 
+
+
+
+
+
+
+
 function toggle(x) {
 	//IE8 no opacity support :(
 	if ( $.browser.msie && $.browser.version < 9) {
@@ -49,34 +56,24 @@ function toggle(x) {
 	else $('#dimmer').fadeToggle('slow',function(){});
 	$(x).slideToggle('slow',function(){});
 }
+
+
 function swapScreen(x,y){
 	$(x).css('display','none');
 	$(y).css('display','block');
 }
-function bottleCaught(data){
-	if(data.r >= 0){
-		netCount = data.r;
-		if(data.m){			
-			$('#btn_net_counter').html(netCount.toString());
-			$('#recievedMessage').html(data.m.replace(/\n/g, "<br/>"));
-			toggle('#bottle_caught');
-		}else alert("You've caught some " + data.j);
-	}
-	else alert('Bottle failed catching! Error:' + data.error);	
-}
-function bottleSent(data){
-	if(data.r >= 0){
-		bottleCount = data.r;	
-		$('#btn_bottle_counter').html(bottleCount.toString());
-	}
-	else alert('Bottle failed sending! Error:' + data.error);
-	toggle('#new_bottle');
-}
+
+
 
 function signIn(){
 	swapScreen('#main','#login');
 }
+
+
+
 $(document).ready(function(){
+
+
 
    $.get('api/query',function(response){
 		if(response.r === 0){
@@ -89,43 +86,11 @@ $(document).ready(function(){
 		}
    },'json');
 
-   $('#btn_bottle').click(function(){
-		if(bottleCount === 0){
-			alert('No more bottles remaining!');
-		}else{
-			toggle('#new_bottle');
-		}
-   });
-   
-   $('#btn_net').click(function(){
-		if(netCount === 0){
-			alert('No more nets remaining!');
-		}else{
-			$('#btn_net_counter').html((netCount-1).toString());
-			$.get('api/catch',bottleCaught,'json');
-		}
-   });
-
-   $('#throwback').click(function(){
-        $.get('api/bottle/recycle');
-       toggle('#bottle_caught');
-   });
-
-    $('#reply').click(function(){
-        $.post('api/bottle/reply', $('#reply_form').serialize());
-        toggle('#bottle_caught');
-        return false;
-    });
 
    $('#facebook_signin').click(function(){
 		window.location.href = 'https://www.facebook.com/dialog/oauth/?client_id=233473013410744&display=touch&redirect_uri=http%3A%2F%2F199.30.59.142%2Fapi%2Ffblogin&response_type=code';	
    });
 
-   $('#form').submit(function(){
-	  $('#btn_bottle_counter').html((bottleCount-1).toString());
-      $.post('api/throw', $(this).serialize(), bottleSent,'json');
-      return false;
-   });
    
    $('#loginForm').submit(function(){
 	var userid = $('#loginUser').val();
@@ -143,7 +108,8 @@ $(document).ready(function(){
 	},'json');
 	return false;
    });
-   
+
+
 });
 </script>
 
@@ -224,44 +190,6 @@ setTimeout("animate()",300);
 </form>
 </div>
 
-<!--<div class="popup" id="new_bottle">
-<h3>Say something:</h3>
-<form id="form" action="submit_bottle">
-<div id="messageContainer"><textarea name="m" id="message" maxlength="500" required></textarea></div>
-<div id="messageBottom">
-	<div>
-		<input type="button" value="never mind." onClick="toggle('#new_bottle');"/>
-		<input type="submit" value="Throw!"/>
-	</div>
-</div>
-</form>
-</div>-->
-
-<div class="inputMessage">
-    <h3>Say something:</h3>
-    <form action="submit_bottle">
-        <div class="taWrapper"><textarea name="m" id="message" maxlength="500" required></textarea></div>
-        <div class="inputButtons">
-            <input type="button" value="never mind." onClick="toggle('#new_bottle');"/>
-            <input type="submit" value="Throw!"/>
-        </div>
-    </form>
-</div>
-
-<div class="popup" id="bottle_caught">
-<div id="recievedMessage"></div>
-Write reply here:<br>
-<form id="reply_form">
-  <textarea name="m" maxlength="500"></textarea>
-</form>
-<div id="messageBottom">
-	<div>
-		<input type="button" value="Throw it back" id="throwback"/>
-        <input type="submit" value="Reply" id="reply"/>
-	</div>
-</div>
-
-</div>
 
 <!-- JavaScript at the bottom for fast page loading -->
 
@@ -272,6 +200,88 @@ Write reply here:<br>
  //iPhone Scale Bug Fix, read this when using http://www.blog.highub.com/mobile-2/a-fix-for-iphone-viewport-scale-bug/
  MBP.scaleFix();
  MBP.hideUrlBar();
+
+ var ids=0;
+
+ function MessagePopup(title,buttons,settings){
+     settings = settings == null ? {} : settings;
+     this.id='_'+ids;ids++;
+     this.buttons = buttons;
+
+     var extras = settings.readonly ? ' readonly' : '';
+
+     var s = '<div class="inputMessage" id="'+this.id+'"><h3>'+title+'</h3>' +
+             '<form><div class="taWrapper"><textarea name="m" id="msg'+this.id+'" maxlength="500" required'+extras+'></textarea></div>' +
+             '<div class="inputButtons"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
+             '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form></div>';
+
+     $('body').append(s);
+     this.close();
+ }
+ MessagePopup.prototype.close = function(){
+     $('#'+this.id).hide();
+     return this;
+ }
+ MessagePopup.prototype.send = function(url,handler){
+     this.close();
+     if(handler) $.post(url, $('#msg'+this.id).serialize() ,handler,'json');
+     else $.post(url, $('#msg'+this.id).serialize());
+     $('#msg'+this.id).val('');
+     return this;
+ }
+ MessagePopup.prototype.setText = function(text){
+     $('#msg'+this.id).val(text);
+     return this;
+ }
+ MessagePopup.prototype.show = function(){
+     $('#'+this.id).show();
+     return this;
+ }
+ MessagePopup.prototype.transition = function(other){
+     this.close();
+     other.show();
+     return this;
+ }
+
+ function bottleSent(data){
+     if(data.r >= 0){
+         bottleCount = data.r;
+         $('#btn_bottle_counter').html(bottleCount.toString());
+     }
+     else alert('Bottle failed sending! Error:' + data.error);
+     toggle('#new_bottle');
+ }
+
+ var newBottle = new MessagePopup('Say something:',[{text:'never mind',action:'newBottle.close()'},{text:'throw!',action:'$(\'#btn_bottle_counter\').html((bottleCount-1).toString());newBottle.send(\'api/throw\',bottleSent)'}]);
+
+ var recievedBottle = new MessagePopup('New bottle:',[{text:'throw back',action:'recievedBottle.close();$.get(\'api/bottle/recycle\');'},{text:'reply',action:'recievedBottle.transition(replyToBottle)'}],{readonly:true});
+ recievedBottle.setText('ha\nsg').show();
+
+ var replyToBottle = new MessagePopup('Reply:',[{text:'cancel',action:'replyToBottle.close()'},{text:'send reply',action:'replyToBottle.send(\'api/bottle/reply\')'}]);
+
+ $('#btn_bottle').click(function(){
+     if(bottleCount === 0) alert('No more bottles remaining!');
+     else newBottle.show();
+ });
+
+ $('#btn_net').click(function(){
+     function bottleCaught(data){
+         if(data.r >= 0){
+             netCount = data.r;
+             if(data.m){
+                 $('#btn_net_counter').html(netCount.toString());
+                 recievedBottle.setText(data.m).show();
+             }else alert("You've caught some " + data.j);
+         }
+         else alert('Bottle failed catching! Error:' + data.error);
+     }
+
+     if(netCount === 0) alert('No more nets remaining!');
+     else{
+         $('#btn_net_counter').html((netCount-1).toString());
+         $.get('api/catch',bottleCaught,'json');
+     }
+ });
 </script>
 
 </body>
