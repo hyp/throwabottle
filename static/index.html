@@ -104,10 +104,6 @@ setTimeout("animate()",300);
 </script>
 
 
-<div class="fullscreen" id="dimmer"></div>
-
-
-
 <!-- JavaScript at the bottom for fast page loading -->
 
 <!-- scripts concatenated and minified via ant build script -->
@@ -123,43 +119,47 @@ setTimeout("animate()",300);
 
  var ids=0;
 
- var dimmer = $('#dimmer');
- dimmer.hide = function(){
-     this.fadeOut('slow');
- }
- dimmer.show = function(){
-     $('#dimmer').fadeTo('slow', 0.45);
- }
-
  $('body').bind('ajaxError',function(request,status,error){
      alert('Ajax error: '  + status.statusText);
  });
 
- function Popup(title,body){
+ //base popup
+ function PopupBase(title,body){
      this.id='_'+ids;ids++;
-     $('body').append('<div class="fullscreen inputMessage" id="'+this.id+'" style="display:none;"><h3>'+title+'</h3>' +
-        '<div class="popupWrapper">'+body+'</div></div>');
+     $('body').append('<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+body+'</div>');
+ }
+ PopupBase.prototype.close = function(){
+     $('#'+this.id).fadeOut('slow');
+     return this;
+ }
+ PopupBase.prototype.show = function(){
+     $('#'+this.id).fadeIn('slow');
+     return this;
+ }
+ PopupBase.prototype.transition = function(other){
+     $('#'+this.id).fadeOut('slow');
+     $('#'+other.id).fadeIn('slow');
+     return this;
  }
 
+ //normal popups
+ Popup.prototype = new PopupBase;
+ Popup.prototype.constructor = PopupBase;
+ function Popup(title,body){
+     PopupBase.call(this,title,'<div class="popupWrapper">'+body+'</div>');
+ }
+
+ //one big textarea popup
+ MessagePopup.prototype = new PopupBase;
+ MessagePopup.prototype.constructor = PopupBase;
  function MessagePopup(title,buttons,settings){
      settings = settings == null ? {} : settings;
-     this.id='_'+ids;ids++;
      this.buttons = buttons;
 
      var extras = settings.readonly ? ' readonly' : '';
-
-     var s = '<div class="fullscreen inputMessage" id="'+this.id+'" style="display:none;"><h3>'+title+'</h3>' +
-             '<form><div class="taWrapper"><textarea name="m" id="msg'+this.id+'" maxlength="500" required'+extras+'></textarea></div>' +
+     PopupBase.call(this,title,'<form><div class="taWrapper"><div><textarea name="m" id="msg'+this.id+'" maxlength="500" required'+extras+'></textarea></div></div>' +
              '<div class="inputButtons"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
-             '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form></div>';
-
-     $('body').append(s);
- }
-
- Popup.prototype.close = MessagePopup.prototype.close = function(){
-     $('#'+this.id).fadeOut('slow');
-     dimmer.hide();
-     return this;
+             '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form>');
  }
  MessagePopup.prototype.send = function(url,handler){
      this.close();
@@ -172,16 +172,7 @@ setTimeout("animate()",300);
      $('#msg'+this.id).val(text);
      return this;
  }
- Popup.prototype.show = MessagePopup.prototype.show = function(){
-     dimmer.show();
-     $('#'+this.id).fadeIn('slow');
-     return this;
- }
- Popup.prototype.transition = MessagePopup.prototype.transition = function(other){
-     $('#'+this.id).fadeOut('slow');
-     $('#'+other.id).fadeIn('slow');
-     return this;
- }
+
 
  function bottleSent(data){
      if(data.r >= 0){
@@ -208,12 +199,17 @@ setTimeout("animate()",300);
           '<input type="password" id="loginPassword" name="password" required/>' +
           '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
+ var messages = new Popup('Messages','<div id="messagesContainer"></div>');
+
 
  $('#loginForm').submit(function(){
      var userid = $('#loginUser').val();
      var password = $('#loginPassword').val();
      $.post('api/login','userid='+userid+'&pwd='+password,function(response){
-         if(response.r === 0) handleQuery(response);
+         if(response.r === 0){
+             handleQuery(response);
+             signin.close();
+         }
          else alert('Wrong username or password!');
      },'json');
      return false;
@@ -224,7 +220,7 @@ setTimeout("animate()",300);
 
  var recievedBottle = new MessagePopup('Bottle:',[{text:'throw back',action:'recievedBottle.close();$.get(\'api/bottle/recycle\');'},{text:'reply',action:'recievedBottle.transition(replyToBottle)'}],{readonly:true});
 
- var replyToBottle = new MessagePopup('Reply:',[{text:'cancel',action:'replyToBottle.close()'},{text:'send reply',action:'replyToBottle.send(\'api/bottle/reply\')'}]);
+ var replyToBottle = new MessagePopup('Reply:',[{text:'cancel',action:'replyToBottle.close();$.get(\'api/bottle/recycle\');'},{text:'send reply',action:'replyToBottle.send(\'api/bottle/reply\')'}]);
 
  $('#btn_bottle').click(function(){
      if(bottleCount === 0) alert('No more bottles remaining!');
