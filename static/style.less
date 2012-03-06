@@ -419,7 +419,10 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 	font-size: 25px;
 
 	background-color: #fcfcfc;
-	.glowing-shadow(15px,#111111);
+
+    box-shadow: 0 0 13px 2px #111111;
+    -webkit-box-shadow: 0 0 13px 2px #111111;
+    -moz-box-shadow: 0 0 13px 2px #111111;
 }
 
 .inputButtons {
@@ -496,8 +499,8 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 
    width: 24px;
    height: 32px;
-   left: @sideButtonSize - 10px;
-   margin:  -(@sideButtonSize / 2)-16px 0 0 0;
+   left: @sideButtonSize - 20px;
+   margin:  -(@sideButtonSize / 2)-10px 0 0 0;
    
    @color: #209020;
    background-color: @color;
@@ -520,6 +523,22 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 
 #btn_net_counter { top: 66%; }
 
+@keyframes notificationsFrames {
+    0% { top:50% }
+    50% { top:49% }
+    100% { top:50% }
+}
+@-moz-keyframes notificationsFrames {
+    0% { top:50% }
+    50% { top:49% }
+    100% { top:50% }
+}
+@-webkit-keyframes notificationsFrames {
+    0% { top:50% }
+    50% { top:49% }
+    100% { top:50% }
+}
+
 #notifications {
     position: fixed;
     display:none;
@@ -536,13 +555,17 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 
    text-align: center;
    line-height: 48px;//center text vertically
-   font-size: 26px;
+   font-size: 28px;
    font-weight: bold;
    .rounded-corners(7px);
 
     box-shadow: 1px 1px 4px #114411;
     -webkit-box-shadow: 1px 1px 4px #114411;
     -moz-box-shadow: 1px 1px 4px #114411;
+
+    animation: notificationsFrames 1.6s linear 1s infinite normal;
+    -moz-animation: notificationsFrames 1.6s linear 1s infinite normal;
+    -webkit-animation: notificationsFrames 1.6s linear 1s infinite normal;
 }
 
 #btn_bottle {
@@ -609,8 +632,12 @@ width: 72px;
  	height:@sideButtonSize + 10;
  }
 .side_note {
-   left: @sideButtonSize - 10px;
-   margin:  -(@sideButtonSize / 2)-16px 0 0 0;
+   width: 32px;
+   height: 48px;
+   line-height: 48px;
+   font-size: 28px;
+   left: @sideButtonSize - 20px;
+   margin:  -(@sideButtonSize / 2)-10px 0 0 0;
  }
 }/*/mediaquery*/
 
