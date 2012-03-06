@@ -157,7 +157,7 @@ setTimeout("animate()",300);
      this.buttons = buttons;
 
      var extras = settings.readonly ? ' readonly' : '';
-     PopupBase.call(this,title,'<form><div class="taWrapper"><div><textarea name="m" id="msg'+this.id+'" maxlength="500" required'+extras+'></textarea></div></div>' +
+     PopupBase.call(this,title,'<form><div class="taWrapper"><div><textarea name="m" id="msg_'+ids+'" maxlength="500" required'+extras+'></textarea></div></div>' +
              '<div class="inputButtons"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
              '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form>');
  }
