@@ -34,7 +34,10 @@
 
 
 
-<script type="text/javascript"> 
+<script type="text/javascript">
+var mobile = (/iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
+//append background
+$('body').append('<img src="images/'+(mobile ? 'bg/lowv.png' : 'background.svg')+'" alt="" class="fullscreen" id="background">');
 var netCount = 3;
 var bottleCount = 6;
 
@@ -128,6 +131,7 @@ $(document).ready(function(){
 <img src="images/net2.png" alt="" class="side_button left_side" id="btn_net"/>
 <div class="side_note" id="btn_net_counter">3</div>
 <img src="images/chest.png" alt="" class="side_button right_side" id="btn_history"/>
+<div id="notifications"></div>
 
 <script type="text/javascript"> 
 function cloud1(){  
@@ -196,10 +200,12 @@ setTimeout("animate()",300);
 <script src="js/helper.js"></script>
 
 <script>
- var mobile = (/iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
- //append background
- $('body').append('<img src="images/'+(mobile ? 'bg/lowv.png' : 'background.svg')+'" alt="" class="fullscreen" id="background">');
- //
+
+ function showNotifications(n){
+     $('#notifications').html(n.toString());
+     $('#notifications').show();
+ }
+
  //iPhone Scale Bug Fix, read this when using http://www.blog.highub.com/mobile-2/a-fix-for-iphone-viewport-scale-bug/
  MBP.scaleFix();
  MBP.hideUrlBar();
@@ -211,8 +217,12 @@ setTimeout("animate()",300);
      this.fadeOut('slow');
  }
  dimmer.show = function(){
-     $('#dimmer').fadeTo('slow', 0.4);
+     $('#dimmer').fadeTo('slow', 0.45);
  }
+
+ $('body').bind('ajaxError',function(request,status,error){
+     alert('Ajax error: '  + status.statusText);
+ });
 
  function MessagePopup(title,buttons,settings){
      settings = settings == null ? {} : settings;
@@ -221,14 +231,14 @@ setTimeout("animate()",300);
 
      var extras = settings.readonly ? ' readonly' : '';
 
-     var s = '<div class="inputMessage" id="'+this.id+'"><h3>'+title+'</h3>' +
+     var s = '<div class="inputMessage" id="'+this.id+'" style="display:none;"><h3>'+title+'</h3>' +
              '<form><div class="taWrapper"><textarea name="m" id="msg'+this.id+'" maxlength="500" required'+extras+'></textarea></div>' +
              '<div class="inputButtons"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
              '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form></div>';
 
      $('body').append(s);
-     this.close();
  }
+
  MessagePopup.prototype.close = function(){
      $('#'+this.id).fadeOut('slow');
      dimmer.hide();
@@ -266,7 +276,7 @@ setTimeout("animate()",300);
 
  var newBottle = new MessagePopup('Say something:',[{text:'never mind',action:'newBottle.close()'},{text:'throw!',action:'$(\'#btn_bottle_counter\').html((bottleCount-1).toString());newBottle.send(\'api/throw\',bottleSent)'}]);
 
- var recievedBottle = new MessagePopup('New bottle:',[{text:'throw back',action:'recievedBottle.close();$.get(\'api/bottle/recycle\');'},{text:'reply',action:'recievedBottle.transition(replyToBottle)'}],{readonly:true});
+ var recievedBottle = new MessagePopup('Bottle:',[{text:'throw back',action:'recievedBottle.close();$.get(\'api/bottle/recycle\');'},{text:'reply',action:'recievedBottle.transition(replyToBottle)'}],{readonly:true});
 
  var replyToBottle = new MessagePopup('Reply:',[{text:'cancel',action:'replyToBottle.close()'},{text:'send reply',action:'replyToBottle.send(\'api/bottle/reply\')'}]);
 
