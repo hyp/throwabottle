@@ -353,13 +353,13 @@ app.on('/api/messages',function(request,response){
             response.writeHead(200, { 'Content-Type':'text/json' });
             if(!err){
                 cursor.toArray(function(err,threadsData){
-                    console.log(threadsData);
                     var threads = [];
                     threadsData.forEach(function(thread){
                         console.log(thread);
-                        threads.push({m:thread.d[thread.d.length-1]});
+                        var msg = thread.d[thread.d.length-1];
+                        threads.push({s:msg.s === userid ? 1 : 0,m:msg.m});
                     });
-                    response.end('{"r":['+JSON.stringify(threads)+']}');
+                    response.end('{"r":'+JSON.stringify(threads)+'}');
                 });
             }else
                 response.end('{"r":[]}');
