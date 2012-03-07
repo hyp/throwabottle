@@ -528,7 +528,8 @@ textarea [readonly="readonly"] {
     height:100%;
 }
 
-@arrowSize:10px;
+@arrowSize:8px;
+@arrowLine:4px;
 
 .threadArrowHead {
    border-color: transparent black transparent transparent;
@@ -542,8 +543,8 @@ textarea [readonly="readonly"] {
    margin-left:-@arrowSize;
 }
 .threadArrow {
-   top: ((@threadSize) - (@arrowSize*2))/2 + @arrowSize/2;
-   height:@arrowSize;
+   top: ((@threadSize) - (@arrowLine*2))/2;
+   height:@arrowLine;
    width:@arrowSize*1.5;
    position:relative;
    float:left;
