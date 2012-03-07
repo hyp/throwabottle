@@ -456,6 +456,10 @@ h3 {
 
 }
 
+textarea [readonly="readonly"] {
+    background-color: #f0f0f0;
+}
+
 .inputButtons {
     position:absolute;
     bottom:0px;
@@ -508,13 +512,21 @@ h3 {
 	padding:0 10px;
 	height:40px;
 	line-height:40px;
-	border-bottom:1px solid #ccc;
-	border-top:1px solid #fff;
-	background-color:#fafafa;
+	//border-bottom:1px solid #ccc;
+	border-top:1px solid #ccc;
 	font-size:14px;
     overflow:hidden;
     text-overflow:ellipsis;
     cursor: pointer;
+}
+
+.threadRead {
+    background-color:#e8e8e8;
+}
+.threadNotRead {
+    background-color:#fdfdfd;
+    font-weight:bold;
+    font-size:15px;
 }
 
 

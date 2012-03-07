@@ -24,7 +24,6 @@ function errorHandler(err,data){
 //Connect to MongoDB data
 var mongoData= mongo.db(mongourl);
 var users = mongoData.collection('user');
-var conversations = mongoData.collection('conversations');
 var messages = mongoData.collection('messages');
 
 //Connect to Redis data
@@ -130,20 +129,25 @@ function getUser(request,response,handler){
 }
 
 app.on('/api/debug',function(request,response){
-    response.writeHead(200,{'Content-type':'text/html'});
+    getUserId(request,response,function(userid){
+        if(userid=='uadmin'){
+            response.writeHead(200,{'Content-type':'text/html'});
 
-    response.write('It is ' + Date.now() + ' - ' + (new Date()).toString());
-    redisData.keys("*", function (err, keys) {
-        response.write('<h2>Redis keys:</h2><br>\n');
-        keys.forEach(function (key, pos) {
-            redisData.type(key, function (err, keytype) {
-                response.write(key + " : " + keytype + '<br>\n');
+            response.write('It is ' + Date.now() + ' - ' + (new Date()).toString());
+            redisData.keys("*", function (err, keys) {
+                response.write('<h2>Redis keys:</h2><br>\n');
+                keys.forEach(function (key, pos) {
+                    redisData.type(key, function (err, keytype) {
+                        response.write(key + " : " + keytype + '<br>\n');
 
+                    });
+
+                });
             });
-
-        });
+            setTimeout('response.end()',150);
+        }
+        else request.connection.destroy();
     });
-    setTimeout('response.end()',150);
 });
 
 app.on('/api/query',function(request,response){
@@ -156,8 +160,6 @@ app.on('/api/query',function(request,response){
         });
     });
 });
-
-
 
 function genSessionCookie(uid,expires){
     var sid = crypto.createHash('md5').update(uid).update(sessionSecret).update(Date.now().toString()).digest('hex');
@@ -233,7 +235,7 @@ app.on('/api/throw',function(request,response,data){
 
 function catchJunk(){
     console.log('Junk caught instead.');
-    return {j:'Junk'};
+    return {j:'An old shoe'};
 }
 
 function popBottle(userid,handler,probability){
@@ -274,6 +276,7 @@ app.on('/api/catch',function (request,response){
 	});
 });
 
+//Recycle a bottle
 app.on('/api/bottle/recycle',function (request,response){
     getUserId(request,response,function(userid){
         console.log('Recycling a bottle by ' + userid);
@@ -289,8 +292,7 @@ app.on('/api/bottle/recycle',function (request,response){
     });
 });
 
-
-//onReply
+//Reply to a bottle
 app.on('/api/bottle/reply',function(request,response,data){
     getUserId(request,response,function(userid){
         console.log('Reply to a bottle by user ' + userid + ' : ' + data.m);
@@ -319,30 +321,61 @@ app.on('/api/bottle/reply',function(request,response,data){
     });
 });
 
+//Reply to a thread
 app.on('/api/reply',function(request,response,data){
     //TODO test
-    //data.i data.m
+    //data.m
     getUserId(request,response,function(userid){
-        console.log('Reply to a message ' + data.i +' by ' + userid + ' : ' + data.m);
-        messages.find({_id:data.i,$or:[{r:userid},{s:userid}]},{s:true,r:true},{limit:1},function(err,cursor){
-            if(cursor) cursor.nextObject(function(err,thread){
-                if(thread !== null){
-                    var reciever,eventInc;
-                    if(thread.s === userid){
-                        reciever = thread.r;
-                        eventInc = { er: 1 };
-                    }else{
-                        reciever = thread.s;
-                        eventInc = { es: 1 };
+        var query = request.parsedUrl.query;
+        if(query.i){
+            console.log('Reply to a message ' + query.i +' by ' + userid + ' : ' + data.m);
+            messages.find({_id:Number(query.i),$or:[{r:userid},{s:userid}]},{s:true,r:true},{limit:1},function(err,cursor){
+                if(cursor) cursor.nextObject(function(err,thread){
+                    if(thread){
+                        var reciever,eventInc;
+                        if(thread.s === userid){
+                            reciever = thread.r;
+                            eventInc = { er: 1 };
+                        }else{
+                            reciever = thread.s;
+                            eventInc = { es: 1 };
+                        }
+                        messages.update({_id:data.i,r:thread.r},
+                                {$set:{t:Date.now()},$inc: eventInc,$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
+                        redisData.hincrby(reciever,'e',1,errorHandler);
                     }
-                    messages.update({_id:data.i,r:thread.r},
-                            {$set:{t:Date.now()},$inc: eventInc,$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
-                    redisData.hincrby(reciever,'e',1,errorHandler);
-                }
+                });
             });
-        });
-        response.writeHead(200);
-        response.end();
+            response.writeHead(200);
+            response.end();
+        }
+        else request.connection.destroy();
+    });
+});
+
+//Retrieve all messages from the specified thread
+app.on('/api/messages',function(request,response){
+    getUserId(request,response,function(userid){
+        var query = request.parsedUrl.query;
+        if(query.i){
+            console.log('Retrieving threads, thread#' + query.i);
+            messages.find({_id:Number(query.i),$or:[{r:userid},{s:userid}]},{limit:1},function(err,cursor){
+                if(cursor) cursor.nextObject(function(err,thread){
+                    if(thread){
+                        result = {r:[]};
+                        thread.d.forEach(function(msg){
+                            console.log(msg);
+                            result.r.push({s:msg.s === userid ? 1 : 0,m:msg.m});
+                        });
+                        response.end(JSON.stringify(result));
+                        //TODO thread+user event counters
+                    }
+                    else response.end('{"r":[]}');
+                });
+                else response.end('{"r":[]}');
+            });
+        }
+        else request.connection.destroy();
     });
 });
 
@@ -376,31 +409,8 @@ app.on('/api/threads',function(request,response){
     });
 });
 
-//Ge all messages from the specified thread
-app.on('/api/messages',function(request,response){
-    getUserId(request,response,function(userid){
-        var query = request.parsedUrl.query;
-        if(query.i){
-            messages.find({_id:Number(query.i),$or:[{r:userid},{s:userid}]},{limit:1},function(err,cursor){
-                if(cursor) cursor.nextObject(function(err,thread){
-                    result = {r:[]};
-                    thread.d.forEach(function(msg){
-                        console.log(msg);
-                        result.r.push({s:msg.s === userid ? 1 : 0,m:msg.m});
-                    });
-                    response.end(JSON.stringify(result));
-                });
-                else
-                    response.end('{"r":[]}');
-            });
-        }
-        else request.connection.destroy();
-    });
-});
-
-
-
-        app.on('/api/fblogin',function(request,response){
+//Login with facebook
+app.on('/api/fblogin',function(request,response){
     var code = request.parsedUrl.query.code;
     if(code){
         console.log('Successfull FB login with code: ' + code);

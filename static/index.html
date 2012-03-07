@@ -199,14 +199,15 @@ function animate(){
      var h = 0 , node;
      var container = $('#data'+this.id);
      var idPrefix=this.id+'_';
+     var handler = this.childClick;
 
       data.forEach(function(elem){
-         node = nodeCreator(elem.m,idPrefix+id);
+         node = nodeCreator(elem,idPrefix+id);
          container.append(node.html);
 
          h+=node.height;
          $('#'+idPrefix+id).data('id',id).click(function(){
-             alert('m:'+$(this).data('id'));
+             if(handler) handler($(this).data('id'));
          });
          id++;
      });
@@ -227,7 +228,7 @@ function animate(){
      settings = settings == null ? {} : settings;
      this.buttons = buttons;
 
-     var extras = settings.readonly ? ' readonly' : '';
+     var extras = settings.readonly ? ' readonly="readonly"' : '';
      PopupBase.call(this,title,'<form><div class="taWrapper"><div class="textareaWrapper"><textarea name="m" id="msg_'+ids+'" maxlength="500" required'+extras+'></textarea></div></div>' +
              '<div class="inputButtons"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
              '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form>');
@@ -281,12 +282,16 @@ function animate(){
 
  var messages = new ScrollablePopup('Messages','<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="messages.close();">Ok</button></div>');
 
- welcome.show();
+ //welcome.show();
 
- messages.update([{m:'foo'},{m:'bar'},{m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{m:'lol'},{m:'test'},{m:'lol'},{m:'test'}],
- function(msg,id){
-     return { html:'<li id="'+id+'">'+msg+'</li>', height:43 };
+ messages.childClick = function(id){
+     console.log('Showing thread '+id);
+ }
+ messages.update([{e:1,m:'foo'},{e:1,m:'bar'},{e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{e:1,m:'lol'},{e:0,m:'test'},{e:1,m:'lol'},{e:0,m:'test'}],
+ function(thread,id){
+     return { html:'<li class="'+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+thread.m+'</li>', height:43 };
  });
+
 
 
  $('#loginForm').submit(function(){
