@@ -508,16 +508,47 @@ textarea [readonly="readonly"] {
 
 }
 
+@threadSize:40px;
+
 #messagesWrapper li {
 	padding:0 10px;
-	height:40px;
-	line-height:40px;
+	height:@threadSize;
+	line-height:@threadSize;
 	//border-bottom:1px solid #ccc;
 	border-top:1px solid #ccc;
 	font-size:14px;
     overflow:hidden;
     text-overflow:ellipsis;
     cursor: pointer;
+}
+
+#messagesWrapper span {
+    float:left;
+    position:relative;
+    height:100%;
+}
+
+@arrowSize:10px;
+
+.threadArrowHead {
+   border-color: transparent black transparent transparent;
+   border-style: solid;
+   border-width: @arrowSize;
+   top:( ((@threadSize) - (@arrowSize*2))/2 );
+   height:0;
+   width:0;
+   position:relative;
+   float:left;
+   margin-left:-@arrowSize;
+}
+.threadArrow {
+   top: ((@threadSize) - (@arrowSize*2))/2 + @arrowSize/2;
+   height:@arrowSize;
+   width:@arrowSize*1.5;
+   position:relative;
+   float:left;
+   background-color:black;
+   margin-right:10px;
 }
 
 .threadRead {
