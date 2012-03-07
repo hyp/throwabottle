@@ -74,7 +74,9 @@ function sessionExpired(response){
 function addUser(userid,pwd){
     var hash = crypto.createHmac('sha1',userid).update(pwd).update(passwordSecret).digest('base64');
     users.insert({_id:userid,p:hash},{safe:true},errorHandler);
-    redisData.hmset('u' + userid,{"t": Date.now() + refreshTime,"b":6,"n":4});
+    var user = {"t": Date.now() + refreshTime,"b":6,"n":4};
+    redisData.hmset('u' + userid,user);
+    return user;
 }
 
 
@@ -166,6 +168,22 @@ function genSessionCookie(uid,expires){
     return 'sid='+sid+'; Path=/api/; Max-Age='+expires+'; HttpOnly';
 }
 
+app.on('/api/register',function(request,response,data){
+    if(request.cookies['sid'] || data.userid==='' || data.pwd==='') hackError(response);
+    else{
+        var userid = data.userid;
+        users.findOne({_id:userid},function(err,user){
+            if(user !== null) hackError(response);
+            else{
+                user = addUser(userid,data.pwd);
+                response.writeHead(200, {'Content-Type':'text/json'});
+                if(user.e) response.end('{"r":0,"b":'+user.b+',"n":'+user.n+',"e":'+user.e+'}');
+                else response.end('{"r":0,"b":'+user.b+',"n":'+user.n+'}');
+            }
+        });
+    }
+});
+
 //onLogin - data := { userid , pwd }
 app.on('/api/login',function(request,response,data){
     var userid = data.userid;
@@ -184,7 +202,8 @@ app.on('/api/login',function(request,response,data){
                     'Content-Type': 'text/json',
                     'Set-Cookie':genSessionCookie(userid,3600)
                 });
-                response.end('{"r":0,"b":'+userdata.b+',"n":'+userdata.n+'}');
+                if(userdata.e) response.end('{"r":0,"b":'+userdata.b+',"n":'+userdata.n+',"e":'+userdata.e+'}');
+                else response.end('{"r":0,"b":'+userdata.b+',"n":'+userdata.n+'}');
             });
         }
         else {
@@ -330,15 +349,20 @@ app.on('/api/reply',function(request,response,data){
 app.on('/api/messages',function(request,response){
     getUserId(request,response,function(userid){
        console.log('Retrieving user messages');
-        messages.find({$or:[{r:userid},{s:userid}]},{},{limit:10},function(err,cursor){
-
+        messages.find({$or:[{r:userid},{s:userid}]},{limit:10,sort:[['t','desc']]},function(err,cursor){
+            response.writeHead(200, { 'Content-Type':'text/json' });
+            if(!err){
+                cursor.toArray(function(err,arr){
+                    console.log(arr);
+                    response.end('{"r":0}');
+                });
+            }else
+                response.end('{"r":[]}');
         });
     });
 });
 
-app.on('/api/register',function(request,response){
 
-});
 
 app.on('/api/fblogin',function(request,response){
     var code = request.parsedUrl.query.code;

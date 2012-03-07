@@ -114,8 +114,10 @@ function animate(){
 <script>
 
  //iPhone Scale Bug Fix, read this when using http://www.blog.highub.com/mobile-2/a-fix-for-iphone-viewport-scale-bug/
- MBP.scaleFix();
- MBP.hideUrlBar();
+ if(mobile){
+     MBP.scaleFix();
+     MBP.hideUrlBar();
+ }
  //MBP.preventZoom();
 
 
@@ -148,9 +150,10 @@ function animate(){
  //scrollable
  ScrollablePopup.prototype = new PopupBase;
  ScrollablePopup.prototype.constructor = PopupBase;
+ var useIscroll = true;
  function ScrollablePopup(title,body){
      this.id='_'+ids;ids++;
-     this.iscroll = true;
+     this.iscroll = useIscroll;
      this.scrollbar = null;
 
      var src = this.iscroll ? '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
@@ -161,11 +164,15 @@ function animate(){
      $('body').append(src);
  }
 
- document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
- /*$(window).scroll(function (){
-     var s = $(window).scrollTop();
-     $('#messagesWrapper').scrollTop(s);
- });*/
+ if(useIscroll){
+    document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+ }
+ else {
+     $(window).scroll(function (){
+         var s = $(window).scrollTop();
+         $('#messagesWrapper').scrollTop(s);
+     });
+ }
 
  ScrollablePopup.prototype.show = function(){
      if(this.iscroll){
@@ -274,7 +281,7 @@ function animate(){
 
  var messages = new ScrollablePopup('Messages','<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="messages.close();">Ok</button></div>');
 
-
+ welcome.show();
 
  messages.update([{m:'foo'},{m:'bar'},{m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{m:'lol'},{m:'test'},{m:'lol'},{m:'test'}],
  function(msg,id){
