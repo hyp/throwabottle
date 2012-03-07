@@ -535,7 +535,7 @@ textarea [readonly="readonly"] {
    border-color: transparent black transparent transparent;
    border-style: solid;
    border-width: @arrowSize;
-   top:( ((@threadSize) - (@arrowSize*2))/2 );
+   top:@threadSize/2 - @arrowSize;
    height:0;
    width:0;
    position:relative;
@@ -543,7 +543,7 @@ textarea [readonly="readonly"] {
    margin-left:-@arrowSize;
 }
 .threadArrow {
-   top: ((@threadSize) - (@arrowLine))/2;
+   top: @threadSize/2 - (@arrowLine/2);
    height:@arrowLine;
    width:@arrowSize*1.5;
    position:relative;
