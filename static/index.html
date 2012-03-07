@@ -153,11 +153,19 @@ function animate(){
      this.iscroll = true;
      this.scrollbar = null;
 
-     $('body').append('<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div>'+body+'</div></div>');
+     var src = this.iscroll ? '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
+             '<div class="taWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div>'+body+'</div>' :
+             '<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
+             '<div class="taWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div>'+body+'</div></div>';
+
+     $('body').append(src);
  }
 
  document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+ $(window).scroll(function (){
+     var s = $(window).scrollTop();
+     $('#messagesWrapper').scrollTop(s);
+ });
 
  ScrollablePopup.prototype.show = function(){
      if(this.iscroll){
@@ -196,11 +204,6 @@ function animate(){
      });
      if(!this.iscroll) $('#'+this.id).height(h+100);
  }
-
- /*$(window).scroll(function (){
-     var s = $(window).scrollTop();
-     $('#messagesWrapper').scrollTop(s);
- });*/
 
  //normal popups
  Popup.prototype = new PopupBase;
@@ -247,28 +250,35 @@ function animate(){
  var welcome = new Popup('Welcome',
          '<p>What is throw a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>' + //'<p>This will be the main welcome page. In here the user will be asked to sign in. We also will have a description and shit</p>' +
          '<button type="button" class="centeredButton" onClick="welcome.transition(signin);">Sign in</button>' +
+         '<button type="button" class="centeredButton" onClick="welcome.transition(registration);">Register</button>' +
          '<button type="button" class="centeredButton" id="facebook_signin">Sign in with facebook</button>');
 
  $('#facebook_signin').click(function(){
      window.location.href = 'https://www.facebook.com/dialog/oauth/?client_id=233473013410744&display='+(mobile ? 'touch' : 'page')+'&redirect_uri=http%3A%2F%2F199.30.59.142%2Fapi%2Ffblogin&response_type=code';
  });
 
- var signin = new Popup('Log In',
-         '<form id="loginForm">' +
+ var signin = new Popup('Log In','<form id="loginForm">' +
          '<label for="userid">User ID:</label>' +
          '<input type="text" id="loginUser" name="userid" required autocapitalize="off"/>' +
           '<label for="password">Password:</label>'+
           '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
           '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
+ var registration = new Popup('Register','<form id="registrationForm">' +
+         '<label for="userid">User ID:</label>' +
+         '<input type="text" id="loginUser" name="userid" required autocapitalize="off"/>' +
+         '<label for="password">Password:</label>'+
+         '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
+         '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
+
  var messages = new ScrollablePopup('Messages','<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="messages.close();">Ok</button></div>');
 
 
 
  messages.update([{m:'foo'},{m:'bar'},{m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{m:'lol'},{m:'test'},{m:'lol'},{m:'test'}],
-         function(msg,id){
-             return { html:'<li id="'+id+'">'+msg+'</li>', height:43 };
-         });
+ function(msg,id){
+     return { html:'<li id="'+id+'">'+msg+'</li>', height:43 };
+ });
 
 
  $('#loginForm').submit(function(){
@@ -280,6 +290,19 @@ function animate(){
              signin.close();
          }
          else alert('Wrong username or password!');
+     },'json');
+     return false;
+ });
+
+ $('#registrationForm').submit(function(){
+     var userid = $('#loginUser').val();
+     var password = $('#loginPassword').val();
+     $.post('api/register','userid='+userid+'&pwd='+password,function(response){
+         if(response.r === 0){
+             handleQuery(response);
+             registration.close();
+         }
+         else alert('This username is already taken!');
      },'json');
      return false;
  });
