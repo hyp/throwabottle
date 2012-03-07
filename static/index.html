@@ -150,7 +150,7 @@ function animate(){
  //scrollable
  ScrollablePopup.prototype = new PopupBase;
  ScrollablePopup.prototype.constructor = PopupBase;
- var useIscroll = true;
+ var useIscroll = false;
  function ScrollablePopup(title,body){
      this.id='_'+ids;ids++;
      this.iscroll = useIscroll;
@@ -178,8 +178,10 @@ function animate(){
      if(this.iscroll){
          var s = this.scrollbar = new iScroll('messagesWrapper',{hScroll:false,hScrollbar:false});
          setTimeout(function() { s.refresh(); },0);
-     }
+     }else
+         console.log('h2:'+$('#data'+this.id).height());
      $('#'+this.id).fadeIn('slow');
+     $('#'+this.id).height($('#data'+this.id).height()+100);
      return this;
  }
  ScrollablePopup.prototype.close = function(){
@@ -202,17 +204,20 @@ function animate(){
      var handler = this.childClick;
      var creator = this.nodeCreator;
 
+     var src = '';
+
       data.forEach(function(elem){
          node = creator(elem,idPrefix+id);
-         container.append(node.html);
+         src+=node.html;
 
          h+=node.height;
-         $('#'+idPrefix+id).data('id',id).click(function(){
+         /*$('#'+idPrefix+id).data('id',id).click(function(){
              if(handler) handler($(this).data('id'));
-         });
+         });*/
          id++;
      });
-     if(!this.iscroll) $('#'+this.id).height(h+100);
+     container.html(src);
+     console.log('h:'+container.height());
  }
 
  //normal popups
@@ -368,7 +373,9 @@ function animate(){
              messages.show();
          }
      },'json');
-     //messages.update([{s:0,e:1,m:'foo'},{s:1,e:1,m:'bar'},{s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'}]);
+
+     messages.update([{s:0,e:1,m:'foo'},{s:1,e:1,m:'bar'},{s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'}]);
+     messages.show();
  });
 
  function handleQuery(response){

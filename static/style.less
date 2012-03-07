@@ -526,13 +526,19 @@ textarea [readonly="readonly"] {
     float:left;
     position:relative;
     height:100%;
+
+    white-space:nowrap;
+    width:70%;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 
 @arrowSize:8px;
 @arrowLine:6px;
+@arrowColor:#202020;
 
 .threadArrowHead {
-   border-color: transparent black transparent transparent;
+   border-color: transparent @arrowColor transparent transparent;
    border-style: solid;
    border-width: @arrowSize;
    top:@threadSize/2 - @arrowSize;
@@ -548,7 +554,7 @@ textarea [readonly="readonly"] {
    width:@arrowSize*1.5;
    position:relative;
    float:left;
-   background-color:black;
+   background-color:@arrowColor;
    margin-right:10px;
 }
 
