@@ -150,15 +150,56 @@ function animate(){
  ScrollablePopup.prototype.constructor = PopupBase;
  function ScrollablePopup(title,body){
      this.id='_'+ids;ids++;
-     $('body').append('<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+body+'</div></div>');
+     this.iscroll = true;
+     this.scrollbar = null;
+
+     $('body').append('<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
+             '<div class="taWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div>'+body+'</div></div>');
  }
- ScrollablePopup.prototype.height= function(h){
-     $('#'+this.id).height(h);
+
+ document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+ ScrollablePopup.prototype.show = function(){
+     if(this.iscroll){
+         var s = this.scrollbar = new iScroll('messagesWrapper',{hScroll:false,hScrollbar:false});
+         setTimeout(function() { s.refresh(); },0);
+     }
+     $('#'+this.id).fadeIn('slow');
+     return this;
+ }
+ ScrollablePopup.prototype.close = function(){
+     $('#'+this.id).fadeOut('slow');
+     if(this.scrollbar){
+         try{
+             this.scrollbar.destroy();
+         }
+         catch(exp){
+         }
+         this.scrollbar = null;
+     }
+     return this;
+ }
+ ScrollablePopup.prototype.update= function(data,nodeCreator){
+     var id = 0;
+     var h = 0 , node;
+     var container = $('#data'+this.id);
+     var idPrefix=this.id+'_';
+
+      data.forEach(function(elem){
+         node = nodeCreator(elem.m,idPrefix+id);
+         container.append(node.html);
+         id++;
+         h+=node.height;
+         $('#'+idPrefix+id).click(function(){
+             alert('m:hha');
+         });
+     });
+     if(!this.iscroll) $('#'+this.id).height(h+100);
  }
 
  /*$(window).scroll(function (){
      var s = $(window).scrollTop();
-     $('#messagesContainer').scrollTop(s);
+     $('#messagesWrapper').scrollTop(s);
  });*/
 
  //normal popups
@@ -220,46 +261,14 @@ function animate(){
           '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
           '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
- var messages = new ScrollablePopup('Messages','<div class="taWrapper"><div class="middle"><div class="bottom"><div id="messagesWrapper"><ul id="messagesContainer"></ul></div></div></div></div>'+
-         '<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="messages.close();">Ok</button></div>');
+ var messages = new ScrollablePopup('Messages','<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="messages.close();">Ok</button></div>');
 
- messages.elements = [];
 
- document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 
- function loaded() {
-     setTimeout(function () {
-         messages.scrollbar = null;
-         messages.addElements({r:[{m:'foo'},{m:'bar'},{m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{m:'lol'},{m:'test'},{m:'lol'},{m:'test'}]});
-     }, 100);
- }
- window.addEventListener('load', loaded, false);
- messages.expandThread = function(id){
-     alert('m:'+id)
- }
- messages.addElements = function(els){
-     var id;
-     var h = 0;
-
-     els.r.forEach(function(elem){
-         id = messages.elements.push(elem) - 1;
-         $('#messagesContainer').append('<li id="m'+id+'">'+elem.m+'</li>');
-         h+=41;
-         $('#m'+id).data('id',id).click(function(){
-             messages.expandThread($(this).data('id'));
+ messages.update([{m:'foo'},{m:'bar'},{m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{m:'lol'},{m:'test'},{m:'lol'},{m:'test'}],
+         function(msg,id){
+             return { html:'<li id="'+id+'">'+msg+'</li>', height:43 };
          });
-     });
-
- }
- messages.show = function(){
-     messages.scrollbar = new iScroll('messagesWrapper',{hScroll:false,hScrollbar:false});
-     setTimeout(function() {
-         messages.scrollbar.refresh();
-     },0);
-     $('#'+messages.id).fadeIn('slow');
- }
-
-
 
 
  $('#loginForm').submit(function(){
