@@ -194,7 +194,7 @@ function animate(){
      }
      return this;
  }
- ScrollablePopup.prototype.update= function(data,nodeCreator){
+ ScrollablePopup.prototype.update= function(data){
      var id = 0;
      var h = 0 , node;
      var container = $('#data'+this.id);
@@ -202,7 +202,7 @@ function animate(){
      var handler = this.childClick;
 
       data.forEach(function(elem){
-         node = nodeCreator(elem,idPrefix+id);
+         node = this.nodeCreator(elem,idPrefix+id);
          container.append(node.html);
 
          h+=node.height;
@@ -287,10 +287,10 @@ function animate(){
  messages.childClick = function(id){
      console.log('Showing thread '+id);
  }
- messages.update([{s:0,e:1,m:'foo'},{s:1,e:1,m:'bar'},{s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'}],
- function(thread,id){
+ messages.nodeCreator = function(thread,id){
      return { html:'<li class="'+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>', height:43 };
- });
+ }
+
 
 
 
@@ -361,8 +361,13 @@ function animate(){
  }
 
  $('#btn_history').click(function(){
-     notifications.count(0);
-     messages.show();
+     $.get('api/threads',function(data){
+         if(data.r && data.r.length !== 0){
+             messages.update(data.r);
+             messages.show();
+         }
+     },'json');
+     //messages.update([{s:0,e:1,m:'foo'},{s:1,e:1,m:'bar'},{s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'}]);
  });
 
  function handleQuery(response){
