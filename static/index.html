@@ -200,9 +200,10 @@ function animate(){
      var container = $('#data'+this.id);
      var idPrefix=this.id+'_';
      var handler = this.childClick;
+     var creator = this.nodeCreator;
 
       data.forEach(function(elem){
-         node = this.nodeCreator(elem,idPrefix+id);
+         node = creator(elem,idPrefix+id);
          container.append(node.html);
 
          h+=node.height;
