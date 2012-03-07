@@ -100,7 +100,7 @@ function animate(){
     cloud2(); 
 	cloud3();
 }
-setTimeout("animate()",300);  
+//setTimeout("animate()",300);
 </script>
 
 
@@ -142,6 +142,21 @@ setTimeout("animate()",300);
      return this;
  }
 
+ //scrollable
+ ScrollablePopup.prototype = new PopupBase;
+ ScrollablePopup.prototype.constructor = PopupBase;
+ function ScrollablePopup(title,body){
+     this.id='_'+ids;ids++;
+     $('body').append('<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+body+'</div></div>');
+ }
+ ScrollablePopup.prototype.height= function(h){
+     $('#'+this.id).height(h);
+ }
+ $(window).scroll(function (){
+     var s = $(window).scrollTop();
+     $('#messagesContainer').scrollTop(s);
+ });
+
  //normal popups
  Popup.prototype = new PopupBase;
  Popup.prototype.constructor = PopupBase;
@@ -174,6 +189,8 @@ setTimeout("animate()",300);
  }
 
 
+
+
  function bottleSent(data){
      if(data.r >= 0){
          bottleCount = data.r;
@@ -199,16 +216,30 @@ setTimeout("animate()",300);
           '<input type="password" id="loginPassword" name="password" required/>' +
           '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
- var messages = new Popup('Messages','<div id="messagesContainer"></div>');
+ var messages = new ScrollablePopup('Messages','<div class="taWrapper" id="messagesContainer" style="background:white;"></div>'+
+         '<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="messages.close();">Ok</button></div>');
+ messages.elements = [];
+ messages.expandThread = function(id){
+     alert('m:'+id)
+ }
  messages.addElements = function(els){
-     this.elements= els;
-     $('#messagesContainer').append('<div class="messageHeading">ha</span>');
-     $('#messagesContainer').append('<div class="messageHeading">gaay</span>');
+     var id;
+     var h = 0;
 
+     els.r.forEach(function(elem){
+         id = messages.elements.push(elem) - 1;
+         $('#messagesContainer').append('<span class="messageHeading" id="m'+id+'">'+elem.m+'</span>');
+         h+=41;
+         $('#m'+id).data('id',id).click(function(){
+             messages.expandThread($(this).data('id'));
+         });
+     });
+     messages.height(h+100);
+
+     //$('#'+messages.id).height(Math.max($(window).height(),h+100));
  }
 
- messages.addElements({d:[{m:'ha'},{m:'gaay'}]});
- messages.show();
+ messages.addElements({r:[{m:'foo'},{m:'bar'},{m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{m:'lol'},{m:'test'},{m:'lol'},{m:'test'}]});
 
 
  $('#loginForm').submit(function(){
@@ -266,7 +297,7 @@ setTimeout("animate()",300);
 
  $('#btn_history').click(function(){
      notifications.count(0);
-
+     messages.show();
  });
 
  function handleQuery(response){
