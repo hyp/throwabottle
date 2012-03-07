@@ -346,7 +346,7 @@ app.on('/api/reply',function(request,response,data){
     });
 });
 
-app.on('/api/messages',function(request,response){
+app.on('/api/threads',function(request,response){
 
     getUserId(request,response,function(userid){
        console.log('Retrieving user messages');
@@ -367,7 +367,7 @@ app.on('/api/messages',function(request,response){
                     threadsData.forEach(function(thread){
                         console.log(thread);
                         var msg = thread.d[thread.d.length-1];
-                        threads.push({e:(thread.s === userid ? thread.es : thread.er) || 0,s:msg.s === userid ? 1 : 0,m:msg.m});
+                        threads.push({i:thread._id,e:(thread.s === userid ? thread.es : thread.er) || 0,s:msg.s === userid ? 1 : 0,m:msg.m});
                     });
                     response.end('{"r":'+JSON.stringify(threads)+'}');
                 });
