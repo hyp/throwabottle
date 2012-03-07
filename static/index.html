@@ -220,7 +220,7 @@ function animate(){
           '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
           '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
- var messages = new ScrollablePopup('Messages','<div class="taWrapper" id="messagesWrapper" style="background:white;overflow:hidden;"><ul id="messagesContainer"></ul></div>'+
+ var messages = new ScrollablePopup('Messages','<div class="taWrapper" id="messagesWrapper" style="background:white;overflow:auto;"><ul id="messagesContainer"></ul></div>'+
          '<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="messages.close();">Ok</button></div>');
 
  messages.elements = [];
@@ -249,6 +249,7 @@ function animate(){
              messages.expandThread($(this).data('id'));
          });
      });
+
  }
  messages.show = function(){
      messages.scrollbar = new iScroll('messagesWrapper',{hScroll:false,hScrollbar:false});
