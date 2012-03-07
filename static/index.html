@@ -249,16 +249,13 @@ function animate(){
              messages.expandThread($(this).data('id'));
          });
      });
-     try {
-       if(messages.scrollbar) messages.scrollbar.destroy();
-     }catch(exp){
-
-     }
+ }
+ messages.show = function(){
      messages.scrollbar = new iScroll('messagesWrapper',{hScroll:false,hScrollbar:false});
      setTimeout(function() {
          messages.scrollbar.refresh();
      },0);
-     //$('#messagesContainer').height(h);
+     $('#'+messages.id).fadeIn('slow');
  }
 
 
