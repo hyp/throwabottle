@@ -154,7 +154,7 @@ function animate(){
      this.scrollbar = null;
 
      var src = this.iscroll ? '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" style="background:white;"><div class="scrollableWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div></div>'+body+'</div>' :
+             '<div class="taWrapper" style="background:white;"><div class="middle"><div class="bottom"><div class="scrollableWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div></div></div></div>'+body+'</div>' :
              '<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
              '<div class="taWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div>'+body+'</div></div>';
 
@@ -162,10 +162,10 @@ function animate(){
  }
 
  document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
- $(window).scroll(function (){
+ /*$(window).scroll(function (){
      var s = $(window).scrollTop();
      $('#messagesWrapper').scrollTop(s);
- });
+ });*/
 
  ScrollablePopup.prototype.show = function(){
      if(this.iscroll){
