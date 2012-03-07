@@ -200,6 +200,15 @@ setTimeout("animate()",300);
           '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
  var messages = new Popup('Messages','<div id="messagesContainer"></div>');
+ messages.addElements = function(els){
+     this.elements= els;
+     $('#messagesContainer').append('<div class="messageHeading">ha</span>');
+     $('#messagesContainer').append('<div class="messageHeading">gaay</span>');
+
+ }
+
+ messages.addElements({d:[{m:'ha'},{m:'gaay'}]});
+ messages.show();
 
 
  $('#loginForm').submit(function(){
@@ -271,8 +280,24 @@ setTimeout("animate()",300);
      else welcome.show();
  }
 
+ //poll the server for updates
+ var isActive = true;
+ window.onfocus = function () {
+     isActive = true;
+ }
+ window.onblur = function () {
+     isActive = false;
+ }
+ function query(){
+     if(isActive){
+        $.get('api/query',handleQuery);
+     }
+     setTimeout(query,5 * 60 * 1000);
+ }
+
  $(document).ready(function(){
-     $.get('api/query',handleQuery);
+     query();
+
  });
 
 
