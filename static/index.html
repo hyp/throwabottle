@@ -12,7 +12,8 @@
 <!-- Mobile viewport optimization h5bp.com/ad -->
 <meta name="HandheldFriendly" content="True">
 <meta name="MobileOptimized" content="320">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">-->
+<meta name="viewport" content="width=device-width, height=device-height, top=0, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
 <!-- iOS web app, delete if not needed. https://github.com/h5bp/mobile-boilerplate/issues/94 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,6 +115,7 @@ function animate(){
  //iPhone Scale Bug Fix, read this when using http://www.blog.highub.com/mobile-2/a-fix-for-iphone-viewport-scale-bug/
  MBP.scaleFix();
  MBP.hideUrlBar();
+ //MBP.preventZoom();
 
 
 
@@ -152,6 +154,7 @@ function animate(){
  ScrollablePopup.prototype.height= function(h){
      $('#'+this.id).height(h);
  }
+
  $(window).scroll(function (){
      var s = $(window).scrollTop();
      $('#messagesContainer').scrollTop(s);
@@ -211,9 +214,9 @@ function animate(){
  var signin = new Popup('Log In',
          '<form id="loginForm">' +
          '<label for="userid">User ID:</label>' +
-         '<input type="text" id="loginUser" name="userid" required/>' +
+         '<input type="text" id="loginUser" name="userid" required autocapitalize="off"/>' +
           '<label for="password">Password:</label>'+
-          '<input type="password" id="loginPassword" name="password" required/>' +
+          '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
           '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
  var messages = new ScrollablePopup('Messages','<div class="taWrapper" id="messagesContainer" style="background:white;"></div>'+
