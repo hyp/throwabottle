@@ -353,10 +353,10 @@ app.on('/api/messages',function(request,response){
             response.writeHead(200, { 'Content-Type':'text/json' });
             if(!err){
                 cursor.toArray(function(err,threadsData){
-                    console.log(arr);
+                    console.log(threadsData);
                     var threads = [];
                     threadsData.forEach(function(thread){
-                        console.log(msg);
+                        console.log(thread);
                         threads.push({m:thread.d[thread.d.length-1]});
                     });
                     response.end('{"r":['+JSON.stringify(threads)+']}');
