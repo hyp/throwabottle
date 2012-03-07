@@ -347,9 +347,19 @@ app.on('/api/reply',function(request,response,data){
 });
 
 app.on('/api/messages',function(request,response){
+
     getUserId(request,response,function(userid){
        console.log('Retrieving user messages');
-        messages.find({$or:[{r:userid},{s:userid}]},{limit:10,sort:[['t','desc']]},function(err,cursor){
+        var query = request.parsedUrl.query;
+        var settings = {sort:[['t','desc']]};
+        if(query.to){
+            settings.limit = Number(query.to);
+            if(query.from){
+                settings.skip = Number(query.from);
+            }
+        }
+        console.log(JSON.stringify(settings));
+        messages.find({$or:[{r:userid},{s:userid}]},settings,function(err,cursor){
             response.writeHead(200, { 'Content-Type':'text/json' });
             if(!err){
                 cursor.toArray(function(err,threadsData){
