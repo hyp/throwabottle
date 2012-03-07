@@ -352,9 +352,14 @@ app.on('/api/messages',function(request,response){
         messages.find({$or:[{r:userid},{s:userid}]},{limit:10,sort:[['t','desc']]},function(err,cursor){
             response.writeHead(200, { 'Content-Type':'text/json' });
             if(!err){
-                cursor.toArray(function(err,arr){
+                cursor.toArray(function(err,threadsData){
                     console.log(arr);
-                    response.end('{"r":0}');
+                    var threads = [];
+                    threadsData.forEach(function(thread){
+                        console.log(msg);
+                        threads.push({m:thread.d[thread.d.length-1]});
+                    });
+                    response.end('{"r":['+JSON.stringify(threads)+']}');
                 });
             }else
                 response.end('{"r":[]}');
