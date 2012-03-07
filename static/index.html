@@ -154,7 +154,7 @@ function animate(){
      this.scrollbar = null;
 
      var src = this.iscroll ? '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div>'+body+'</div>' :
+             '<div class="taWrapper" style="background:white;"><div class="scrollableWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div></div>'+body+'</div>' :
              '<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
              '<div class="taWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div>'+body+'</div></div>';
 
@@ -196,11 +196,12 @@ function animate(){
       data.forEach(function(elem){
          node = nodeCreator(elem.m,idPrefix+id);
          container.append(node.html);
-         id++;
+
          h+=node.height;
-         $('#'+idPrefix+id).click(function(){
-             alert('m:hha');
+         $('#'+idPrefix+id).data('id',id).click(function(){
+             alert('m:'+$(this).data('id'));
          });
+         id++;
      });
      if(!this.iscroll) $('#'+this.id).height(h+100);
  }
@@ -220,7 +221,7 @@ function animate(){
      this.buttons = buttons;
 
      var extras = settings.readonly ? ' readonly' : '';
-     PopupBase.call(this,title,'<form><div class="taWrapper"><div><textarea name="m" id="msg_'+ids+'" maxlength="500" required'+extras+'></textarea></div></div>' +
+     PopupBase.call(this,title,'<form><div class="taWrapper"><div class="textareaWrapper"><textarea name="m" id="msg_'+ids+'" maxlength="500" required'+extras+'></textarea></div></div>' +
              '<div class="inputButtons"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
              '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form>');
  }

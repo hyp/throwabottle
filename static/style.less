@@ -279,15 +279,6 @@ p{
 
 
 
-.singleButton {
-	margin: 0 auto;
-	width: 155px;
-}
-
-.doubleButtons {
-	margin: 0 auto;
-	width: 155px * 2;
-}
 
 @buttonWidth: 145px;
 @buttonHeight: 54px;
@@ -321,6 +312,7 @@ button, input[type="button"], input[type="submit"] {
 
 	width: @buttonRealWidth;
 	height: @buttonRealHeight;
+    line-height:@buttonRealHeight;
 	border: 1px solid #222222;
 	.rounded-corners(14px);
 	.glowing-shadow(3px,#111111);	
@@ -444,11 +436,11 @@ h3 {
     .outerShadow;
 }
 
-/*.taWrapper div {
+.textareaWrapper {
     position:absolute;
     left:0px;top:0px;
     right:10px;bottom:10px;
-}*/
+}
 
 .taWrapper textarea {
     border: solid 1px #222222;
@@ -473,11 +465,17 @@ h3 {
     margin-left: -@buttonWidth;
 }
 
+.scrollableWrapper {
+    position: absolute;
+    top: 12px;bottom:12px;
+    left:0;width:100%;
+}
 
 #messagesWrapper {
     overflow:hidden;
     background:white;
 }
+
 
 #messagesWrapper ul {
     list-style:none;
