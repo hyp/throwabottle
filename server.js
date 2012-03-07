@@ -325,7 +325,7 @@ app.on('/api/reply',function(request,response,data){
     getUserId(request,response,function(userid){
         console.log('Reply to a message ' + data.i +' by ' + userid + ' : ' + data.m);
         messages.find({_id:data.i,$or:[{r:userid},{s:userid}]},{s:true,r:true},{limit:1},function(err,cursor){
-            if(!err) cursor.nextObject(function(err,thread){
+            if(cursor) cursor.nextObject(function(err,thread){
                 if(thread !== null){
                     var reciever,eventInc;
                     if(thread.s === userid){
@@ -346,10 +346,9 @@ app.on('/api/reply',function(request,response,data){
     });
 });
 
+//Get message threads relevant to the user
 app.on('/api/threads',function(request,response){
-
     getUserId(request,response,function(userid){
-       console.log('Retrieving user messages');
         var query = request.parsedUrl.query;
         var settings = {sort:[['t','desc']]};
         if(query.to){
@@ -358,10 +357,10 @@ app.on('/api/threads',function(request,response){
                 settings.skip = Number(query.from);
             }
         }
-        console.log(JSON.stringify(settings));
+        console.log('Retrieving threads, settings:' + JSON.stringify(settings));
         messages.find({$or:[{r:userid},{s:userid}]},settings,function(err,cursor){
             response.writeHead(200, { 'Content-Type':'text/json' });
-            if(!err){
+            if(cursor){
                 cursor.toArray(function(err,threadsData){
                     var threads = [];
                     threadsData.forEach(function(thread){
@@ -377,9 +376,31 @@ app.on('/api/threads',function(request,response){
     });
 });
 
+//Ge all messages from the specified thread
+app.on('/api/messages',function(request,response){
+    getUserId(request,response,function(userid){
+        var query = request.parsedUrl.query;
+        if(query.i){
+            messages.find({_id:Number(query.i),$or:[{r:userid},{s:userid}]},{limit:1},function(err,cursor){
+                if(cursor) cursor.nextObject(function(err,thread){
+                    result = {r:[]};
+                    thread.d.forEach(function(msg){
+                        console.log(msg);
+                        result.r.push({s:msg.s === userid ? 1 : 0,m:msg.m});
+                    });
+                    response.end(JSON.stringify(result));
+                });
+                else
+                    response.end('{"r":[]}');
+            });
+        }
+        else request.connection.destroy();
+    });
+});
 
 
-app.on('/api/fblogin',function(request,response){
+
+        app.on('/api/fblogin',function(request,response){
     var code = request.parsedUrl.query.code;
     if(code){
         console.log('Successfull FB login with code: ' + code);
