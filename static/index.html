@@ -12,8 +12,8 @@
 <!-- Mobile viewport optimization h5bp.com/ad -->
 <meta name="HandheldFriendly" content="True">
 <meta name="MobileOptimized" content="320">
-<!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">-->
-<meta name="viewport" content="width=device-width, height=device-height, top=0, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 
 <!-- iOS web app, delete if not needed. https://github.com/h5bp/mobile-boilerplate/issues/94 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -109,6 +109,7 @@ function animate(){
 
 <!-- scripts concatenated and minified via ant build script -->
 <script src="js/helper.js"></script>
+<script src="js/libs/iscroll.js"></script>
 
 <script>
 
@@ -155,10 +156,10 @@ function animate(){
      $('#'+this.id).height(h);
  }
 
- $(window).scroll(function (){
+ /*$(window).scroll(function (){
      var s = $(window).scrollTop();
      $('#messagesContainer').scrollTop(s);
- });
+ });*/
 
  //normal popups
  Popup.prototype = new PopupBase;
@@ -219,9 +220,20 @@ function animate(){
           '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
           '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
- var messages = new ScrollablePopup('Messages','<div class="taWrapper" id="messagesContainer" style="background:white;"></div>'+
+ var messages = new ScrollablePopup('Messages','<div class="taWrapper" id="messagesWrapper" style="background:white;overflow:auto;"><ul id="messagesContainer"></ul></div>'+
          '<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="messages.close();">Ok</button></div>');
+
  messages.elements = [];
+
+ document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+ function loaded() {
+     setTimeout(function () {
+         messages.scrollbar = null;
+         messages.addElements({r:[{m:'foo'},{m:'bar'},{m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{m:'lol'},{m:'test'},{m:'lol'},{m:'test'}]});
+     }, 100);
+ }
+ window.addEventListener('load', loaded, false);
  messages.expandThread = function(id){
      alert('m:'+id)
  }
@@ -231,18 +243,25 @@ function animate(){
 
      els.r.forEach(function(elem){
          id = messages.elements.push(elem) - 1;
-         $('#messagesContainer').append('<span class="messageHeading" id="m'+id+'">'+elem.m+'</span>');
+         $('#messagesContainer').append('<li id="m'+id+'">'+elem.m+'</li>');
          h+=41;
          $('#m'+id).data('id',id).click(function(){
              messages.expandThread($(this).data('id'));
          });
      });
-     messages.height(h+100);
+     try {
+       if(messages.scrollbar) messages.scrollbar.destroy();
+     }catch(exp){
 
-     //$('#'+messages.id).height(Math.max($(window).height(),h+100));
+     }
+     messages.scrollbar = new iScroll('messagesWrapper',{hScroll:false,hScrollbar:false});
+     setTimeout(function() {
+         messages.scrollbar.refresh();
+     },0);
+     //$('#messagesContainer').height(h);
  }
 
- messages.addElements({r:[{m:'foo'},{m:'bar'},{m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{m:'lol'},{m:'test'},{m:'lol'},{m:'test'}]});
+
 
 
  $('#loginForm').submit(function(){

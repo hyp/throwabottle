@@ -436,13 +436,12 @@ h3 {
 .taWrapper {
     position:absolute;
     top:@topOffset;
+    bottom:@buttonHeight;
     left:@sideOffset;
     right:@sideOffset;
-    bottom:@buttonHeight;
     border:none;
     .rounded-corners(16px);
     .outerShadow;
-    overflow:hidden;
 }
 
 .taWrapper div {
@@ -474,6 +473,13 @@ h3 {
     margin-left: -@buttonWidth;
 }
 
+#messagesContainer {
+    list-style:none;
+	padding:0;
+	margin:0;
+	width:100%;
+	text-align:left;
+}
 
 .messageHeading {
     display:block;
@@ -485,6 +491,16 @@ h3 {
     cursor: pointer;
     overflow:hidden;
     text-overflow:ellipsis;
+}
+
+#messagesContainer li {
+	padding:0 10px;
+	height:40px;
+	line-height:40px;
+	border-bottom:1px solid #ccc;
+	border-top:1px solid #fff;
+	background-color:#fafafa;
+	font-size:14px;
 }
 
 
