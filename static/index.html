@@ -160,49 +160,41 @@ function animate(){
  //scrollable
  ScrollablePopup.prototype = new PopupBase;
  ScrollablePopup.prototype.constructor = PopupBase;
- var useIscroll = true;//mobile;
+
+ ScrollablePopup.native = false;
+ ScrollablePopup.iscroll = true;
+ ScrollablePopup.jscroll = false;
+
  function ScrollablePopup(title,body,innerBody){
-     innerBody = '';//innerBody ? innerBody : '';
+     innerBody = innerBody ? innerBody : '';
      this.id='_'+ids;ids++;
-     this.iscroll = useIscroll;
      this.scrollbar = null;
 
-     var src = '<div class="fullscreen popup" id="'+this.id+'" '+(this.iscroll?'':'style="display:block;"')+'><h3>'+title+'</h3>'+
+     var src = '<div class="fullscreen popup" id="'+this.id+'" '+(ScrollablePopup.native?'style="display:block;"':'')+'><h3>'+title+'</h3>'+
          '<div class="taWrapper popup-background">'+
              '<div class="'+(innerBody === '' ?'popup-scrollableArea':'popup-smallScrollableArea')+'" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div>'+
          innerBody+'</div>'+body+'</div>';
 
-     $('body').append(this.iscroll ? src : '<div class="scrollablePopup" id="'+this.id+'">'+src+'</div>');
- }
-
- if(useIscroll){
-    document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
- }
- else {
-     $(window).scroll(function (){
-         if(ScrollablePopup.prototype.current){
-             var s = $(window).scrollTop();
-             $('#scroll'+ScrollablePopup.prototype.current.id).scrollTop(s);
-         }
-     });
+     $('body').append(ScrollablePopup.native?'<div class="scrollablePopup" id="'+this.id+'">'+src+'</div>':src);
  }
 
  ScrollablePopup.prototype.current = null;
  ScrollablePopup.prototype.show = function(){
      if(ScrollablePopup.prototype.current) return;
      ScrollablePopup.prototype.current = this;
-
      $('#'+this.id).fadeIn('slow');
-     if(this.iscroll){
-         $('#scroll'+this.id).jScrollPane({autoReinitialise:true});
-         //var s = this.scrollbar = new iScroll('scroll'+this.id,{hScroll:false,hScrollbar:false});
-         //setTimeout(function() { s.refresh(); },0);
+     var id = this.id;
+     if(ScrollablePopup.native){
+         /*var dh=$(window).height();
+         var ch=$('#scroll'+this.id).height();
+         console.log('Extra - ' + dh + ':' + ch + ':' + (dh-ch));
+         $('#'+id).height($('#data'+id).height() + (dh-ch));*/
+         $('#scroll'+this.id).css('overflow','auto');
      }
-     if(!this.iscroll)
-         $('#'+this.id).height($('#data'+this.id).height() + 40 + 54 + 32 + 32);
+     else if(ScrollablePopup.iscroll) this.scrollbar = new iScroll('scroll'+this.id,{hScroll:false,hScrollbar:false});
+     else if(ScrollablePopup.jscroll) $('#scroll'+id).jScrollPane({autoReinitialise:true});
      return this;
  }
-
  ScrollablePopup.prototype.close = function(){
      var scrollbar = this.scrollbar;
      $('#'+this.id).fadeOut('slow',function(){
@@ -247,24 +239,35 @@ function animate(){
  ScrollablePopup.prototype.child = function(id) {
      return $('#'+this.id+'_'+id);
  }
- ScrollablePopup.prototype.refresh = function(){
-     var scrollbar = this.scrollbar;
-     if(scrollbar) scrollbar.refresh();
-     //if(scrollbar) setTimeout(function(){ scrollbar.refresh(); },0);
+
+ if(ScrollablePopup.native){
+     $(window).scroll(function (){
+         if(ScrollablePopup.prototype.current){
+             var s = $(window).scrollTop();
+             $('#scroll'+ScrollablePopup.prototype.current.id).scrollTop(s);
+         }
+     });
+     ScrollablePopup.prototype.refresh = function(){ };
+     ScrollablePopup.prototype.scrollToBottom = function(){
+         var dh=$('#'+this.id).height();
+         var ch=$(window).height();
+         console.log('Scrolling by' + dh + ':' + ch + ':' + (dh-ch));
+         if(dh>ch) $(window).scrollTop(dh-ch);
+     };
  }
- ScrollablePopup.prototype.scrollToBottom = function() {
-    /*if(this.scrollbar){
-        var dh=$('#data'+this.id).height();
-        var ch=$('#scroll'+this.id).height();
-        console.log('Scrolling by s' + dh + ':' + ch + ':' + (dh-ch));
-        if(dh>ch) this.scrollbar.scrollTo(0,-(dh-ch),0);
-    }
-    else {
-        var dh=$('#'+this.id).height();
-        var ch=$(window).height();
-        console.log('Scrolling by' + dh + ':' + ch + ':' + (dh-ch));
-        if(dh>ch) $(window).scrollTop(dh-ch);
-    }*/
+ else if(ScrollablePopup.iscroll){
+     document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+     ScrollablePopup.prototype.refresh = function(){ this.scrollbar.refresh(); };
+     ScrollablePopup.prototype.scrollToBottom = function(){
+         var dh=$('#data'+this.id).height();
+         var ch=$('#scroll'+this.id).height();
+         console.log('Scrolling by s' + dh + ':' + ch + ':' + (dh-ch));
+         if(dh>ch) this.scrollbar.scrollTo(0,-(dh-ch),0);
+     }
+ }
+ else if(ScrollablePopup.jscroll) {
+     ScrollablePopup.prototype.refresh = function(){ $('#scroll'+this.id).data('jsp').reinitialise(); };
+     ScrollablePopup.prototype.scrollToBottom = function(){ $('#scroll'+this.id).data('jsp').scrollToBottom(); };
  }
 
  //normal popups
@@ -349,7 +352,6 @@ function animate(){
             if(threads.threads[id].e !==0 ) threads.child(id).removeClass('threadNotRead').addClass('threadRead');
              messages.threadId = threads.threads[id].i;
              messages.messages = data.r;
-             data.r.push({last:true});
              messages.update(data.r);
              threads.transition(messages);
              setTimeout(function(){ messages.scrollToBottom() },500);
@@ -368,34 +370,25 @@ function animate(){
  '<div class="message-reply popup-background" id="replyToMessage"><div><textarea maxlength="500" onfocus="this.value=\'\';">Reply...</textarea></div></div>');
 
  messages.nodeCreator = function(message,id){
-    if(message.last)
-        return '<div class="reply"><div><textarea name="m" class="reply" id="foo" maxlength="500" onfocus="this.value=\'\'; ">Reply...</textarea></div></div>'
-    else return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
+    return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
  }
  messages.showReply = function() {
      messages.messages.push({s:1,m:'Ha'});
      messages.update(messages.messages);
      messages.refresh();
      messages.scrollToBottom();
-     //$('#scroll'+messages.id).removeClass('popup-scrollableArea').addClass('popup-scrollableArea-raised');
-     /*$('#scroll'+messages.id).animate({bottom:"40%"},1000,'linear',function(){
-         messages.refresh();
-         messages.scrollToBottom();
-     });
-     $('#replyToMessage').animate({height:'40%'},1000,'linear');*/
  }
 
 
 
  function messagesRecieved(data){
      if(data.r && data.r.length !== 0){
-         //data.r.push({last:true});
 
          messages.update(data.r);
 
 
          messages.show();
-         $('#scroll'+messages.id).data('jsp').getContentPane().append(messages.nodeCreator({last:true},1));
+         /*$('#scroll'+messages.id).data('jsp').getContentPane().append(messages.nodeCreator({last:true},1));
          $('#scroll'+messages.id).data('jsp').reinitialise();
          setTimeout(function(){ messages.scrollToBottom() },500);
          $('#foo').focus(function(){
@@ -403,7 +396,7 @@ function animate(){
              $('.reply').css('height','120px');
              $('#scroll'+messages.id).data('jsp').reinitialise();
              $('#scroll'+messages.id).data('jsp').scrollToBottom();
-         });
+         });*/
      }
  }
  messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'},{s:1,m:'F.U'},{s:0,m:'Pop pop!'}]});
