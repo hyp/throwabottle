@@ -26,6 +26,9 @@
 <link rel="stylesheet/less" type="text/css" href="style.less" />
 <script src="less.js"></script>
 
+<!-- styles needed by jScrollPane -->
+<link type="text/css" href="css/jquery.jscrollpane.css" rel="stylesheet" media="all" />
+
 </head>
 <body>
 
@@ -109,6 +112,13 @@ function animate(){
 
 <!-- scripts concatenated and minified via ant build script -->
 <script src="js/helper.js"></script>
+
+<!-- the mousewheel plugin - optional to provide mousewheel support
+<script type="text/javascript" src="script/jquery.mousewheel.js"></script>-->
+
+<!-- the jScrollPane script -->
+<script type="text/javascript" src="js/jquery.jscrollpane.min.js"></script>
+
 <script src="js/libs/iscroll.js"></script>
 
 <script>
@@ -182,11 +192,13 @@ function animate(){
  ScrollablePopup.prototype.show = function(){
      if(ScrollablePopup.prototype.current) return;
      ScrollablePopup.prototype.current = this;
-     if(this.iscroll){
-         var s = this.scrollbar = new iScroll('scroll'+this.id,{hScroll:false,hScrollbar:false});
-         setTimeout(function() { s.refresh(); },0);
-     }
+
      $('#'+this.id).fadeIn('slow');
+     if(this.iscroll){
+         $('#scroll'+this.id).jScrollPane({autoReinitialise:true});
+         //var s = this.scrollbar = new iScroll('scroll'+this.id,{hScroll:false,hScrollbar:false});
+         //setTimeout(function() { s.refresh(); },0);
+     }
      if(!this.iscroll)
          $('#'+this.id).height($('#data'+this.id).height() + 40 + 54 + 32 + 32);
      return this;
@@ -242,7 +254,7 @@ function animate(){
      //if(scrollbar) setTimeout(function(){ scrollbar.refresh(); },0);
  }
  ScrollablePopup.prototype.scrollToBottom = function() {
-    if(this.scrollbar){
+    /*if(this.scrollbar){
         var dh=$('#data'+this.id).height();
         var ch=$('#scroll'+this.id).height();
         console.log('Scrolling by s' + dh + ':' + ch + ':' + (dh-ch));
@@ -253,7 +265,7 @@ function animate(){
         var ch=$(window).height();
         console.log('Scrolling by' + dh + ':' + ch + ':' + (dh-ch));
         if(dh>ch) $(window).scrollTop(dh-ch);
-    }
+    }*/
  }
 
  //normal popups
@@ -337,6 +349,7 @@ function animate(){
          if(data.r && data.r.length !== 0){
             if(threads.threads[id].e !==0 ) threads.child(id).removeClass('threadNotRead').addClass('threadRead');
              messages.threadId = threads.threads[id].i;
+             messages.messages = data.r;
              //data.r.push({last:true});
              messages.update(data.r);
              threads.transition(messages);
@@ -361,12 +374,16 @@ function animate(){
     else return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
  }
  messages.showReply = function() {
+     messages.messages.push({s:1,m:'Ha'});
+     messages.update(messages.messages);
+     messages.refresh();
+     messages.scrollToBottom();
      //$('#scroll'+messages.id).removeClass('popup-scrollableArea').addClass('popup-scrollableArea-raised');
-     $('#scroll'+messages.id).animate({bottom:"40%"},1000,'linear',function(){
+     /*$('#scroll'+messages.id).animate({bottom:"40%"},1000,'linear',function(){
          messages.refresh();
          messages.scrollToBottom();
      });
-     $('#replyToMessage').animate({height:'40%'},1000,'linear');
+     $('#replyToMessage').animate({height:'40%'},1000,'linear');*/
  }
 
 

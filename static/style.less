@@ -408,7 +408,7 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 	border: solid 3px #222222;
 	background: rgba(240,240,240,0.9);//#f0f0f0;
 	.rounded-corners(16px);
-	overflow: auto;
+	overflow: hidden;
     .outerShadow;
 }
 
@@ -439,6 +439,7 @@ h3 {
     right:@sideOffset;
     border:none;
     .rounded-corners(16px);
+    overflow: hidden;
     .outerShadow;
 }
 
@@ -478,7 +479,7 @@ h3 {
 
 .popup-scrollableArea {
     position: absolute;
-    top: 16px;bottom:16px;left:0;width:100%;
+   top: 16px;bottom:16px;left:0;width:100%;
     overflow:hidden;
 }
 
@@ -512,6 +513,7 @@ ul {
 	padding:0;
 	margin:0;
 	width:100%;
+    overflow:auto;
 }
 
 .messageHeading {

@@ -323,7 +323,6 @@ app.on('/api/bottle/reply',function(request,response,data){
 
 //Reply to a thread
 app.on('/api/reply',function(request,response,data){
-    //TODO test
     //data.m
     getUserId(request,response,function(userid){
         var query = request.parsedUrl.query;
