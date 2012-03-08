@@ -389,7 +389,7 @@ app.on('/api/messages',function(request,response){
                             inc = thread.es ? thread.es : 0;
                         }
                         messages.update({_id:tid,r:thread.r},{$set:eventInc},{safe:true},errorHandler);
-                        if(inc!==0) redisData.hincrby(reciever,'e',inc,errorHandler);
+                        if(inc!==0) redisData.hincrby(reciever,'e',-inc,errorHandler);
                     }
                     else response.end('{"r":[]}');
                 });
