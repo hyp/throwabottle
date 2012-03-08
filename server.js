@@ -328,9 +328,11 @@ app.on('/api/reply',function(request,response,data){
         var query = request.parsedUrl.query;
         if(query.i){
             console.log('Reply to a message ' + query.i +' by ' + userid + ' : ' + data.m);
-            messages.find({_id:Number(query.i),$or:[{r:userid},{s:userid}]},{s:true,r:true},{limit:1},function(err,cursor){
+            var tid = Number(query.i);
+            messages.find({_id:tid,$or:[{r:userid},{s:userid}]},{s:true,r:true},{limit:1},function(err,cursor){
                 if(cursor) cursor.nextObject(function(err,thread){
                     if(thread){
+                        console.log('Thread found');
                         var reciever,eventInc;
                         if(thread.s === userid){
                             reciever = thread.r;
@@ -339,9 +341,9 @@ app.on('/api/reply',function(request,response,data){
                             reciever = thread.s;
                             eventInc = { es: 1 };
                         }
-                        messages.update({_id:data.i,r:thread.r},
+                        messages.update({_id:tid,r:thread.r},
                                 {$set:{t:Date.now()},$inc: eventInc,$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
-                        redisData.hincrby(reciever,'e',1,errorHandler);
+                        //redisData.hincrby(reciever,'e',1,errorHandler);
                     }
                 });
             });
@@ -357,7 +359,7 @@ app.on('/api/messages',function(request,response){
     getUserId(request,response,function(userid){
         var query = request.parsedUrl.query;
         if(query.i){
-            console.log('Retrieving threads, thread#' + query.i);
+            console.log('Retrieving messages, thread#' + query.i);
             messages.find({_id:Number(query.i),$or:[{r:userid},{s:userid}]},{limit:1},function(err,cursor){
                 if(cursor) cursor.nextObject(function(err,thread){
                     if(thread){
