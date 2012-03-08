@@ -168,7 +168,7 @@ function animate(){
      this.scrollbar = null;
 
      var src = '<div class="fullscreen popup" id="'+this.id+'" '+(this.iscroll?'':'style="display:block;"')+'><h3>'+title+'</h3>'+
-         '<div class="taWrapper popup-background">'+//'<div class="popup-top popup-background"></div><div class="popup-bottom popup-background "></div>'+
+         '<div class="taWrapper popup-background">'+
              '<div class="'+(innerBody === '' ?'popup-scrollableArea':'popup-smallScrollableArea')+'" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div>'+
          innerBody+'</div>'+body+'</div>';
 
@@ -389,10 +389,21 @@ function animate(){
 
  function messagesRecieved(data){
      if(data.r && data.r.length !== 0){
-         data.r.push({last:true});
+         //data.r.push({last:true});
+
          messages.update(data.r);
+
+
          messages.show();
+         $('#scroll'+messages.id).data('jsp').getContentPane().append(messages.nodeCreator({last:true},1));
+         $('#scroll'+messages.id).data('jsp').reinitialise();
          setTimeout(function(){ messages.scrollToBottom() },500);
+         $('#foo').focus(function(){
+             $('#scroll'+messages.id).data('jsp').getContentPane().height($('#scroll'+messages.id).data('jsp').getContentPane().height()+90);
+             $('.reply').css('height','120px');
+             $('#scroll'+messages.id).data('jsp').reinitialise();
+             $('#scroll'+messages.id).data('jsp').scrollToBottom();
+         });
      }
  }
  messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'},{s:1,m:'F.U'},{s:0,m:'Pop pop!'}]});
