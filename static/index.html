@@ -373,9 +373,9 @@ function animate(){
     return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
  }
  messages.showReply = function() {
-     var reply = $('#replyToMessage').val();
+     var reply = $('#replyToMessage').html();
      console.log(reply);
-     $.post('api/reply?i='+messages.threadId,'m='+reply);
+     $.post('api/reply?i='+messages.threadId, $('#replyToMessage').serialize());
      messages.messages.push({s:1,m:reply});
      messages.update(messages.messages);
      messages.refresh();

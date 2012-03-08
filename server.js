@@ -218,17 +218,19 @@ app.on('/api/login',function(request,response,data){
 //onBottle - data := { msg }
 app.on('/api/throw',function(request,response,data){
 	getUser(request,response,function(userid,user){
-        redisData.hincrby(userid,'b',-1,function(err,bottles){
-            if(bottles >= 0) {
-                response.writeHead(200, {'Content-Type':'text/json'});
-                response.end('{"r":'+bottles+'}');
+        if(data.m && data.m !== ''){
+            redisData.hincrby(userid,'b',-1,function(err,bottles){
+                if(bottles >= 0) {
+                    response.writeHead(200, {'Content-Type':'text/json'});
+                    response.end('{"r":'+bottles+'}');
 
-                var bottle = JSON.stringify({s:userid,m:data.m});
-                redisData.lpush('_bottles',bottle);
-                console.log(' Submitted new bottle - usr: ' + JSON.stringify(user) +' msg: ' + bottle);
-            }
-            else hackError(response);
-        });
+                    var bottle = JSON.stringify({s:userid,m:data.m});
+                    redisData.lpush('_bottles',bottle);
+                    console.log(' Submitted new bottle - usr: ' + JSON.stringify(user) +' msg: ' + bottle);
+                }
+                else hackError(response);
+            });
+        }else request.connection.destroy();
 	});
 });
 
@@ -295,27 +297,29 @@ app.on('/api/bottle/recycle',function (request,response){
 //Reply to a bottle
 app.on('/api/bottle/reply',function(request,response,data){
     getUserId(request,response,function(userid){
-        console.log('Reply to a bottle by user ' + userid + ' : ' + data.m);
-        redisData.hget(userid,'c',function(err,bottle){
-            if(bottle !== null){
-                console.log(' Bottle recovered ' + bottle);
-                redisData.hdel(userid,'c');
-                redisData.incr('_mid',function(err,bottleId){
-                    if(!err){
-                        bottle = JSON.parse(bottle);
-                        messages.insert({
-                            _id:bottleId,t:Date.now(),
-                            r:userid,s:bottle.s,es:1,
-                            d:[
-                                {s:bottle.s,m:bottle.m},
-                                {s:userid,m:data.m}
-                            ]
-                        });
-                        redisData.hincrby(bottle.s,'e',1);
-                    }
-                });
-            }
-        });
+        if(data.m && data.m !== ''){
+            console.log('Reply to a bottle by user ' + userid + ' : ' + data.m);
+            redisData.hget(userid,'c',function(err,bottle){
+                if(bottle !== null){
+                    console.log(' Bottle recovered ' + bottle);
+                    redisData.hdel(userid,'c');
+                    redisData.incr('_mid',function(err,bottleId){
+                        if(!err){
+                            bottle = JSON.parse(bottle);
+                            messages.insert({
+                                _id:bottleId,t:Date.now(),
+                                r:userid,s:bottle.s,es:1,
+                                d:[
+                                    {s:bottle.s,m:bottle.m},
+                                    {s:userid,m:data.m}
+                                ]
+                            });
+                            redisData.hincrby(bottle.s,'e',1);
+                        }
+                    });
+                }
+            });
+        }
         response.writeHead(200);
         response.end();
     });
@@ -326,7 +330,7 @@ app.on('/api/reply',function(request,response,data){
     //data.m
     getUserId(request,response,function(userid){
         var query = request.parsedUrl.query;
-        if(query.i){
+        if(query.i && data.m && data.m !== ''){
             console.log('Reply to a message ' + query.i +' by ' + userid + ' : ' + data.m);
             var tid = Number(query.i);
             messages.find({_id:tid,$or:[{r:userid},{s:userid}]},{s:true,r:true},{limit:1},function(err,cursor){
