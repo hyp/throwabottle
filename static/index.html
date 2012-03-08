@@ -150,7 +150,7 @@ function animate(){
  //scrollable
  ScrollablePopup.prototype = new PopupBase;
  ScrollablePopup.prototype.constructor = PopupBase;
- var useIscroll = false;
+ var useIscroll = true;
  function ScrollablePopup(title,body){
      this.id='_'+ids;ids++;
      this.iscroll = useIscroll;
@@ -159,7 +159,7 @@ function animate(){
      var src = this.iscroll ? '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
              '<div class="taWrapper" style="background:white;"><div class="middle"><div class="scrollableWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div></div></div>'+body+'</div>' :
              '<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div>'+body+'</div></div>';
+             '<div class="taWrapper" style="background:white;"><div class="middle" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div></div>'+body+'</div></div>';
 
      $('body').append(src);
  }
@@ -178,10 +178,10 @@ function animate(){
      if(this.iscroll){
          var s = this.scrollbar = new iScroll('messagesWrapper',{hScroll:false,hScrollbar:false});
          setTimeout(function() { s.refresh(); },0);
-     }else
-         console.log('h2:'+$('#data'+this.id).height());
+     }
      $('#'+this.id).fadeIn('slow');
-     $('#'+this.id).height($('#data'+this.id).height()+100);
+     if(!this.iscroll)
+         $('#'+this.id).height($('#data'+this.id).height() + 40 + 54 + 32);
      return this;
  }
  ScrollablePopup.prototype.close = function(){
@@ -198,7 +198,6 @@ function animate(){
  }
  ScrollablePopup.prototype.update= function(data){
      var id = 0;
-     var h = 0 , node;
      var container = $('#data'+this.id);
      var idPrefix=this.id+'_';
      var handler = this.childClick;
@@ -207,17 +206,20 @@ function animate(){
      var src = '';
 
       data.forEach(function(elem){
-         node = creator(elem,idPrefix+id);
-         src+=node.html;
-
-         h+=node.height;
-         /*$('#'+idPrefix+id).data('id',id).click(function(){
-             if(handler) handler($(this).data('id'));
-         });*/
+         src+=creator(elem,idPrefix+id);
          id++;
      });
      container.html(src);
-     console.log('h:'+container.height());
+     id = 0;
+     if(handler) data.forEach(function(elem){
+             $('#'+idPrefix+id).data('id',id).click(function(){
+                handler($(this).data('id'));
+             });
+             id++;
+     });
+ }
+ ScrollablePopup.prototype.child = function(id) {
+     return $('#'+this.id+'_'+id);
  }
 
  //normal popups
@@ -286,15 +288,21 @@ function animate(){
          '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
          '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
- var messages = new ScrollablePopup('Messages','<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="messages.close();">Ok</button></div>');
+ var threads = new ScrollablePopup('Messages','<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="threads.close();">Ok</button></div>');
 
  //welcome.show();
 
- messages.childClick = function(id){
-     console.log('Showing thread '+id);
+ threads.childClick = function(id){
+     var thread = threads.child(id).append('<div class="threadLoader"></div>');
+     function messagesRecieved(data){
+         $('.threadLoader').remove();
+     }
+
+     setTimeout(function(){ messagesRecieved(); },500);
+     //$.get('api/messages?i='+threads.threads[id].i,messagesRecieved,'json');
  }
- messages.nodeCreator = function(thread,id){
-     return { html:'<li class="'+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>', height:43 };
+ threads.nodeCreator = function(thread,id){
+     return '<li class="'+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>';
  }
 
 
@@ -367,15 +375,16 @@ function animate(){
  }
 
  $('#btn_history').click(function(){
-     $.get('api/threads',function(data){
+     function threadsRecieved(data){
          if(data.r && data.r.length !== 0){
-             messages.update(data.r);
-             messages.show();
+             threads.threads = data.r;
+             threads.update(data.r);
+             threads.show();
          }
-     },'json');
+     }
+     $.get('api/threads',threadsRecieved,'json');
 
-     messages.update([{s:0,e:1,m:'foo'},{s:1,e:1,m:'bar'},{s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'}]);
-     messages.show();
+     threadsRecieved({r:[{i:1,s:0,e:1,m:'foo'},{i:2,s:1,e:1,m:'bar'},{s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'}]});
  });
 
  function handleQuery(response){
