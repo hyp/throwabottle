@@ -189,6 +189,7 @@ function animate(){
          $('#'+this.id).height($('#data'+this.id).height() + 40 + 54 + 32);
      return this;
  }
+
  ScrollablePopup.prototype.close = function(){
 
      $('#'+this.id).fadeOut('slow');
@@ -202,6 +203,10 @@ function animate(){
      }
      ScrollablePopup.prototype.current = null;
      return this;
+ }
+ ScrollablePopup.prototype.transition = function(other){
+      this.close();
+      other.show();
  }
  ScrollablePopup.prototype.update= function(data){
      var id = 0;
@@ -302,15 +307,21 @@ function animate(){
  threads.childClick = function(id){
      alert('t:'+id);
      var thread = threads.child(id).append('<div class="threadLoader"></div>');
+     var recieved = false;
      function messagesRecieved(data){
+         if(recieved) return;
+         recieved = true;
          $('.threadLoader').remove();
-         if(threads.threads[id].e !==0 ) threads.child(id).removeClass('threadNotRead').addClass('threadRead');
-         messages.update([{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'}])
-         threads.transition(messages);
+         if(data.r && data.r.length !== 0){
+            if(threads.threads[id].e !==0 ) threads.child(id).removeClass('threadNotRead').addClass('threadRead');
+             messages.threadId = threads.threads[id].i;
+             messages.update(data.r);
+             threads.transition(messages);
+         }
      }
 
-     setTimeout(function(){ messagesRecieved(); },500);
-     //$.get('api/messages?i='+threads.threads[id].i,messagesRecieved,'json');
+     setTimeout(function(){ messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'}]}); },2000);
+     $.get('api/messages?i='+threads.threads[id].i,messagesRecieved,'json');
  }
  threads.nodeCreator = function(thread,id){
      return '<li class="thread '+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>';
@@ -393,7 +404,10 @@ function animate(){
  }
 
  $('#btn_history').click(function(){
+     var recieved = false;
      function threadsRecieved(data){
+         if(recieved) return;
+         recieved = true;
          if(data.r && data.r.length !== 0){
              threads.threads = data.r;
              threads.update(data.r);
@@ -402,7 +416,8 @@ function animate(){
      }
      $.get('api/threads',threadsRecieved,'json');
 
-     //threadsRecieved({r:[{i:1,s:0,e:1,m:'foo'},{i:2,s:1,e:1,m:'bar'},{s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'}]});
+     setTimeout(function(){ threadsRecieved({r:[{i:1,s:0,e:1,m:'foo'},{i:2,s:1,e:1,m:'bar'},{i:3,s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{i:4,s:1,e:1,m:'lol'},{i:5,s:0,e:0,m:'test'},{i:6,s:1,e:1,m:'lol'},{i:7,s:0,e:0,m:'test'}]}); },
+         2000);
  });
 
  function handleQuery(response){
