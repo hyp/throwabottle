@@ -95,8 +95,11 @@ function touchUserData(userid,handler){
         var t = Date.now();
         if(data.t <= t){
             console.log(userid + " - refreshing data.");
-            data = {"t":t+refreshTime,"b":6,"n":4};
-            redisData.hmset(userid,data);
+            var d = {"t":t+refreshTime,"b":6,"n":4};
+            redisData.hmset(userid,d);
+            data.t = d.t;
+            data.b = d.b;
+            data.n = d.n;
         }
         handler(data);
     });
@@ -364,7 +367,8 @@ app.on('/api/messages',function(request,response){
         var query = request.parsedUrl.query;
         if(query.i){
             console.log('Retrieving messages, thread#' + query.i);
-            messages.find({_id:Number(query.i),$or:[{r:userid},{s:userid}]},{limit:1},function(err,cursor){
+            var tid = Number(query.i);
+            messages.find({_id:tid,$or:[{r:userid},{s:userid}]},{limit:1},function(err,cursor){
                 if(cursor) cursor.nextObject(function(err,thread){
                     if(thread){
                         result = {r:[]};
@@ -373,7 +377,17 @@ app.on('/api/messages',function(request,response){
                             result.r.push({s:msg.s === userid ? 1 : 0,m:msg.m});
                         });
                         response.end(JSON.stringify(result));
-                        //TODO thread+user event counters
+
+                        var reciever,eventInc;
+                        if(thread.r === userid){
+                            reciever = thread.r;
+                            eventInc = { er: 1 };
+                        }else{
+                            reciever = thread.s;
+                            eventInc = { es: 1 };
+                        }
+                        messages.update({_id:tid,r:thread.r},{$set:eventInc},{safe:true},errorHandler);
+                        redisData.hset(reciever,'e',0,errorHandler);
                     }
                     else response.end('{"r":[]}');
                 });

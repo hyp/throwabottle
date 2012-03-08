@@ -463,7 +463,6 @@ function animate(){
  var _notifications = 0;
  notifications.count = function(n){
      _notifications = n;
-     console.log('Setting notifications' + n)
      if(n > 0){
          this.html(n.toString());
          this.css('display','block');
