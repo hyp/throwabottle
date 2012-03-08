@@ -522,7 +522,7 @@ textarea [readonly="readonly"] {
 
 @threadSize:40px;
 
-.popup-scrollableArea li {
+.thread {
 	padding:0 10px;
 	height:@threadSize;
 	line-height:@threadSize;
@@ -532,7 +532,7 @@ textarea [readonly="readonly"] {
     cursor: pointer;
 }
 
-.popup-scrollableArea li:first-child {
+.thread:first-child {
     border-top:1px solid #ccc;
 }
 
@@ -589,6 +589,29 @@ textarea [readonly="readonly"] {
     top:@threadSize/2 - @arrowSize;
     position:relative;
     float:right;
+}
+
+.message {
+ 	padding:5px 10px;
+ 	border:1px solid #ccc;
+    text-align:left;
+    position:relative;
+    .rounded-corners(8px);
+    margin-bottom:10px;
+}
+
+.message p {
+    font-size:20px;
+}
+
+.message-sender {
+    background-color:#e8e8e8;
+    left:0;margin-right:32px;
+}
+
+.message-reciever {
+    background-color:#fdfdfd;
+    margin-left:32px;right:0;
 }
 
 

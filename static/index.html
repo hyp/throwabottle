@@ -150,7 +150,7 @@ function animate(){
  //scrollable
  ScrollablePopup.prototype = new PopupBase;
  ScrollablePopup.prototype.constructor = PopupBase;
- var useIscroll = false;
+ var useIscroll = true;
  function ScrollablePopup(title,body){
      this.id='_'+ids;ids++;
      this.iscroll = useIscroll;
@@ -305,17 +305,25 @@ function animate(){
      function messagesRecieved(data){
          $('.threadLoader').remove();
          if(threads.threads[id].e !==0 ) threads.child(id).removeClass('threadNotRead').addClass('threadRead');
-
+         messages.update([{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'}])
+         threads.transition(messages);
      }
 
      setTimeout(function(){ messagesRecieved(); },500);
      //$.get('api/messages?i='+threads.threads[id].i,messagesRecieved,'json');
  }
  threads.nodeCreator = function(thread,id){
-     return '<li class="'+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>';
+     return '<li class="thread '+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>';
  }
 
+ var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.close();">Ok</button><button type="button" onClick="messages.close();">Reply</button></div>');
 
+ messages.nodeCreator = function(message,id){
+    return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
+ }
+
+ messages.update([{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'}])
+ messages.show();
 
 
  $('#loginForm').submit(function(){
