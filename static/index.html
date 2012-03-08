@@ -150,7 +150,7 @@ function animate(){
  //scrollable
  ScrollablePopup.prototype = new PopupBase;
  ScrollablePopup.prototype.constructor = PopupBase;
- var useIscroll = true;
+ var useIscroll = true;//mobile;
  function ScrollablePopup(title,body){
      this.id='_'+ids;ids++;
      this.iscroll = useIscroll;
@@ -191,16 +191,16 @@ function animate(){
  }
 
  ScrollablePopup.prototype.close = function(){
-
-     $('#'+this.id).fadeOut('slow');
-     if(this.scrollbar){
-         try{
-             this.scrollbar.destroy();
+     $('#'+this.id).fadeOut('slow',function(){
+         if(this.scrollbar){
+             try{
+                 this.scrollbar.destroy();
+             }
+             catch(exp){
+             }
+             this.scrollbar = null;
          }
-         catch(exp){
-         }
-         this.scrollbar = null;
-     }
+     });
      ScrollablePopup.prototype.current = null;
      return this;
  }
@@ -232,6 +232,20 @@ function animate(){
  }
  ScrollablePopup.prototype.child = function(id) {
      return $('#'+this.id+'_'+id);
+ }
+ ScrollablePopup.prototype.scrollToBottom = function() {
+    if(this.scrollbar){
+        var dh=$('#data'+this.id).height();
+        var ch=$('#scroll'+this.id).height();
+        console.log('Scrolling by s' + dh + ':' + ch + ':' + (dh-ch));
+        if(dh>ch) this.scrollbar.scrollTo(0,-(dh-ch),0);
+    }
+    else {
+        var dh=$('#'+this.id).height();
+        var ch=$(window).height();
+        console.log('Scrolling by' + dh + ':' + ch + ':' + (dh-ch));
+        if(dh>ch) $(window).scrollTop(dh-ch);
+    }
  }
 
  //normal popups
@@ -317,24 +331,35 @@ function animate(){
              messages.threadId = threads.threads[id].i;
              messages.update(data.r);
              threads.transition(messages);
+             setTimeout(function(){ messages.scrollToBottom() },500);
          }
      }
 
-     setTimeout(function(){ messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'}]}); },2000);
+     setTimeout(function(){ messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'},{s:1,m:'F.U'},{s:0,m:'Pop pop!'}]}); },2000);
      $.get('api/messages?i='+threads.threads[id].i,messagesRecieved,'json');
  }
+
  threads.nodeCreator = function(thread,id){
      return '<li class="thread '+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>';
  }
 
- var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.close();">Ok</button><button type="button" onClick="messages.close();">Reply</button></div>');
+ var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">back</button><button type="button" onClick="messages.close();">Reply</button></div>');
 
  messages.nodeCreator = function(message,id){
     return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
  }
 
- messages.update([{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'}])
- messages.show();
+
+
+ function messagesRecieved(data){
+     if(data.r && data.r.length !== 0){
+         messages.update(data.r);
+         messages.show();
+         setTimeout(function(){ messages.scrollToBottom() },500);
+     }
+ }
+ //messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'},{s:1,m:'F.U'},{s:0,m:'Pop pop!'}]});
+
 
 
  $('#loginForm').submit(function(){

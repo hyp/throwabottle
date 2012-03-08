@@ -249,7 +249,7 @@ function popBottle(userid,handler,probability){
                 if(bottle.s === userid){
                     console.log(' Sender is reciever! - going for one more round');
                     redisData.lpush('_bottles',JSON.stringify(bottle));
-                    popBottle(userid,handler,probability + 0.4);
+                    popBottle(userid,handler,probability + 0.3);
                 }
                 else handler(bottle);
             }
@@ -265,11 +265,11 @@ app.on('/api/catch',function (request,response){
             if(nets >= 0) popBottle(userid,function(bottle){
                 response.writeHead(200, { 'Content-Type':'text/json' });
                 if(bottle.m){
-                    response.end('{"r":'+nets+',"m":"'+bottle.m+'"}');
+                    response.end(JSON.stringify({r:nets,m:bottle.m}));
                     redisData.hset(userid,'c',JSON.stringify(bottle));
                 }
                 else
-                    response.end('{"r":'+nets+',"j":"'+bottle.j+'"}');
+                    response.end(JSON.stringify({r:nets,j:bottle.j}));
             });
             else hackError(response);
         });
