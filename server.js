@@ -378,17 +378,17 @@ app.on('/api/messages',function(request,response){
                         });
                         response.end(JSON.stringify(result));
 
-                        var reciever,eventInc,inc;
+                        var reciever,eventReset,inc;
                         if(thread.r === userid){
                             reciever = thread.r;
-                            eventInc = { er: 0 };
+                            eventReset = { er: 0 };
                             inc = thread.er ? thread.er : 0;
                         }else{
                             reciever = thread.s;
-                            eventInc = { es: 0 };
+                            eventReset = { es: 0 };
                             inc = thread.es ? thread.es : 0;
                         }
-                        messages.update({_id:tid,r:thread.r},{$set:eventInc},{safe:true},errorHandler);
+                        messages.update({_id:tid,r:thread.r},{$set:eventReset},{safe:true},errorHandler);
                         if(inc!==0) redisData.hincrby(reciever,'e',-inc,errorHandler);
                     }
                     else response.end('{"r":[]}');

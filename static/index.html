@@ -387,18 +387,6 @@ function animate(){
 
 
 
- function messagesRecieved(data){
-     if(data.r && data.r.length !== 0){
-
-         messages.update(data.r);
-         messages.messages = data.r;
-
-         messages.show();
-
-     }
- }
- messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'},{s:1,m:'F.U'},{s:0,m:'Pop pop!'}]});
-
 
 
  $('#loginForm').submit(function(){
