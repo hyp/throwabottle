@@ -479,13 +479,13 @@ h3 {
 //Needed to fix the Transition animation bug in webkit
 .popup-middle {
     position: absolute;
-    top: 16px;bottom:16px;left:0;width:100%;
+    top: 16px;bottom:30%;left:0;width:100%;
     overflow:hidden;
 }
 
 .popup-scrollableArea {
     position: absolute;
-    top: 0;bottom:20%;left:0;width:100%;
+    top: 0;bottom:0;left:0;width:100%;
     overflow:hidden;
    transition: bottom 1s;
     -moz-transition: bottom 1s;
@@ -646,16 +646,25 @@ ul {
 
 .message-reply {
     position:absolute;
-    bottom:0;height:20%;left:0;width:100%;
+    bottom:0;height:30%;left:0;width:100%;
+}
+
+.message-reply div {
+    position:absolute;
+    left:0px;top:0px;
+    right:10px;bottom:10px;
 }
 
 .message-reply textarea {
-    height:100%;width:100%;
+    display:block;
+    position:absolute;
+    left:0;width:100%;margin-right:-10px;
+    height:100%;
 
     font-size: 20px;
     padding: 4px;
     border:1px solid #ccc;
-    .rounded-corners(8px);
+    .rounded-corners(16px);
     resize: none;
 
     //margin:0;
