@@ -398,7 +398,7 @@ app.on('/api/threads',function(request,response){
                     var threads = [];
                     threadsData.forEach(function(thread){
                         console.log(thread);
-                        var msg = thread.d[thread.d.length-1];
+                        var msg = thread.d[0];
                         threads.push({i:thread._id,e:(thread.s === userid ? thread.es : thread.er) || 0,s:msg.s === userid ? 1 : 0,m:msg.m});
                     });
                     response.end('{"r":'+JSON.stringify(threads)+'}');

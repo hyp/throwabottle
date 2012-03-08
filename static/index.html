@@ -150,16 +150,16 @@ function animate(){
  //scrollable
  ScrollablePopup.prototype = new PopupBase;
  ScrollablePopup.prototype.constructor = PopupBase;
- var useIscroll = true;
+ var useIscroll = false;
  function ScrollablePopup(title,body){
      this.id='_'+ids;ids++;
      this.iscroll = useIscroll;
      this.scrollbar = null;
 
      var src = this.iscroll ? '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" style="background:white;"><div class="middle"><div class="scrollableWrapper" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div></div></div>'+body+'</div>' :
+             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background"></div><div class="popup-bottom popup-background "></div><div class="popup-scrollableArea popup-background " id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div>'+body+'</div>' :
              '<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" style="background:white;"><div class="middle" id="messagesWrapper"><ul id="data'+this.id+'"></ul></div></div>'+body+'</div></div>';
+             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background "></div><div class="popup-bottom popup-background "></div><div class="popup-scrollableArea popup-background " id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div>'+body+'</div></div>';
 
      $('body').append(src);
  }
@@ -170,13 +170,16 @@ function animate(){
  else {
      $(window).scroll(function (){
          var s = $(window).scrollTop();
-         $('#messagesWrapper').scrollTop(s);
+         $('#scroll'+ScrollablePopup.prototype.current.id).scrollTop(s);
      });
  }
 
+ ScrollablePopup.prototype.current = null;
  ScrollablePopup.prototype.show = function(){
+     if(ScrollablePopup.prototype.current) return;
+     ScrollablePopup.prototype.current = this;
      if(this.iscroll){
-         var s = this.scrollbar = new iScroll('messagesWrapper',{hScroll:false,hScrollbar:false});
+         var s = this.scrollbar = new iScroll('scroll'+this.id,{hScroll:false,hScrollbar:false});
          setTimeout(function() { s.refresh(); },0);
      }
      $('#'+this.id).fadeIn('slow');
@@ -185,6 +188,7 @@ function animate(){
      return this;
  }
  ScrollablePopup.prototype.close = function(){
+     ScrollablePopup.prototype.current = null;
      $('#'+this.id).fadeOut('slow');
      if(this.scrollbar){
          try{
@@ -238,7 +242,7 @@ function animate(){
 
      var extras = settings.readonly ? ' readonly="readonly"' : '';
      PopupBase.call(this,title,'<form><div class="taWrapper"><div class="textareaWrapper"><textarea name="m" id="msg_'+ids+'" maxlength="500" required'+extras+'></textarea></div></div>' +
-             '<div class="inputButtons"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
+             '<div class="popup-buttonArea"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
              '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form>');
  }
  MessagePopup.prototype.send = function(url,handler){
@@ -288,14 +292,17 @@ function animate(){
          '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
          '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
 
- var threads = new ScrollablePopup('Messages','<div class="inputButtons"><button type="button" style="float:none;margin:10px auto" onClick="threads.close();">Ok</button></div>');
+ var threads = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" style="float:none;margin:10px auto" onClick="threads.close();">Ok</button></div>');
 
  //welcome.show();
 
  threads.childClick = function(id){
+     alert('t:'+id);
      var thread = threads.child(id).append('<div class="threadLoader"></div>');
      function messagesRecieved(data){
          $('.threadLoader').remove();
+         if(threads.threads[id].e !==0 ) threads.child(id).removeClass('threadNotRead').addClass('threadRead');
+
      }
 
      setTimeout(function(){ messagesRecieved(); },500);
@@ -384,7 +391,7 @@ function animate(){
      }
      $.get('api/threads',threadsRecieved,'json');
 
-     //threadsRecieved({r:[{i:1,s:0,e:1,m:'foo'},{i:2,s:1,e:1,m:'bar'},{s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'}]});
+     threadsRecieved({r:[{i:1,s:0,e:1,m:'foo'},{i:2,s:1,e:1,m:'bar'},{s:0,e:0,m:'kR%H H JR%\n5uytrjhgr rggh\nrgjhr rjghj5hjg 5jhghj\n5uytrjhgr rggh rgjhr rjghj5hjg 5jhghj'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'},{s:1,e:1,m:'lol'},{s:0,e:0,m:'test'}]});
  });
 
  function handleQuery(response){

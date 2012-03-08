@@ -232,6 +232,12 @@ input:valid, textarea:valid {  }
    -moz-box-shadow: 0 0 @size @color;
 }
 
+.vertical-shadow(@offset,@size,@color){
+   box-shadow: 0 @offset @size @color;
+   -webkit-box-shadow: 0 @offset @size @color;
+   -moz-box-shadow: 0 @offset @size @color;
+}
+
 .opacity(@amount){
 	opacity: @amount;
 	@percentage: @amount*100;
@@ -460,7 +466,8 @@ textarea [readonly="readonly"] {
     background-color: #f0f0f0;
 }
 
-.inputButtons {
+
+.popup-buttonArea {
     position:absolute;
     bottom:0px;
     height:@buttonHeight;
@@ -469,32 +476,38 @@ textarea [readonly="readonly"] {
     margin-left: -@buttonWidth;
 }
 
-.middle {
+.popup-scrollableArea {
     position: absolute;
     top: 16px;bottom:16px;
     left:0;width:100%;
-}
-
-
-.scrollableWrapper {
-    oveflow:hidden;
-    position: relative;
-    height:100%;width:100%;
-}
-
-#messagesWrapper {
     overflow:hidden;
-    background:white;
+}
+
+.popup-background {
+    background-color: rgba(240,240,240,0.9);
+}
+
+.popup-top {
+    position: absolute;
+    left:0;width:100%;
+    top:0;height:16px;
+    .top-rounded-corners(16px);
+}
+
+.popup-bottom {
+    position: absolute;
+    left:0;width:100%;
+    bottom:0;height:16px;
+    .bottom-rounded-corners(16px);
 }
 
 
-#messagesWrapper ul {
+.popup-scrollableArea ul {
     list-style:none;
 	padding:0;
 	margin:0;
 	width:100%;
     height:auto;
-	text-align:left;
 }
 
 .messageHeading {
@@ -510,19 +523,31 @@ textarea [readonly="readonly"] {
 
 @threadSize:40px;
 
-#messagesWrapper li {
+.popup-scrollableArea li {
 	padding:0 10px;
 	height:@threadSize;
 	line-height:@threadSize;
-	//border-bottom:1px solid #ccc;
-	border-top:1px solid #ccc;
+	border-bottom:1px solid #ccc;
+    text-align:left;
 	font-size:14px;
-    overflow:hidden;
-    text-overflow:ellipsis;
     cursor: pointer;
 }
 
-#messagesWrapper span {
+.popup-scrollableArea li:first-child {
+    border-top:1px solid #ccc;
+}
+
+.threadRead {
+    background-color:#e8e8e8;
+}
+.threadNotRead {
+    background-color:#fdfdfd;
+    font-weight:bold;
+    font-size:15px;
+
+}
+
+.popup-scrollableArea span {
     float:left;
     position:relative;
     height:100%;
@@ -567,14 +592,7 @@ textarea [readonly="readonly"] {
     float:right;
 }
 
-.threadRead {
-    background-color:#e8e8e8;
-}
-.threadNotRead {
-    background-color:#fdfdfd;
-    font-weight:bold;
-    font-size:15px;
-}
+
 
 
 
