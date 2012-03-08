@@ -157,12 +157,13 @@ function animate(){
      this.iscroll = useIscroll;
      this.scrollbar = null;
 
-     var src = this.iscroll ? '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background"></div><div class="popup-bottom popup-background "></div><div class="popup-middle popup-background"><div class="popup-scrollableArea" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div>'+innerBody+'</div>'+body+'</div>' :
-             '<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background "></div><div class="popup-bottom popup-background "></div><div class="popup-middle popup-background"><div class="popup-scrollableArea" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div>'+innerBody+'</div>'+body+'</div></div>';
+     var src = '<div class="fullscreen popup" id="'+this.id+'" '+(this.iscroll?'':'style="display:block;"')+'><h3>'+title+'</h3>'+
+         '<div class="taWrapper" style="background: transparent;">'+
+             '<div class="popup-top popup-background"></div><div class="popup-bottom popup-background "></div>'+
+             '<div class="'+(innerBody === '' ?'popup-scrollableArea':'popup-smallScrollableArea')+' popup-background" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div>'+
+         innerBody+'</div>'+body+'</div>';
 
-     $('body').append(src);
+     $('body').append(this.iscroll ? src : '<div class="scrollablePopup" id="'+this.id+'">'+src+'</div>');
  }
 
  if(useIscroll){
@@ -352,11 +353,11 @@ function animate(){
  }
 
  var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">back</button><button type="button" onClick="messages.showReply();">Reply</button></div>',
- '<div class="message-reply" id="replyToMessage"><div><textarea></textarea></div></div>');
+ '<div class="message-reply popup-background" id="replyToMessage"><div><textarea maxlength="500" onfocus="this.value=\'\';">Reply...</textarea></div></div>');
 
  messages.nodeCreator = function(message,id){
     if(message.last)
-        return 'Reply:<br></span></span><textarea name="m" id="foo" maxlength="500"></textarea><input type="text">'
+        return 'Reply:<br></span></span><textarea name="m" id="foo" maxlength="500" onfocus="this.value=\'\'; ">Reply...</textarea><input type="text">'
     else return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
  }
  messages.showReply = function() {
