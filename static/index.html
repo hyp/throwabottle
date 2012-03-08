@@ -157,9 +157,9 @@ function animate(){
      this.scrollbar = null;
 
      var src = this.iscroll ? '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background"></div><div class="popup-bottom popup-background "></div><div class="popup-scrollableArea popup-background " id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div>'+body+'</div>' :
+             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background"></div><div class="popup-bottom popup-background "></div><div class="popup-middle"><div class="popup-scrollableArea popup-background" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div></div>'+body+'</div>' :
              '<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background "></div><div class="popup-bottom popup-background "></div><div class="popup-scrollableArea popup-background " id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div>'+body+'</div></div>';
+             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background "></div><div class="popup-bottom popup-background "></div><div class="popup-middle"><div class="popup-scrollableArea popup-background " id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div></div>'+body+'</div></div>';
 
      $('body').append(src);
  }

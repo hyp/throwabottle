@@ -476,11 +476,15 @@ textarea [readonly="readonly"] {
     margin-left: -@buttonWidth;
 }
 
+.popup-middle {
+    position: absolute;
+    top: 16px;bottom:16px;left:0;width:100%;
+    overflow:hidden;
+}
+
 .popup-scrollableArea {
     position: absolute;
-    top: 16px;
-    bottom:0;
-    left:0;width:100%;
+    top: 0;bottom:0;left:0;width:100%;
     overflow:hidden;
     transition: bottom 1s;
     -moz-transition: bottom 1s; /* Firefox 4 */
@@ -492,10 +496,7 @@ textarea [readonly="readonly"] {
 //Raising messages to free up space for the textarea
 .popup-scrollableArea-raised {
     position: absolute;
-    top: 16px;
-    bottom:40%;
-    left:0;
-    width:100%;
+    top: 0;bottom:40%;left:0;width:100%;
     overflow:hidden;
     transition: bottom 1s;
     -moz-transition: bottom 1s; /* Firefox 4 */
