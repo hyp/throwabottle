@@ -367,7 +367,7 @@ function animate(){
  }
 
  var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">Back</button><button type="button" onClick="messages.showReply();">Reply</button></div>',
- '<div class="message-reply popup-background"><div><textarea maxlength="500" id="replyToMessage" onfocus="this.value=\'\';">Reply...</textarea></div></div>');
+ '<div class="message-reply popup-background"><div><textarea name="m" maxlength="500" id="replyToMessage" onfocus="this.value=\'\';">Reply...</textarea></div></div>');
 
  messages.nodeCreator = function(message,id){
     return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
