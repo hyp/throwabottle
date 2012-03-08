@@ -448,7 +448,7 @@ h3 {
     right:10px;bottom:10px;
 }
 
-.taWrapper textarea {
+.textareaWrapper textarea {
     border: solid 1px #222222;
     padding: 4px;
     width:100%;height:100%;
@@ -462,7 +462,7 @@ h3 {
 
 }
 
-textarea [readonly="readonly"] {
+.textareaWrapper textarea [readonly="readonly"] {
     background-color: #f0f0f0;
 }
 
@@ -476,6 +476,7 @@ textarea [readonly="readonly"] {
     margin-left: -@buttonWidth;
 }
 
+//Needed to fix the Transition animation bug in webkit
 .popup-middle {
     position: absolute;
     top: 16px;bottom:16px;left:0;width:100%;
@@ -484,14 +485,13 @@ textarea [readonly="readonly"] {
 
 .popup-scrollableArea {
     position: absolute;
-    top: 0;bottom:0;left:0;width:100%;
+    top: 0;bottom:20%;left:0;width:100%;
     overflow:hidden;
-    transition: bottom 1s;
-    -moz-transition: bottom 1s; /* Firefox 4 */
-    -webkit-transition: bottom 1s; /* Safari and Chrome */
-    -o-transition: bottom 1s; /* Opera */
+   transition: bottom 1s;
+    -moz-transition: bottom 1s;
+    -webkit-transition: bottom 1s;
+    -o-transition: bottom 1s;
 }
-
 
 //Raising messages to free up space for the textarea
 .popup-scrollableArea-raised {
@@ -499,10 +499,11 @@ textarea [readonly="readonly"] {
     top: 0;bottom:40%;left:0;width:100%;
     overflow:hidden;
     transition: bottom 1s;
-    -moz-transition: bottom 1s; /* Firefox 4 */
-    -webkit-transition: bottom 1s; /* Safari and Chrome */
-    -o-transition: bottom 1s; /* Opera */
+    -moz-transition: bottom 1s;
+    -webkit-transition: bottom 1s;
+    -o-transition: bottom 1s;
 }
+
 
 
 .popup-background {
@@ -620,9 +621,10 @@ ul {
 
 .message {
  	padding:10px 10px;
- 	border:1px solid #ccc;
+
     text-align:left;
     position:relative;
+    border:1px solid #ccc;
     .rounded-corners(8px);
     margin-bottom:10px;
 }
@@ -640,6 +642,23 @@ ul {
 .message-reciever {
     background-color:#fdfdfd;
     margin-left:32px;right:0;
+}
+
+.message-reply {
+    position:absolute;
+    bottom:0;height:20%;left:0;width:100%;
+}
+
+.message-reply textarea {
+    height:100%;width:100%;
+
+    font-size: 20px;
+    padding: 4px;
+    border:1px solid #ccc;
+    .rounded-corners(8px);
+    resize: none;
+
+    //margin:0;
 }
 
 

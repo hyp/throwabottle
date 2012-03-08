@@ -151,15 +151,16 @@ function animate(){
  ScrollablePopup.prototype = new PopupBase;
  ScrollablePopup.prototype.constructor = PopupBase;
  var useIscroll = true;//mobile;
- function ScrollablePopup(title,body){
+ function ScrollablePopup(title,body,innerBody){
+     innerBody = innerBody ? innerBody : '';
      this.id='_'+ids;ids++;
      this.iscroll = useIscroll;
      this.scrollbar = null;
 
      var src = this.iscroll ? '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background"></div><div class="popup-bottom popup-background "></div><div class="popup-middle"><div class="popup-scrollableArea popup-background" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div></div>'+body+'</div>' :
+             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background"></div><div class="popup-bottom popup-background "></div><div class="popup-middle popup-background"><div class="popup-scrollableArea" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div>'+innerBody+'</div></div>'+body+'</div>' :
              '<div class="scrollablePopup" id="'+this.id+'"><div class="fullscreen popup" id="i'+this.id+'" style="display:block;"><h3>'+title+'</h3>'+
-             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background "></div><div class="popup-bottom popup-background "></div><div class="popup-middle"><div class="popup-scrollableArea popup-background " id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div></div></div>'+body+'</div></div>';
+             '<div class="taWrapper" style="background: transparent;"><div class="popup-top popup-background "></div><div class="popup-bottom popup-background "></div><div class="popup-middle popup-background"><div class="popup-scrollableArea" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div>'+innerBody+'</div></div>'+body+'</div></div>';
 
      $('body').append(src);
  }
@@ -186,7 +187,7 @@ function animate(){
      }
      $('#'+this.id).fadeIn('slow');
      if(!this.iscroll)
-         $('#'+this.id).height($('#data'+this.id).height() + 40 + 54 + 32);
+         $('#'+this.id).height($('#data'+this.id).height() + 40 + 54 + 32 + 32);
      return this;
  }
 
@@ -233,6 +234,11 @@ function animate(){
  }
  ScrollablePopup.prototype.child = function(id) {
      return $('#'+this.id+'_'+id);
+ }
+ ScrollablePopup.prototype.refresh = function(){
+     var scrollbar = this.scrollbar;
+     if(scrollbar) scrollbar.refresh();
+     //if(scrollbar) setTimeout(function(){ scrollbar.refresh(); },0);
  }
  ScrollablePopup.prototype.scrollToBottom = function() {
     if(this.scrollbar){
@@ -330,6 +336,7 @@ function animate(){
          if(data.r && data.r.length !== 0){
             if(threads.threads[id].e !==0 ) threads.child(id).removeClass('threadNotRead').addClass('threadRead');
              messages.threadId = threads.threads[id].i;
+             //data.r.push({last:true});
              messages.update(data.r);
              threads.transition(messages);
              setTimeout(function(){ messages.scrollToBottom() },500);
@@ -344,20 +351,28 @@ function animate(){
      return '<li class="thread '+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>';
  }
 
- var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">back</button><button type="button" onClick="messages.showReply();">Reply</button></div>');
+ var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">back</button><button type="button" onClick="messages.showReply();">Reply</button></div>',
+ '<div class="message-reply" id="replyToMessage">Reply:<br></b><textarea></textarea></div>');
 
  messages.nodeCreator = function(message,id){
-    return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
+    if(message.last)
+        return 'Reply:<br></span></span><textarea name="m" id="foo" maxlength="500"></textarea><input type="text">'
+    else return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
  }
  messages.showReply = function() {
-     $('#scroll'+messages.id).removeClass('popup-scrollableArea').addClass('popup-scrollableArea-raised');
-     messages.scrollToBottom();
+     //$('#scroll'+messages.id).removeClass('popup-scrollableArea').addClass('popup-scrollableArea-raised');
+     $('#scroll'+messages.id).animate({bottom:"40%"},1000,'linear',function(){
+         messages.refresh();
+         messages.scrollToBottom();
+     });
+     $('#replyToMessage').animate({height:'40%'},1000,'linear');
  }
 
 
 
  function messagesRecieved(data){
      if(data.r && data.r.length !== 0){
+         //data.r.push({last:true});
          messages.update(data.r);
          messages.show();
          setTimeout(function(){ messages.scrollToBottom() },500);
