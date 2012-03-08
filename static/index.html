@@ -191,16 +191,17 @@ function animate(){
  }
 
  ScrollablePopup.prototype.close = function(){
+     var scrollbar = this.scrollbar;
      $('#'+this.id).fadeOut('slow',function(){
-         if(this.scrollbar){
+         if(scrollbar){
              try{
-                 this.scrollbar.destroy();
+                 scrollbar.destroy();
              }
              catch(exp){
              }
-             this.scrollbar = null;
          }
      });
+     this.scrollbar = null;
      ScrollablePopup.prototype.current = null;
      return this;
  }
