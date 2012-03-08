@@ -350,7 +350,7 @@ function animate(){
     return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
  }
  messages.showReply = function() {
-     $('#scroll'+messages.id).css('bottom','40%');
+     $('#scroll'+messages.id).removeClass('popup-scrollableArea').addClass('popup-scrollableArea-raised');
      messages.scrollToBottom();
  }
 

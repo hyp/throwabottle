@@ -481,11 +481,17 @@ textarea [readonly="readonly"] {
     top: 16px;bottom:16px;
     left:0;width:100%;
     overflow:hidden;
+}
 
+
+//Raising messages to free up space for the textarea
+.popup-scrollableArea-raised {
+    .popup-scrollableArea;
     transition: bottom 1s;
     -moz-transition: bottom 1s; /* Firefox 4 */
     -webkit-transition: bottom 1s; /* Safari and Chrome */
     -o-transition: bottom 1s; /* Opera */
+    bottom:40%;
 }
 
 
@@ -513,7 +519,7 @@ textarea [readonly="readonly"] {
 }
 
 
-.popup-scrollableArea ul {
+ul {
     list-style:none;
 	padding:0;
 	margin:0;
@@ -557,7 +563,7 @@ textarea [readonly="readonly"] {
 
 }
 
-.popup-scrollableArea span {
+.thread span {
     float:left;
     position:relative;
     height:100%;
