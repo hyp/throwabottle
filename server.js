@@ -343,7 +343,7 @@ app.on('/api/reply',function(request,response,data){
                         }
                         messages.update({_id:tid,r:thread.r},
                                 {$set:{t:Date.now()},$inc: eventInc,$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
-                        //redisData.hincrby(reciever,'e',1,errorHandler);
+                        redisData.hincrby(reciever,'e',1,errorHandler);
                     }
                 });
             });

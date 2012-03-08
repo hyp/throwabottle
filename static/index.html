@@ -367,13 +367,16 @@ function animate(){
  }
 
  var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">back</button><button type="button" onClick="messages.showReply();">Reply</button></div>',
- '<div class="message-reply popup-background" id="replyToMessage"><div><textarea maxlength="500" onfocus="this.value=\'\';">Reply...</textarea></div></div>');
+ '<div class="message-reply popup-background" id="replyToMessage"><div><textarea maxlength="500" id="replyToMessage" onfocus="this.value=\'\';">Reply...</textarea></div></div>');
 
  messages.nodeCreator = function(message,id){
     return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
  }
  messages.showReply = function() {
-     messages.messages.push({s:1,m:'Ha'});
+     var reply = $('#replyToMessage').val();
+     console.log(reply);
+     $.post('api/reply?i='+messages.threadId,'m='+reply);
+     messages.messages.push({s:1,m:reply});
      messages.update(messages.messages);
      messages.refresh();
      messages.scrollToBottom();
