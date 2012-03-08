@@ -481,7 +481,13 @@ textarea [readonly="readonly"] {
     top: 16px;bottom:16px;
     left:0;width:100%;
     overflow:hidden;
+
+    transition: bottom 1s;
+    -moz-transition: bottom 1s; /* Firefox 4 */
+    -webkit-transition: bottom 1s; /* Safari and Chrome */
+    -o-transition: bottom 1s; /* Opera */
 }
+
 
 .popup-background {
     background-color: rgba(240,240,240,0.9);
@@ -499,6 +505,11 @@ textarea [readonly="readonly"] {
     left:0;width:100%;
     bottom:0;height:16px;
     .bottom-rounded-corners(16px);
+
+        transition: height 1s;
+        -moz-transition: height 1s; /* Firefox 4 */
+        -webkit-transition: height 1s; /* Safari and Chrome */
+        -o-transition: height 1s; /* Opera */
 }
 
 

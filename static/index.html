@@ -344,10 +344,14 @@ function animate(){
      return '<li class="thread '+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>';
  }
 
- var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">back</button><button type="button" onClick="messages.close();">Reply</button></div>');
+ var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">back</button><button type="button" onClick="messages.showReply();">Reply</button></div>');
 
  messages.nodeCreator = function(message,id){
     return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
+ }
+ messages.showReply = function() {
+     $('#scroll'+messages.id).css('bottom','40%');
+     messages.scrollToBottom();
  }
 
 
@@ -359,7 +363,7 @@ function animate(){
          setTimeout(function(){ messages.scrollToBottom() },500);
      }
  }
- //messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'},{s:1,m:'F.U'},{s:0,m:'Pop pop!'}]});
+ messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'},{s:1,m:'F.U'},{s:0,m:'Pop pop!'}]});
 
 
 
