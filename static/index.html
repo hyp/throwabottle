@@ -162,8 +162,8 @@ function animate(){
  ScrollablePopup.prototype.constructor = PopupBase;
 
  ScrollablePopup.native = false;
- ScrollablePopup.iscroll = true;
- ScrollablePopup.jscroll = false;
+ ScrollablePopup.iscroll = false;
+ ScrollablePopup.jscroll = true;
 
  function ScrollablePopup(title,body,innerBody){
      innerBody = innerBody ? innerBody : '';
@@ -349,7 +349,10 @@ function animate(){
          recieved = true;
          $('.threadLoader').remove();
          if(data.r && data.r.length !== 0){
-            if(threads.threads[id].e !==0 ) threads.child(id).removeClass('threadNotRead').addClass('threadRead');
+             if(threads.threads[id].e !==0 ){
+                 threads.child(id).removeClass('threadNotRead').addClass('threadRead');
+                 notifications.count(_notifications - threads.threads[id].e);
+             }
              messages.threadId = threads.threads[id].i;
              messages.messages = data.r;
              messages.update(data.r);
@@ -374,12 +377,12 @@ function animate(){
  }
  messages.showReply = function() {
      var reply = $('#replyToMessage').val();
-     console.log(reply);
      $.post('api/reply?i='+messages.threadId, $('#replyToMessage').serialize());
      messages.messages.push({s:1,m:reply});
      messages.update(messages.messages);
      messages.refresh();
      messages.scrollToBottom();
+     $('#replyToMessage').val('');
  }
 
 
@@ -391,15 +394,7 @@ function animate(){
          messages.messages = data.r;
 
          messages.show();
-         /*$('#scroll'+messages.id).data('jsp').getContentPane().append(messages.nodeCreator({last:true},1));
-         $('#scroll'+messages.id).data('jsp').reinitialise();
-         setTimeout(function(){ messages.scrollToBottom() },500);
-         $('#foo').focus(function(){
-             $('#scroll'+messages.id).data('jsp').getContentPane().height($('#scroll'+messages.id).data('jsp').getContentPane().height()+90);
-             $('.reply').css('height','120px');
-             $('#scroll'+messages.id).data('jsp').reinitialise();
-             $('#scroll'+messages.id).data('jsp').scrollToBottom();
-         });*/
+
      }
  }
  messagesRecieved({r:[{s:0,m:'Hi there!'},{s:1,m:'Hi yourself'},{s:0,m:'Hi oo<br>jshjls'},{s:1,m:'F.U'},{s:0,m:'Pop pop!'}]});
@@ -465,11 +460,14 @@ function animate(){
 
 
  var notifications = $('#notifications');
+ var _notifications = 0;
  notifications.count = function(n){
+     _notifications = n;
+     console.log('Setting notifications' + n)
      if(n > 0){
          this.html(n.toString());
-         this.show();
-     }else this.hide();
+         this.css('display','block');
+     }else this.css('display','none');
  }
 
  $('#btn_history').click(function(){
