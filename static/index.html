@@ -366,14 +366,14 @@ function animate(){
      return '<li class="thread '+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>';
  }
 
- var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">back</button><button type="button" onClick="messages.showReply();">Reply</button></div>',
- '<div class="message-reply popup-background" id="replyToMessage"><div><textarea maxlength="500" id="replyToMessage" onfocus="this.value=\'\';">Reply...</textarea></div></div>');
+ var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">Back</button><button type="button" onClick="messages.showReply();">Reply</button></div>',
+ '<div class="message-reply popup-background"><div><textarea maxlength="500" id="replyToMessage" onfocus="this.value=\'\';">Reply...</textarea></div></div>');
 
  messages.nodeCreator = function(message,id){
     return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
  }
  messages.showReply = function() {
-     var reply = $('#replyToMessage').html();
+     var reply = $('#replyToMessage').val();
      console.log(reply);
      $.post('api/reply?i='+messages.threadId, $('#replyToMessage').serialize());
      messages.messages.push({s:1,m:reply});
@@ -388,7 +388,7 @@ function animate(){
      if(data.r && data.r.length !== 0){
 
          messages.update(data.r);
-
+         messages.messages = data.r;
 
          messages.show();
          /*$('#scroll'+messages.id).data('jsp').getContentPane().append(messages.nodeCreator({last:true},1));
