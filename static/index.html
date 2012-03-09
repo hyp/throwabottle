@@ -338,6 +338,14 @@ function toggle(x) {
          '<div class="popup-footer"><input type="button" value="Back" onClick="newBottle.close();"/>'+
          '<input type="submit" value="Throw"/></div></form>');
 
+ var caughtBottle = new Popup('Bottle caught:',
+         '<div class="popup-contentRaised popup-background">'+
+         '<div class="recievedBottle"><div class="textareaWrapper"><textarea maxlength="500" id="bottleText" readonly="readonly"></textarea></div></div>'+
+         '<div class="message-reply"><div class="textareaWrapper"><textarea name="m" maxlength="500" id="bottleReplyText" placeholder="Reply.."></textarea></div></div></div>'+
+         '<div class="popup-footer"><button type="button" onClick="caughtBottle.close();">Throw back</button><button type="button" id="replyToMessageSubmit" onClick="messages.showReply();">Reply</button></div>');
+ //$('#data'+caughtBottle.id).html('<div class="message" style="left:8px;margin-right:16px;heigth:100%;"><p>'+('Thi is text\r\nAbed\r\nTroy').replace(/\n/g,'<br/>')+'</p></div>')
+ caughtBottle.show();
+
  var threads = new ScrollablePopup('Messages','<div class="popup-footer"><button type="button" style="float:none;margin:10px auto" onClick="threads.close();">Ok</button></div>');
 
  //welcome.show();
@@ -416,6 +424,7 @@ function toggle(x) {
  $('#newBottleForm').submit(function(){
      setBottleCount(bottleCount-1);
      postTextarea('api/throw',$('#newBottleText'));
+     newBottle.close();
      return false;
  });
 
