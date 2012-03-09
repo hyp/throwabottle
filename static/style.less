@@ -377,59 +377,111 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
     position: fixed;
     top: 0;left: 0;
     width:100%;height:100%;
-    margin: 0;
-    padding: 0;
+    margin: 0;padding: 0;
 }
 
-///the parent div of all popups which defines the dimmer
-.popup {
-    background: transparent; //fallback
-	background: rgba(0,0,0,0.4);
-    display:none;
-}
+//colors
+@shadowColor:#111111;
+@iconColor:#222222;
 
-.scrollablePopup {
-    display:none;
-    position: absolute;
-    top: 0;left: 0;
-    width:100%;height:100%;
-}
+@threadBorderColor:#ccc;
+@newThreadColor:#fdfdfd;
+@threadColor:#e8e8e8;
+
+@messageBorderColor: #bababa;
+@sentMessageColor:#fbfbfb;
+@recievedMessageColor:#e8e8e8;
 
 
 
 @topOffset:40px;
 @sideOffset:15px;
 
+@popup-borderRadius:16px;
+@popup-contentBottomHeight:30%;
 
-.outerShadow {
-    box-shadow: 0 0 13px 2px #111111;
-    -webkit-box-shadow: 0 0 13px 2px #111111;
-    -moz-box-shadow: 0 0 13px 2px #111111;
+// the parent div of all popups which defines the dimmer
+.popup {
+    background: transparent; //fallback
+	background: rgba(0,0,0,0.4);
+    display:none;
 }
 
-.popupWrapper {
+// scrollable popup for outer scrolling
+.scrollablePopup {
+    display:none;
+    position: absolute;
+    top: 0;left: 0;width:100%;height:100%;
+}
+
+//popup's border radius
+.popup-background {
+    //non transparent background fallback
+    background-color: rgb(240,240,240);
+    background-color: rgba(240,240,240,0.9);
+}
+
+.popup-roundedCorners, .popup-topRoundedCorners {
+    .top-rounded-corners(@popup-borderRadius);
+}
+.popup-roundedCorners, .popup-bottomRoundedCorners {
+    .bottom-rounded-corners(@popup-borderRadius);
+}
+
+.popup-outerShadow {
+    box-shadow: 0 0 13px 2px @shadowColor;
+    -webkit-box-shadow: 0 0 13px 2px @shadowColor;
+    -moz-box-shadow: 0 0 13px 2px @shadowColor;
+}
+
+.popup-content, .popup-contentRaised {
     position:absolute;
     top:@topOffset;
     left:@sideOffset;
     right:@sideOffset;
-    bottom:10px;
 
-	border: solid 3px #222222;
-	.rounded-corners(16px);
-	overflow: hidden;
-    .outerShadow;
+    overflow: hidden;
+
+    .popup-roundedCorners;
+    .popup-outerShadow;
 }
 
-.popupWrapper p {
+.popup-content {
+    bottom:10px;
+}
+
+.popup-contentRaised {
+    bottom:@buttonHeight;
+}
+
+.popup-content-scrollable,.popup-content-scrollableRaised  {
+    position: absolute;
+    top: @popup-borderRadius;left:0;width:100%;
+    overflow:hidden;
+}
+.popup-content-scrollable { bottom:@popup-borderRadius; }
+.popup-content-scrollableRaised { bottom:@popup-contentBottomHeight; }
+
+//footer for 2 buttons
+.popup-footer {
+    position:absolute;
+    bottom:0;
+    height:@buttonHeight;
+    width: @buttonWidth * 2;
+    left:50%;
+    margin-left: -@buttonWidth;
+}
+
+//text layouts
+
+
+.popup-content p {
 	text-align:center;
 	margin-left: 15px;
 	margin-right: 15px;
     font-size:20px;
 }
 
-/**
-*Layouts for text input
-*/
 h3 {
     font-size: 30px;
 	margin-top: 10px;
@@ -439,83 +491,48 @@ h3 {
 	color:white;
 }
 
-.taWrapper {
-    position:absolute;
-    top:@topOffset;
-    bottom:@buttonHeight;
-    left:@sideOffset;
-    right:@sideOffset;
-    border:none;
-    .rounded-corners(16px);
-    overflow: hidden;
-    .outerShadow;
+/**
+*Layouts for text input
+*/
+
+
+
+
+textarea {
+    margin:0;
+    resize: none;
+    background-color: #fcfcfc;
+    border: solid 1px #2222;
+}
+
+textarea[readonly] {
+    background-color: @recievedMessageColor;
 }
 
 .textareaWrapper {
     position:absolute;
     left:0px;top:0px;
     right:10px;bottom:10px;
+    overflow:visible;
 }
 
 .textareaWrapper textarea {
-    border: solid 1px #222222;
-    padding: 4px;
     width:100%;height:100%;
-    margin:0;
-	resize: none;
-	.rounded-corners(16px);
+    padding: 4px;
+}
+
+.popup-contentRaised textarea {
 
 	font-size: 25px;
-
-	background-color: #fcfcfc;
-
-}
-
-.textareaWrapper textarea [readonly="readonly"] {
-    background-color: #f0f0f0;
+    .popup-roundedCorners;
 }
 
 
-.popup-buttonArea {
-    position:absolute;
-    bottom:0px;
-    height:@buttonHeight;
-    width: @buttonWidth * 2;
-    left:50%;
-    margin-left: -@buttonWidth;
-}
 
-.popup-scrollableArea {
-    position: absolute;
-    top: 16px;bottom:16px;left:0;width:100%;
-    overflow:hidden;
-}
 
-.popup-smallScrollableArea {
-    position: absolute;
-    top: 16px;bottom:30%;left:0;width:100%;
-    overflow:hidden;
-}
 
-.popup-background {
-    //non transparent background fallback
-    background-color: rgb(240,240,240);
-    background-color: rgba(240,240,240,0.9);
-}
 
-.popup-top {
-    position: absolute;
-    left:0;width:100%;
-    top:0;height:16px;
-    .top-rounded-corners(16px);
-}
 
-.popup-bottom {
-    position: absolute;
-    left:0;width:100%;
-    bottom:0;height:16px;
-    .bottom-rounded-corners(16px);
-}
 
 
 ul {
@@ -526,7 +543,7 @@ ul {
     overflow:auto;
 }
 
-.messageHeading {
+/*.messageHeading {
     display:block;
     height: 30px;
     line-height:30px;
@@ -535,29 +552,33 @@ ul {
     border-bottom: solid 1px #222222;
     cursor: pointer;
 
-}
+}*/
 
 @threadSize:40px;
+
+
 
 .thread {
 	padding:0 10px;
 	height:@threadSize;
 	line-height:@threadSize;
-	border-bottom:1px solid #ccc;
+	border-bottom:1px solid @threadBorderColor;
+    border-bottom:1px solid @threadBorderColor;
+    border-bottom:1px solid @threadBorderColor;
     text-align:left;
 	font-size:14px;
     cursor: pointer;
 }
 
 .thread:first-child {
-    border-top:1px solid #ccc;
+    border-top:1px solid @threadBorderColor;
 }
 
 .threadRead {
-    background-color:#e8e8e8;
+    background-color:@threadColor;
 }
 .threadNotRead {
-    background-color:#fdfdfd;
+    background-color:@newThreadColor;
     font-weight:bold;
     font-size:15px;
 
@@ -576,26 +597,26 @@ ul {
 
 @arrowSize:8px;
 @arrowLine:6px;
-@arrowColor:#202020;
+
+.threadArrowHead, .threadArrow {
+    position:relative;
+    float:left;
+}
 
 .threadArrowHead {
-   border-color: transparent @arrowColor transparent transparent;
+   border-color: transparent @iconColor transparent transparent;
    border-style: solid;
    border-width: @arrowSize;
    top:@threadSize/2 - @arrowSize;
    height:0;
    width:0;
-   position:relative;
-   float:left;
    margin-left:-@arrowSize;
 }
 .threadArrow {
+   background-color:@iconColor;
    top: @threadSize/2 - (@arrowLine/2);
    height:@arrowLine;
    width:@arrowSize*1.5;
-   position:relative;
-   float:left;
-   background-color:@arrowColor;
    margin-right:10px;
 }
 
@@ -608,14 +629,18 @@ ul {
     float:right;
 }
 
-.message {
- 	padding:10px 10px;
 
+
+.message {
     text-align:left;
     position:relative;
-    border:1px solid #ccc;
+    border:1px solid @messageBorderColor;
+
     .rounded-corners(8px);
-    margin-bottom:10px;
+    padding:10px 10px;
+    margin-bottom:5px;
+
+    box-shadow:0 0 6px rgba(0,0,0,0.2);
 }
 
 .message p {
@@ -624,43 +649,39 @@ ul {
 }
 
 .message-sender {
-    background-color:#e8e8e8;
-    left:0;margin-right:32px;
+    background-color:@sentMessageColor;
+    left:8px;margin-right:37px;
 }
 
 .message-reciever {
-    background-color:#fdfdfd;
-    margin-left:32px;right:0;
+    background-color:@recievedMessageColor;
+    margin-left:37px;right:8px;
 }
 
 //reply textbox
 .message-reply {
     position:absolute;
-    bottom:0;height:30%;left:0;width:100%;
-    .bottom-rounded-corners(16px);
+    bottom:0px;height:@popup-contentBottomHeight;left:8px;right:8px;
 }
 
 .message-reply div {
-    position:absolute;
-    left:0px;top:0px;
-    right:10px;bottom:10px;
+    top:8px;bottom:18px;
 }
 
+
 .message-reply textarea {
-    box-shadow:inset 0 1px 4px #222222;
-    -moz-box-shadow:inset 0 1px 4px #222222;
-    -webkit-box-shadow:inset 0 1px 4px #222222;
+    box-shadow:inset 0  8px 5px -8px #222222;
+    -moz-box-shadow:inset 0  8px 5px -8px #222222;
+    -webkit-box-shadow:inset 0  8px 5px -8px #222222;
     display:block;
     position:absolute;
     left:0;width:100%;
     height:100%;
 
     font-size: 22px;
-    padding: 4px;
-    border:1px solid #ccc;
+    border:1px solid @messageBorderColor;
     .bottom-rounded-corners(16px);
-    resize: none;
-
+    color:#222222;
     //margin:0;
 }
 
@@ -732,6 +753,8 @@ ul {
 
 .side_note {
    position: fixed;
+
+   display:none;
 
    width: 24px;
    height: 32px;
@@ -824,10 +847,28 @@ margin-left: auto;
 margin-right: auto;
 }
 
+
+@keyframes cloudAnimation {
+    0% { left:0;margin-right:128px;margin-left:0; }
+    100% { left:100%;margin-right:0;margin-left:128px; }
+}
+@-moz-keyframes cloudAnimation {
+    0% { left:0;margin-right:128px;margin-left:0; }
+    100% { left:100%;margin-right:0;margin-left:128px; }
+}
+@-webkit-keyframes cloudAnimation {
+    0% { left:0;margin-right:128px;margin-left:0; }
+    100% { left:100%;margin-right:0;margin-left:128px; }
+}
+
 #cloud1 {
 position: absolute;
 top: 10px;
-left:-20%;
+left:10%;
+
+//animation: cloudAnimation 50s linear 10s infinite normal;
+//-moz-animation: cloudAnimation 50s linear 10s infinite normal;
+//-webkit-animation: cloudAnimation 50s linear 10s infinite normal;
 }
 
 #cloud2 {
@@ -837,6 +878,10 @@ left:-20%;
 height: 82px;
 width: 97px;
 .opacity(0.75);
+
+//animation: cloudAnimation 40s linear 5s infinite normal;
+//-moz-animation: cloudAnimation 40s linear 5s infinite normal;
+//-webkit-animation: cloudAnimation 40s linear 5s infinite normal;
 }
 
 #cloud3 {
@@ -846,6 +891,10 @@ left:-20%;
 height: 62px;
 width: 72px;
 .opacity(0.5);
+
+//animation: cloudAnimation 30s linear infinite normal;
+//-moz-animation: cloudAnimation 30s linear infinite normal;
+//-webkit-animation: cloudAnimation 30s linear infinite normal;
 }
 
 /*

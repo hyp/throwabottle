@@ -42,13 +42,6 @@
 var mobile = (/iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
 //append background
 $('body').append('<img src="images/'+(mobile ? 'bg/lowv.png' : 'background.svg')+'" alt="" class="fullscreen" id="background">');
-var netCount = 3;
-var bottleCount = 6;
-
-
-
-
-
 
 
 
@@ -71,15 +64,16 @@ function toggle(x) {
 
 
 
+
+<img src="images/sun3.png" alt="" style="position:fixed;margin-left:-46px;left:50%;top:20px;width:92px;height:92px;"/>
 <img src="images/cloud.png" alt="" id="cloud3"/>
 <img src="images/cloud.png" alt="" id="cloud2"/>
 <img src="images/cloud.png" alt="" id="cloud1"/>
-<img src="images/sun3.png" alt="" style="position:fixed;margin-left:-46px;left:50%;top:20px;width:92px;height:92px;"/>
 
-<div class="side_note" id="btn_bottle_counter">6</div>
+<div class="side_note" id="btn_bottle_counter"></div>
 <img src="images/bottle5.png" alt="" class="side_button left_side" id="btn_bottle"/>
 
-<div class="side_note" id="btn_net_counter">3</div>
+<div class="side_note" id="btn_net_counter"></div>
 <img src="images/net2.png" alt="" class="side_button left_side" id="btn_net"/>
 
 
@@ -123,44 +117,73 @@ function animate(){
 
 <script>
 
+ //app globals
+ var netCount = 0;
+ var bottleCount = 0;
+
+ //counters + notifications]
+ function setNetCount(n){
+     netCount = 0;
+     if(n>0){
+         $('#btn_net_counter').html(n.toString()).css('display','block');
+     }else
+         $('#btn_net_counter').css('display','none');
+ }
+ function setBottleCount(n){
+     netCount = 0;
+     if(n>0){
+         $('#btn_bottle_counter').html(n.toString()).css('display','block');
+     }else
+         $('#btn_bottle_counter').css('display','none');
+ }
+
 
  if(mobile){
     //iPhone Scale Bug Fix, read this when using http://www.blog.highub.com/mobile-2/a-fix-for-iphone-viewport-scale-bug/
      MBP.scaleFix();
      MBP.hideUrlBar();
+     //MBP.preventZoom();
  }
- //MBP.preventZoom();
+
 
 
 
  var ids=0;
 
- $('body').bind('ajaxError',function(request,status,error){
-     alert('Ajax error: '  + status.statusText);
+ $(document).ajaxError(function(event, request, settings){
+     alert("Error requesting page " + settings.url);
  });
 
  //base popup
- function PopupBase(title,body){
+ function Popup(title,content){
      this.id='_'+ids;ids++;
-     $('body').append('<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+body+'</div>');
+
+     console.log('Creating popup' + title + content);
+     var src = '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>';
+     if((typeof content) === 'string') $('body').append(src + content +'</div>');
+     else if((typeof content) !== 'undefined'){
+         for (var i = 0; i < content.length; i++)
+            src+='<div class="'+content[i].class+'">'+content[i].body+'</div>';
+         $('body').append(src + '</div>');
+     }
  }
- PopupBase.prototype.close = function(){
+ Popup.prototype.close = function(){
      $('#'+this.id).fadeOut('slow');
      return this;
  }
- PopupBase.prototype.show = function(){
+ Popup.prototype.show = function(){
      $('#'+this.id).fadeIn('slow');
      return this;
  }
- PopupBase.prototype.transition = function(other){
+ Popup.prototype.transition = function(other){
      $('#'+this.id).fadeOut('slow');
      $('#'+other.id).fadeIn('slow');
      return this;
  }
 
  //scrollable
- ScrollablePopup.prototype = new PopupBase;
- ScrollablePopup.prototype.constructor = PopupBase;
+ ScrollablePopup.prototype = new Popup;
+ ScrollablePopup.prototype.constructor = Popup;
 
  ScrollablePopup.native = false;
  ScrollablePopup.iscroll = true;
@@ -172,8 +195,8 @@ function animate(){
      this.scrollbar = null;
 
      var src = '<div class="fullscreen popup" id="'+this.id+'" '+(ScrollablePopup.native?'style="display:block;"':'')+'><h3>'+title+'</h3>'+
-         '<div class="taWrapper popup-background">'+
-             '<div class="'+(innerBody === '' ?'popup-scrollableArea':'popup-smallScrollableArea')+'" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div>'+
+         '<div class="popup-contentRaised popup-background">'+
+             '<div class="'+(innerBody === '' ?'popup-content-scrollable':'popup-content-scrollableRaised')+'" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div>'+
          innerBody+'</div>'+body+'</div>';
 
      $('body').append(ScrollablePopup.native?'<div class="scrollablePopup" id="'+this.id+'">'+src+'</div>':src);
@@ -250,10 +273,15 @@ function animate(){
      });
      ScrollablePopup.prototype.refresh = function(){ };
      ScrollablePopup.prototype.scrollToBottom = function(){
-         var dh=$('#'+this.id).height();
-         var ch=$(window).height();
-         console.log('Scrolling by' + dh + ':' + ch + ':' + (dh-ch));
-         if(dh>ch) $(window).scrollTop(dh-ch);
+         var dh=$('#data'+this.id).height();
+         var ch=$('#scroll'+this.id).height();
+         console.log('Scrolling by s' + dh + ':' + ch + ':' + (dh-ch));
+         if(dh>ch) $('#scroll'+this.id).scrollTop(dh-ch);
+
+         //var dh=$('#'+this.id).height();
+         //var ch=$(window).height();
+         //console.log('Scrolling by' + dh + ':' + ch + ':' + (dh-ch));
+         //if(dh>ch) $(window).scrollTop(dh-ch);
      };
  }
  else if(ScrollablePopup.iscroll){
@@ -271,23 +299,16 @@ function animate(){
      ScrollablePopup.prototype.scrollToBottom = function(){ $('#scroll'+this.id).data('jsp').scrollToBottom(); };
  }
 
- //normal popups
- Popup.prototype = new PopupBase;
- Popup.prototype.constructor = PopupBase;
- function Popup(title,body){
-     PopupBase.call(this,title,'<div class="popupWrapper popup-background">'+body+'</div>');
- }
-
  //one big textarea popup
- MessagePopup.prototype = new PopupBase;
- MessagePopup.prototype.constructor = PopupBase;
+ MessagePopup.prototype = new Popup;
+ MessagePopup.prototype.constructor = Popup;
  function MessagePopup(title,buttons,settings){
      settings = settings == null ? {} : settings;
      this.buttons = buttons;
 
      var extras = settings.readonly ? ' readonly="readonly"' : '';
-     PopupBase.call(this,title,'<form><div class="taWrapper"><div class="textareaWrapper"><textarea name="m" id="msg_'+ids+'" maxlength="500" required'+extras+'></textarea></div></div>' +
-             '<div class="popup-buttonArea"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
+     Popup.call(this,title,'<form><div class="popup-contentRaised"><div class="textareaWrapper"><textarea name="m" id="msg_'+ids+'" maxlength="500" required'+extras+'></textarea></div></div>' +
+             '<div class="popup-footer"><input type="button" value="'+buttons[0].text+'" onClick="'+buttons[0].action+';"/>'+
              '<input type="button" value="'+buttons[1].text+'" onClick="'+buttons[1].action+';"/></div></form>');
  }
  MessagePopup.prototype.send = function(url,handler){
@@ -303,46 +324,63 @@ function animate(){
  }
 
 
-
+ function postTextarea(url,node,handler){
+     if(handler) $.post(url, node.serialize() ,handler,'json');
+     else $.post(url, node.serialize() ,handler,'json');
+     node.val('');
+ }
 
  function bottleSent(data){
-     if(data.r >= 0){
-         bottleCount = data.r;
-         $('#btn_bottle_counter').html(bottleCount.toString());
-     }
+     if(data.r >= 0)
+         setBottleCount(data.r);
      else alert('Bottle failed sending! Error:' + data.error);
  }
 
- var welcome = new Popup('Welcome',
-         '<p>What is throw a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>' + //'<p>This will be the main welcome page. In here the user will be asked to sign in. We also will have a description and shit</p>' +
-         '<button type="button" class="centeredButton" onClick="welcome.transition(signin);">Sign in</button>' +
-         '<button type="button" class="centeredButton" onClick="welcome.transition(registration);">Register</button>' +
-         '<button type="button" class="centeredButton" id="facebook_signin">Sign in with facebook</button>');
+ //views
+ function View(title,content){
+     this.title = title;
+     this.content = content ? content : '';
+ }
 
- $('#facebook_signin').click(function(){
-     window.location.href = 'https://www.facebook.com/dialog/oauth/?client_id=233473013410744&display='+(mobile ? 'touch' : 'page')+'&redirect_uri=http%3A%2F%2F199.30.59.142%2Fapi%2Ffblogin&response_type=code';
- });
+ View.prototype.update = function(data,view){
+     this.content = '';
+     for (var i = 0; i < data.length; i++){
+         this.content+=view(i,data[i]);
+     }
+ }
 
- var signin = new Popup('Log In','<form id="loginForm">' +
+ var welcome = new Popup('Welcome',[{class:'popup-content popup-background',
+      body:'<p>What is throw a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>' + //'<p>This will be the main welcome page. In here the user will be asked to sign in. We also will have a description and shit</p>' +
+      '<button type="button" class="centeredButton" onClick="welcome.transition(signin);">Sign in</button>' +
+      '<button type="button" class="centeredButton" onClick="welcome.transition(registration);">Register</button>' +
+      '<button type="button" class="centeredButton" id="facebook_signin">Sign in with facebook</button>'}]);
+
+
+ var signin = new Popup('Log In',[{class:'popup-content popup-background',body:'<form id="loginForm">' +
          '<label for="userid">User ID:</label>' +
          '<input type="text" id="loginUser" name="userid" required autocapitalize="off"/>' +
           '<label for="password">Password:</label>'+
           '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
-          '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
+          '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>'}]);
 
- var registration = new Popup('Register','<form id="registrationForm">' +
+ var registration = new Popup('Register',[{class:'popup-content popup-background',body:'<form id="registrationForm">' +
          '<label for="userid">User ID:</label>' +
          '<input type="text" id="loginUser" name="userid" required autocapitalize="off"/>' +
          '<label for="password">Password:</label>'+
          '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
-         '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>');
+         '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>'}]);
 
- var threads = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" style="float:none;margin:10px auto" onClick="threads.close();">Ok</button></div>');
+ var unavailable = new Popup(':(',[{class:'popup-contentRaised popup-background',body:'<p>Service is currently unavailable</p>'},
+     {class:'popup-footer',body:'<button type="button" style="float:none;margin:10px auto" onClick="unavailable.close();">Reconnect</button>'}]);
+
+ unavailable.show();
+
+ var threads = new ScrollablePopup('Messages','<div class="popup-footer"><button type="button" style="float:none;margin:10px auto" onClick="threads.close();">Ok</button></div>');
 
  //welcome.show();
 
  threads.childClick = function(id){
-     alert('t:'+id);
+     //alert('t:'+id);
      var thread = threads.child(id).append('<div class="threadLoader"></div>');
      var recieved = false;
      function messagesRecieved(data){
@@ -370,25 +408,27 @@ function animate(){
      return '<li class="thread '+(thread.e==0?'threadRead':'threadNotRead')+'" id="'+id+'">'+(thread.s==1?'<div class="threadArrowHead"></div><div class="threadArrow"></div>':'')+'<span>'+thread.m+'</span></li>';
  }
 
- var messages = new ScrollablePopup('Messages','<div class="popup-buttonArea"><button type="button" onClick="messages.transition(threads);">Back</button><button type="button" id="replyToMessageSubmit" onClick="messages.showReply();" disabled="disabled">Reply</button></div>',
- '<div class="message-reply popup-background"><div><textarea name="m" maxlength="500" id="replyToMessage">Reply...</textarea></div></div>');
+ var messages = new ScrollablePopup('Messages','<div class="popup-footer"><button type="button" onClick="messages.transition(threads);">Back</button><button type="button" id="replyToMessageSubmit" onClick="messages.showReply();" disabled="disabled">Reply</button></div>',
+ '<div class="message-reply"><div class="textareaWrapper"><textarea name="m" maxlength="500" id="replyToMessage">Reply...</textarea></div></div>');
 
  $('#replyToMessage').focus(function(){
      $(this).val('');
      $('#replyToMessageSubmit').attr('disabled','disabled');
  });
+
  $('#replyToMessage').change(function(){
      if($(this).val()){
          console.log('yeah')
         $('#replyToMessageSubmit').removeAttr('disabled');
      }
  });
+
  messages.nodeCreator = function(message,id){
-    return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m+'</p></div></li>';
+    return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m.replace(/\n/g,'<br/>')+'</p></div></li>';
  }
  messages.showReply = function() {
-     var reply = $('#replyToMessage').val();
      $.post('api/reply?i='+messages.threadId, $('#replyToMessage').serialize());
+     reply = $('#replyToMessage').val().replace(/\n/g,'<br/>');
      messages.messages.push({s:1,m:reply});
      messages.update(messages.messages);
      messages.refresh();
@@ -399,6 +439,9 @@ function animate(){
 
 
 
+ $('#facebook_signin').click(function(){
+     window.location.href = 'https://www.facebook.com/dialog/oauth/?client_id=233473013410744&display='+(mobile ? 'touch' : 'page')+'&redirect_uri=http%3A%2F%2F199.30.59.142%2Fapi%2Ffblogin&response_type=code';
+ });
 
  $('#loginForm').submit(function(){
      var userid = $('#loginUser').val();
@@ -427,9 +470,10 @@ function animate(){
  });
 
 
- var newBottle = new MessagePopup('Say something:',[{text:'never mind',action:'newBottle.close()'},{text:'throw!',action:'$(\'#btn_bottle_counter\').html((bottleCount-1).toString());newBottle.send(\'api/throw\',bottleSent)'}]);
+ var newBottle = new MessagePopup('Say something:',[{text:'never mind',action:'newBottle.close()'},{text:'throw!',action:'setBottleCount(bottleCount - 1);newBottle.send(\'api/throw\',bottleSent)'}]);
 
- var recievedBottle = new MessagePopup('Bottle:',[{text:'throw back',action:'recievedBottle.close();$.get(\'api/bottle/recycle\');'},{text:'reply',action:'recievedBottle.transition(replyToBottle)'}],{readonly:true});
+ var recievedBottle = new MessagePopup('Bottle:',[{text:'Throw back',action:'recievedBottle.close();$.get(\'api/bottle/recycle\');'},{text:'Reply',action:'recievedBottle.transition(replyToBottle)'}],{readonly:true});
+
 
  var replyToBottle = new MessagePopup('Reply:',[{text:'cancel',action:'replyToBottle.close();$.get(\'api/bottle/recycle\');'},{text:'send reply',action:'replyToBottle.send(\'api/bottle/reply\')'}]);
 
@@ -438,21 +482,25 @@ function animate(){
      else newBottle.show();
  });
 
+
  $('#btn_net').click(function(){
+
      function bottleCaught(data){
          if(data.r >= 0){
-             netCount = data.r;
+             setNetCount(data.r);
              if(data.m){
-                 $('#btn_net_counter').html(netCount.toString());
                  recievedBottle.setText(data.m).show();
              }else alert("You've caught some " + data.j);
          }
          else alert('Bottle failed catching! Error:' + data.error);
      }
 
+     bottleCaught({r:1,m:'ABVt5bv tgh t th tht\r\nh t\r\nh tht \r\nht htbt\r\nbtnt'});
+     return;
+
      if(netCount === 0) alert('No more nets remaining!');
      else{
-         $('#btn_net_counter').html((netCount-1).toString());
+         setNetCount(netCount - 1);
          $.get('api/catch',bottleCaught,'json');
      }
  });
@@ -487,10 +535,8 @@ function animate(){
 
  function handleQuery(response){
      if(response.r === 0){
-         bottleCount = response.b;
-         $('#btn_bottle_counter').html(bottleCount.toString());
-         netCount = response.n;
-         $('#btn_net_counter').html(netCount.toString());
+         setBottleCount(response.b);
+         setNetCount(response.n);
          notifications.count(response.e ? response.e : 0);
      }
      else welcome.show();
@@ -513,7 +559,7 @@ function animate(){
 
  $(document).ready(function(){
      query();
-
+     handleQuery({r:0,b:6,n:4,e:2});
  });
 
 
