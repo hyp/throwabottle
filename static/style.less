@@ -334,10 +334,18 @@ button, input[type="button"], input[type="submit"] {
 }
 button:hover, input[type="button"]:hover, input[type="submit"]:hover {
 	.gradient(#fcfcfc,#d0d0d0);
+
 }
 button:active, input[type="button"]:active, input[type="submit"]:active {
 	.gradient(#b0b0b0,#eaeaea);
 }
+
+[disabled] {
+    .opacity(0.5);
+    cursor:hand;
+    background-color:#c0c0c0;
+}
+
 
 .centeredButton {
     float: none;
@@ -490,6 +498,7 @@ h3 {
 }
 
 .popup-background {
+    background-color: rgb(240,240,240);
     background-color: rgba(240,240,240,0.9);
 }
 
