@@ -252,16 +252,8 @@ input:valid, textarea:valid {  }
 	margin: 0 auto;
 }
 
-@nice-blue: #5B83AD;
-@light-blue: @nice-blue + #333;
-
-@skyColor:   #82CAFF;
-@waterColor: rgb(20,204,254);//#0ae+#333333;//desaturate(#50EBEC,20%);
-@sandColor: rgb(248,228,161);//#FFE87C);
-
-
 body {
-	background-color: @waterColor;
+    background:transparent;
 	overflow: auto;
 }
 
@@ -679,8 +671,8 @@ ul {
     height:100%;
 
     font-size: 22px;
-    border:#ccc;
-    border-bottom-color:@messageBorderColor;
+    border:solid 1px #ccc;
+    border-top-color:@messageBorderColor;
     .bottom-rounded-corners(16px);
     //color:#222222;
     //margin:0;
@@ -694,37 +686,6 @@ ul {
     margin:0;
     width:0;height:0;
 }
-
-
-
-
-
-
-
-
-
-/*.popup h2 {
-	font-size:40px;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	color: #333333;
-	text-align:center;
-
-	font-weight: normal;
-	font-family: Impact, Charcoal, sans-serif;
-}
-
-
-@popupTitleMargin: 10px;
-.popup h3 {
-	font-size: 30px;
-	margin-top: @popupTitleMargin;
-	margin-bottom: @popupTitleMargin;
-	color: #222222;
-	text-align:center;
-	margin-left: 0px;
-	color:white;
-}*/
 
 
 
@@ -793,19 +754,19 @@ ul {
 #btn_net_counter { top: 70%; }
 
 @keyframes notificationsFrames {
-    0% { background: rgba(140,32,32,0.5); }
-    50% { background: rgba(140,32,32,1.0); }
-    100% { background: rgba(140,32,32,0.5); }
+    0% { opacity:0.7; }
+    50% { opacity:1.0; }
+    100% { opacity:0.7; }
 }
 @-moz-keyframes notificationsFrames {
-    0% { background: rgba(140,32,32,0.5); }
-    50% { background: rgba(140,32,32,1.0); }
-    100% { background: rgba(140,32,32,0.5); }
+    0% { opacity:0.7; }
+    50% { opacity:1.0; }
+    100% { opacity:0.7; }
 }
 @-webkit-keyframes notificationsFrames {
-    0% { background: rgba(140,32,32,0.5); }
-    50% { background: rgba(140,32,32,1.0); }
-    100% { background: rgba(140,32,32,0.5); }
+    0% { opacity:0.7; }
+    50% { opacity:1.0; }
+    100% { opacity:0.7; }
 }
 
 #notifications {
@@ -819,7 +780,7 @@ ul {
    margin:  -(@sideButtonSize / 2)-32px 0 0 0;
 
    @color: #902020;
-   background: rgba(140,32,32,0.5);
+   background: rgba(140,32,32,1.0);
    border: 1px solid @color - #111111;
    color: #f0f0f0;
 
@@ -872,39 +833,29 @@ margin-right: auto;
 }
 
 #cloud1 {
-position: absolute;
-top: 10px;
-left:10%;
-
-//animation: cloudAnimation 50s linear 10s infinite normal;
-//-moz-animation: cloudAnimation 50s linear 10s infinite normal;
-//-webkit-animation: cloudAnimation 50s linear 10s infinite normal;
+    position: absolute;
+    top: 10px;
+    left:10%;
+    width:164px;
+    height:112px;
 }
 
 #cloud2 {
 position: absolute;
-top: 45px;
-left:-20%;
-height: 82px;
-width: 97px;
-.opacity(0.75);
-
-//animation: cloudAnimation 40s linear 5s infinite normal;
-//-moz-animation: cloudAnimation 40s linear 5s infinite normal;
-//-webkit-animation: cloudAnimation 40s linear 5s infinite normal;
+top: 60px;
+left:30%;
+height: 128px
+width: 92px;
+//.opacity(0.85);
 }
 
 #cloud3 {
 position: absolute;
 top: 30px;
-left:-20%;
+left:70%;
 height: 62px;
 width: 72px;
-.opacity(0.5);
-
-//animation: cloudAnimation 30s linear infinite normal;
-//-moz-animation: cloudAnimation 30s linear infinite normal;
-//-webkit-animation: cloudAnimation 30s linear infinite normal;
+//.opacity(0.6);
 }
 
 /*
@@ -936,6 +887,22 @@ width: 72px;
    left: @sideButtonSize - 20px;
    margin:  -(@sideButtonSize / 2)-10px 0 0 0;
  }
+
+ #cloud1 {
+     animation: cloudAnimation 50s linear 10s infinite normal;
+     -moz-animation: cloudAnimation 50s linear 10s infinite normal;
+     -webkit-animation: cloudAnimation 50s linear 10s infinite normal;
+ }
+ #cloud2 {
+     animation: cloudAnimation 40s linear 5s infinite normal;
+     -moz-animation: cloudAnimation 40s linear 5s infinite normal;
+     -webkit-animation: cloudAnimation 40s linear 5s infinite normal;
+ }
+  #cloud3 {
+    animation: cloudAnimation 30s linear infinite normal;
+    -moz-animation: cloudAnimation 30s linear infinite normal;
+    -webkit-animation: cloudAnimation 30s linear infinite normal;
+  }
 }/*/mediaquery*/
 
 

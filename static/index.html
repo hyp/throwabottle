@@ -83,28 +83,6 @@ function toggle(x) {
 <img src="images/chest.png" id="imagePopup" alt=""/>
 
 
-<script type="text/javascript"> 
-function cloud1(){  
-    $("#cloud1").animate({left:"+=120%"},49000,'linear',function(){ $('#cloud1').css('left','-120px'); });  
-    setTimeout("cloud1()",49000);  
-}  
-function cloud2(){  
-    $("#cloud2").animate({left:"+=120%"},39000,'linear',function(){ $('#cloud2').css('left','-120px'); }); 
-    setTimeout("cloud2()",39000);  
-}  
-function cloud3(){  
-    $("#cloud3").animate({left:"+=120%"},34000,'linear',function(){ $('#cloud3').css('left','-120px'); });
-    setTimeout("cloud3()",34000);  
-}  
-function animate(){
-    cloud1();  
-    cloud2(); 
-	cloud3();
-}
-//setTimeout("animate()",300);
-</script>
-
-
 <!-- JavaScript at the bottom for fast page loading -->
 
 <!-- scripts concatenated and minified via ant build script -->
@@ -355,6 +333,11 @@ function animate(){
          '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
          '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form></div>');
 
+ var newBottle = new Popup('Say something:','<form id="newBottleForm"><div class="popup-contentRaised">'+
+         '<div class="textareaWrapper"><textarea name="m" id="newBottleText" maxlength="500" required></textarea></div></div>' +
+         '<div class="popup-footer"><input type="button" value="Back" onClick="newBottle.close();"/>'+
+         '<input type="submit" value="Throw"/></div></form>');
+
  var threads = new ScrollablePopup('Messages','<div class="popup-footer"><button type="button" style="float:none;margin:10px auto" onClick="threads.close();">Ok</button></div>');
 
  //welcome.show();
@@ -430,6 +413,12 @@ function animate(){
      window.location.href = 'https://www.facebook.com/dialog/oauth/?client_id=233473013410744&display='+(mobile ? 'touch' : 'page')+'&redirect_uri=http%3A%2F%2F199.30.59.142%2Fapi%2Ffblogin&response_type=code';
  });
 
+ $('#newBottleForm').submit(function(){
+     setBottleCount(bottleCount-1);
+     postTextarea('api/throw',$('#newBottleText'));
+     return false;
+ });
+
  $('#loginForm').submit(function(){
      var userid = $('#loginUser').val();
      var password = $('#loginPassword').val();
@@ -457,7 +446,7 @@ function animate(){
  });
 
 
- var newBottle = new MessagePopup('Say something:',[{text:'never mind',action:'newBottle.close()'},{text:'throw!',action:'setBottleCount(bottleCount - 1);newBottle.send(\'api/throw\',bottleSent)'}]);
+
 
  var recievedBottle = new MessagePopup('Bottle:',[{text:'Throw back',action:'recievedBottle.close();$.get(\'api/bottle/recycle\');'},{text:'Reply',action:'recievedBottle.transition(replyToBottle)'}],{readonly:true});
 
