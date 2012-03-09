@@ -162,8 +162,9 @@ function animate(){
      var src = '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>';
      if((typeof content) === 'string') $('body').append(src + content +'</div>');
      else if((typeof content) !== 'undefined'){
-         for (var i = 0; i < content.length; i++)
+         for (var i = 0; i < content.length; i++){
             src+='<div class="'+content[i].class+'">'+content[i].body+'</div>';
+         }
          $('body').append(src + '</div>');
      }
  }
