@@ -383,6 +383,7 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 
 ///the parent div of all popups which defines the dimmer
 .popup {
+    background: transparent; //fallback
 	background: rgba(0,0,0,0.4);
     display:none;
 }
@@ -414,7 +415,6 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
     bottom:10px;
 
 	border: solid 3px #222222;
-	background: rgba(240,240,240,0.9);//#f0f0f0;
 	.rounded-corners(16px);
 	overflow: hidden;
     .outerShadow;
@@ -498,6 +498,7 @@ h3 {
 }
 
 .popup-background {
+    //non transparent background fallback
     background-color: rgb(240,240,240);
     background-color: rgba(240,240,240,0.9);
 }

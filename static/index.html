@@ -275,7 +275,7 @@ function animate(){
  Popup.prototype = new PopupBase;
  Popup.prototype.constructor = PopupBase;
  function Popup(title,body){
-     PopupBase.call(this,title,'<div class="popupWrapper">'+body+'</div>');
+     PopupBase.call(this,title,'<div class="popupWrapper popup-background">'+body+'</div>');
  }
 
  //one big textarea popup
