@@ -123,14 +123,14 @@ function animate(){
 
  //counters + notifications]
  function setNetCount(n){
-     netCount = 0;
+     netCount = n;
      if(n>0){
          $('#btn_net_counter').html(n.toString()).css('display','block');
      }else
          $('#btn_net_counter').css('display','none');
  }
  function setBottleCount(n){
-     netCount = 0;
+     bottleCount = n;
      if(n>0){
          $('#btn_bottle_counter').html(n.toString()).css('display','block');
      }else
@@ -157,17 +157,8 @@ function animate(){
  //base popup
  function Popup(title,content){
      this.id='_'+ids;ids++;
-
-     console.log('Creating popup' + title + content);
-     var src = '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>';
-     if((typeof content) === 'string') $('body').append(src + content +'</div>');
-     else if((typeof content) !== 'undefined'){
-         for (var i = 0; i < content.length; i++)
-         {
-            src=src+'<div class="'+content[i].class+'">'+content[i].body+'</div>';
-         }
-         $('body').append(src + '</div>');
-     }
+     if((typeof content) === 'string')
+         $('body').append('<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>' + content +'</div>');
  }
  Popup.prototype.close = function(){
      $('#'+this.id).fadeOut('slow');
@@ -339,43 +330,27 @@ function animate(){
  }
 
  //views
- function View(title,content){
-     this.title = title;
-     this.content = content ? content : '';
- }
 
- View.prototype.update = function(data,view){
-     this.content = '';
-     for (var i = 0; i < data.length; i++){
-         this.content+=view(i,data[i]);
-     }
- }
-
- var welcome = new Popup('Welcome',[{class:'popup-content popup-background',
-      body:'<p>What is throw a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>' + //'<p>This will be the main welcome page. In here the user will be asked to sign in. We also will have a description and shit</p>' +
+ var welcome = new Popup('Welcome','<div class="popup-content popup-background">' +
+      '<p>What is throw a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>' + //'<p>This will be the main welcome page. In here the user will be asked to sign in. We also will have a description and shit</p>' +
       '<button type="button" class="centeredButton" onClick="welcome.transition(signin);">Sign in</button>' +
       '<button type="button" class="centeredButton" onClick="welcome.transition(registration);">Register</button>' +
-      '<button type="button" class="centeredButton" id="facebook_signin">Sign in with facebook</button>'}]);
+      '<button type="button" class="centeredButton" id="facebook_signin">Sign in with facebook</button></div>');
 
 
- var signin = new Popup('Log In',[{class:'popup-content popup-background',body:'<form id="loginForm">' +
+ var signin = new Popup('Log In','<div class="popup-content popup-background"><form id="loginForm">' +
          '<label for="userid">User ID:</label>' +
          '<input type="text" id="loginUser" name="userid" required autocapitalize="off"/>' +
           '<label for="password">Password:</label>'+
           '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
-          '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>'}]);
+          '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form></div>');
 
- var registration = new Popup('Register',[{class:'popup-content popup-background',body:'<form id="registrationForm">' +
+ var registration = new Popup('Register','<div class="popup-content popup-background"><form id="registrationForm">' +
          '<label for="userid">User ID:</label>' +
          '<input type="text" id="loginUser" name="userid" required autocapitalize="off"/>' +
          '<label for="password">Password:</label>'+
          '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
-         '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form>'}]);
-
- var unavailable = new Popup(':(',[{class:'popup-contentRaised popup-background',body:'<p>Service is currently unavailable</p>'},
-     {class:'popup-footer',body:'<button type="button" style="float:none;margin:10px auto" onClick="unavailable.close();">Reconnect</button>'}]);
-
- unavailable.show();
+         '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form></div>');
 
  var threads = new ScrollablePopup('Messages','<div class="popup-footer"><button type="button" style="float:none;margin:10px auto" onClick="threads.close();">Ok</button></div>');
 
