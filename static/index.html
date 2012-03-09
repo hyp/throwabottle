@@ -80,6 +80,9 @@ function toggle(x) {
 <img src="images/chest.png" alt="" class="side_button right_side" id="btn_history"/>
 <div id="notifications"></div>
 
+<img src="images/chest.png" id="imagePopup" alt=""/>
+
+
 <script type="text/javascript"> 
 function cloud1(){  
     $("#cloud1").animate({left:"+=120%"},49000,'linear',function(){ $('#cloud1').css('left','-120px'); });  
@@ -412,6 +415,13 @@ function animate(){
      messages.scrollToBottom();
      $('#replyToMessage').val('');
  }
+         
+ function animatedImagePopup(src){
+     $('#imagePopup').css('display','block').animate({width:"128px",height:"128px","margin-left":"-64px","margin-top":"-64px"},500,'linear',function(){
+         setTimeout("$('#imagePopup').fadeOut()",600);
+     });
+ }
+
 
 
 
@@ -461,7 +471,8 @@ function animate(){
 
 
  $('#btn_net').click(function(){
-
+     animatedImagePopup();
+     return;
      function bottleCaught(data){
          if(data.r >= 0){
              setNetCount(data.r);
