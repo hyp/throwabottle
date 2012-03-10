@@ -80,7 +80,7 @@ function toggle(x) {
 <img src="images/chest.png" alt="" class="side_button right_side" id="btn_history"/>
 <div id="notifications"></div>
 
-<img src="images/chest.png" id="imagePopup" alt=""/>
+<img src="images/fish.png" id="imagePopup" alt=""/>
 
 
 <!-- JavaScript at the bottom for fast page loading -->
@@ -97,6 +97,8 @@ function toggle(x) {
 <script src="js/libs/iscroll.js"></script>
 
 <script>
+
+ //TODO recived bottle scrollable area + animation popup +
 
  //app globals
  var netCount = 0;
@@ -344,7 +346,7 @@ function toggle(x) {
          '<div class="message-reply"><div class="textareaWrapper"><textarea name="m" maxlength="500" id="bottleReplyText" placeholder="Reply.."></textarea></div></div></div>'+
          '<div class="popup-footer"><button type="button" onClick="caughtBottle.close();">Throw back</button><button type="button" id="replyToMessageSubmit" onClick="messages.showReply();">Reply</button></div>');
  //$('#data'+caughtBottle.id).html('<div class="message" style="left:8px;margin-right:16px;heigth:100%;"><p>'+('Thi is text\r\nAbed\r\nTroy').replace(/\n/g,'<br/>')+'</p></div>')
- caughtBottle.show();
+
 
  var threads = new ScrollablePopup('Messages','<div class="popup-footer"><button type="button" style="float:none;margin:10px auto" onClick="threads.close();">Ok</button></div>');
 
@@ -469,20 +471,17 @@ function toggle(x) {
 
 
  $('#btn_net').click(function(){
-     animatedImagePopup();
-     return;
      function bottleCaught(data){
          if(data.r >= 0){
              setNetCount(data.r);
              if(data.m){
                  recievedBottle.setText(data.m).show();
-             }else alert("You've caught some " + data.j);
+             }else {
+                 animatedImagePopup();
+                 //alert("You've caught some " + data.j);
+             }
          }
-         else alert('Bottle failed catching! Error:' + data.error);
      }
-
-     bottleCaught({r:1,m:'ABVt5bv tgh t th tht\r\nh t\r\nh tht \r\nht htbt\r\nbtnt'});
-     return;
 
      if(netCount === 0) alert('No more nets remaining!');
      else{
@@ -502,7 +501,13 @@ function toggle(x) {
      }else this.css('display','none');
  }
 
+ var first =true;
  $('#btn_history').click(function(){
+     if(first){
+         caughtBottle.show();
+         first=false;
+         return;
+     }
      var recieved = false;
      function threadsRecieved(data){
          if(recieved) return;
