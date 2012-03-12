@@ -60,7 +60,7 @@ function ScrollablePopup(title,body,innerBody){
 
     var src = '<div class="fullscreen popup" id="'+this.id+'"><h3>'+title+'</h3>'+
         '<div class="popup-contentRaised popup-background">'+
-        '<div class="'+(innerBody === '' ?'popup-content-scrollable':'popup-content-scrollableRaised')+'" id="scroll'+this.id+'"></div>'+
+        '<div class="'+(innerBody === '' ?'popup-content-scrollable':'popup-content-scrollableRaised')+'" id="scroll'+this.id+'"><ul id="data'+this.id+'"></ul></div>'+
         innerBody+'</div>'+body+'</div>';
 
     $('body').append(src);
@@ -150,7 +150,7 @@ ScrollablePopup.prototype.update= function(data){
         src += this.nodeCreator(data[i],idPrefix+id);
         id++;
     }
-    $('#scroll'+this.id).html('<ul id="data'+this.id+'">'+src+'</ul>');
+    $('#data'+this.id).html(src);
 
     id = 0;
     var handler = this.childClick;
@@ -199,7 +199,7 @@ var welcome = new Popup('Welcome','<div class="popup-content popup-background">'
     '<p>What is message in a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>' +
     '<button type="button" class="centeredButton" onClick="welcome.transition(signin);">Sign in</button>' +
     '<button type="button" class="centeredButton" onClick="welcome.transition(registration);">Register</button>' +
-    '<button type="button" class="centeredButton" id="facebook_signin">Sign in with facebook</button></div>');
+    '<button type="button" class="centeredButton" id="facebook_signin"><img src="images/fbConnect.png" alt="" id="facebook_signin_icon"/>Connect</button></div>');
 
 var signin = new Popup('Log In','<div class="popup-content popup-background"><form id="loginForm">' +
     '<label for="userid">User ID:</label>' +
@@ -217,8 +217,8 @@ var registration = new Popup('Register','<div class="popup-content popup-backgro
     '<input type="password" id="regPasswordConfirm" name="password" required autocapitalize="off"/>'+
     '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form></div>');
 
-var newBottle = new Popup('Say something:','<form id="newBottleForm"><div class="popup-contentRaised">'+
-    '<div class="textareaWrapper"><textarea name="m" id="newBottleText" maxlength="500" required></textarea></div></div>' +
+var newBottle = new Popup('Say something:','<form id="newBottleForm"><div class="popup-contentRaised popup-background">'+
+    '<div class="popup-content-bordered"><div class="textareaWrapper"><textarea name="m" id="newBottleText" maxlength="500" required></textarea></div></div></div>' +
     '<div class="popup-footer"><input type="button" value="Back" onClick="newBottle.close();"/>'+
     '<input type="submit" value="Throw"/></div></form>');
 
@@ -262,7 +262,7 @@ threads.nodeCreator = function(thread,id){
 }
 
 var messages = new ScrollablePopup('Messages','<div class="popup-footer"><button type="button" onClick="messages.transition(threads);">Back</button><button type="button" id="replyToMessageSubmit" onClick="messages.showReply();">Reply</button></div>',
-    '<div class="message-reply"><div class="textareaWrapper"><textarea name="m" maxlength="500" id="replyToMessage">Reply...</textarea></div></div>');
+    '<div class="message-reply"><div class="textareaWrapper"><textarea name="m" maxlength="500" id="replyToMessage" placeholder="Reply.."></textarea></div></div>');
 
 messages.nodeCreator = function(message,id){
     return '<li><div class="message '+(message.s==1?'message-sender':'message-reciever')+'"><p>'+message.m.replace(/\n/g,'<br/>')+'</p></div></li>';
@@ -271,7 +271,7 @@ messages.showReply = function() {
     $.post('api/reply?i='+messages.threadId, $('#replyToMessage').serialize());
     reply = $('#replyToMessage').val().replace(/\n/g,'<br/>');
     messages.messages.push({s:1,m:reply});
-    messages.update(messages.messages);//TODO fix
+    messages.update(messages.messages);
     messages.refresh();
     messages.scrollToBottom();
     $('#replyToMessage').val('');
@@ -279,8 +279,8 @@ messages.showReply = function() {
 
 //Show when you've caught some junk
 function animatedImagePopup(src){
-    $('#imagePopup').css('display','block').animate({width:"256px",height:"256px","margin-left":"-128px","margin-top":"-128px"},500,'linear',function(){
-        setTimeout("$('#imagePopup').fadeOut(function(){$('#imagePopup').css({'width':'0',height:'0','margin-left':'0','margin-top':'0'});})",600);
+    $('#fishCaught').css('display','block').animate({width:"256px",height:"256px","margin-left":"-128px","margin-top":"-128px"},500,'linear',function(){
+        setTimeout("$('#fishCaught').fadeOut(function(){$('#fishCaught').css({'width':'0',height:'0','margin-left':'0','margin-top':'0'});})",600);
     });
 }
 
@@ -338,6 +338,7 @@ $('#btn_bottle').click(function(){
 });
 
 $('#btn_net').click(function(){
+
     function bottleCaught(data){
         if(data.r >= 0){
             if(data.m){

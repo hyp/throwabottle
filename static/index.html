@@ -23,9 +23,9 @@
 <!-- Mobile IE allows us to activate ClearType technology for smoothing fonts for easy reading -->
 <meta http-equiv="cleartype" content="on">
 
-<!--<link rel="stylesheet/less" type="text/css" href="style.less" />
+    <!--<link rel="stylesheet/less" type="text/css" href="css/style.less" />
 <script src="less.js"></script>-->
-<link rel="stylesheet" type="text/css" href="css/main.css" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
 
 </head>
 <body>
@@ -44,11 +44,9 @@ $('body').append('<img src="images/'+(mobile ? 'bg/lowv.png' : 'background.svg')
 
 
 <img src="images/sun3.png" alt="" style="position:fixed;margin-left:-46px;left:50%;top:20px;width:92px;height:92px;"/>
-<div class="cloudContainer">
-    <img src="images/cloud.png" alt="" id="cloud3" class="cloudFast"/>
-    <img src="images/cloud.png" alt="" id="cloud2" class="cloud"/>
-    <img src="images/cloud.png" alt="" id="cloud1" class="cloudSlow"/>
-</div>
+<img src="images/cloud.png" alt="" id="cloud3" class="cloudFast"/>
+<img src="images/cloud.png" alt="" id="cloud2" class="cloud"/>
+<img src="images/cloud.png" alt="" id="cloud1" class="cloudSlow"/>
 
 <div class="side_note" id="btn_bottle_counter"></div>
 <img src="images/bottle5.png" alt="" class="side_button left_side" id="btn_bottle"/>
@@ -60,7 +58,11 @@ $('body').append('<img src="images/'+(mobile ? 'bg/lowv.png' : 'background.svg')
 <img src="images/chest.png" alt="" class="side_button right_side" id="btn_history"/>
 <div id="notifications"></div>
 
-<img src="images/fish.png" id="imagePopup" alt=""/>
+<div class="imagePopup" id="fishCaught">
+    <span class="imagePopupTop">You've caught</span>
+    <img src="images/fish.png" alt=""/>
+    <span class="imagePopupBot">a fish!</span>
+</div>
 
 
 <!-- JavaScript at the bottom for fast page loading -->
