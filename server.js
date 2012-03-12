@@ -186,10 +186,9 @@ app.on('/api/query', function (request, response) {
 function genSessionCookie(uid, expires) {
     var sid = crypto.createHash('md5').update(uid).update(sessionSecret).update(Date.now().toString()).digest('hex');
     console.log("New session created - " + sid + ':' + uid);
-    //TODO check for collisions
     redisData.set(sid, uid);
     redisData.expire(sid, expires); //session expiration (seconds)
-    return 'sid=' + sid + '; Path=/api/; Max-Age=' + expires + '; HttpOnly';//TODO update for expires
+    return 'sid=' + sid + '; Path=/api/; Max-Age=' + expires + '; HttpOnly';
 }
 
 app.on('/api/register', function (request, response, data) {
