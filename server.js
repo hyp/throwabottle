@@ -194,8 +194,9 @@ app.on('/api/register',function(request,response,data){
 
 //onLogin - data := { userid , pwd }
 app.on('/api/login',function(request,response,data){
+    if(data.userid==='' || data.pwd==='') hackError(response);
     var userid = data.userid;
-    var hash = crypto.createHmac('sha1',userid).update(pwd).update(passwordSecret).digest('base64');
+    var hash = crypto.createHmac('sha1',userid).update(data.pwd).update(passwordSecret).digest('base64');
     console.log(hash);
 
     //Query user collection for the appropriate user

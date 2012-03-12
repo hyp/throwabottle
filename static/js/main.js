@@ -336,10 +336,6 @@ $('#btn_bottle').click(function(){
 });
 
 $('#btn_net').click(function(){
-    if(mobile){
-        animatedImagePopup();
-        return;
-    }
     function bottleCaught(data){
         if(data.r >= 0){
             if(data.m){
