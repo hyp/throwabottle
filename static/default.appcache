@@ -1,6 +1,7 @@
 CACHE MANIFEST
 # version 1
 index.html
+favicon.ico
 css/main.css
 js/libs/jquery-1.7.1.min.js
 js/libs/iscroll.js
