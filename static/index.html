@@ -7,41 +7,30 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
-<title>Message in a bottle</title>
+    <title>Message in a bottle</title>
 
-<!-- Mobile viewport optimization h5bp.com/ad -->
-<meta name="HandheldFriendly" content="True">
-<meta name="MobileOptimized" content="320">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Mobile viewport optimization h5bp.com/ad -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 
-<!-- iOS web app, delete if not needed. https://github.com/h5bp/mobile-boilerplate/issues/94 -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-touch-fullscreen" content="yes" />
-  
-<!-- Mobile IE allows us to activate ClearType technology for smoothing fonts for easy reading -->
-<meta http-equiv="cleartype" content="on">
+    <!-- iOS web app, delete if not needed. https://github.com/h5bp/mobile-boilerplate/issues/94 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-touch-fullscreen" content="yes" />
+
+    <!-- Mobile IE allows us to activate ClearType technology for smoothing fonts for easy reading -->
+    <meta http-equiv="cleartype" content="on">
 
     <!--<link rel="stylesheet/less" type="text/css" href="css/style.less" />
-<script src="less.js"></script>-->
-<link rel="stylesheet" type="text/css" href="css/style.css" />
-
+    <script src="less.js"></script>-->
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+<script src="js/libs/modernizr-2.5.3.min.js"></script>
 </head>
 <body>
 
-<!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
-
-
-
-<script type="text/javascript">
-var mobile = (/iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
-//append background
-$('body').append('<img src="images/'+(mobile ? 'bg/lowv.png' : 'background.svg')+'" alt="" class="fullscreen" id="background">');
-</script>
-
+<div class="fullscreen" id="background"></div>
 
 <img src="images/sun3.png" alt="" style="position:fixed;margin-left:-46px;left:50%;top:20px;width:92px;height:92px;"/>
 <img src="images/cloud.png" alt="" id="cloud3" class="cloudFast"/>
@@ -59,14 +48,22 @@ $('body').append('<img src="images/'+(mobile ? 'bg/lowv.png' : 'background.svg')
 <div id="notifications"></div>
 
 <div class="imagePopup" id="fishCaught">
-    <span class="imagePopupTop">You've caught</span>
-    <img src="images/fish.png" alt=""/>
-    <span class="imagePopupBot">a fish!</span>
+<span class="imagePopupTop">You've caught</span>
+<img src="images/fish.png" alt=""/>
+<span class="imagePopupBot">a fish!</span>
 </div>
 
 
 <!-- JavaScript at the bottom for fast page loading -->
+<!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
 
+<script type="text/javascript">
+    var mobile = (/iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
+    //append background
+    $('#background').html('<img src="images/'+(mobile ? 'bg/lowv.png' : (Modernizr.svg ? 'bg/background.svg' : 'bg/background.png'))+'" alt="" id="backgroundImg">');
+</script>
 <!-- scripts concatenated and minified via ant build script -->
 <script src="js/helper.js"></script>
 <script src="js/libs/iscroll.js"></script>

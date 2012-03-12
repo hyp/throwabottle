@@ -1,3 +1,7 @@
+/**
+*This is a CSS compiled by LESS from style.less
+*/
+
 /*
  * HTML5 ? Boilerplate
  *
@@ -282,6 +286,12 @@ textarea {
     resize: vertical;
 }
 /* Colors for form validity */
+/**
+*Cross browser CSS3 helpers
+*/
+/**
+*Main styles - designed for mobiles first, desktop browsers use media queries for adaptiation
+*/
 .centeredHorizontally {
     margin: 0 auto;
 }
@@ -289,20 +299,26 @@ body {
     background: transparent;
     overflow: hidden;
 }
-p {
-    font-size: 1.1em;
+.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
-.smallPrint {
+#backgroundImg {
     position: absolute;
-    right: 2px;
-    bottom: 2px;
-    text-align: left;
-    font-size: 0.8em;
-    font-weight: bold;
-    color: #202020;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    -o-object-fit: fill;
 }
 /**
-*Main page
+*Buttons and inputs
 */
 label {
     color: #202020;
@@ -539,20 +555,14 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
     heigth: 32px;
     border-right: solid 1px rgba(240, 240, 240, 0.5);
 }
-#background {
-    z-index: -1;
-}
-.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
+/**
+*Popup styles
+*/
 .popup {
     background: transparent;
+    filter: progid:dximagetransform.microsoft.gradient(GradientType=0, startColorstr='#66000000', endColorstr='#66000000');
+    /* IE */
+
     background: rgba(0, 0, 0, 0.4);
     display: none;
 }
@@ -654,12 +664,9 @@ h3 {
     margin-top: 10px;
     margin-bottom: 10px;
     text-align: center;
-    margin-left: 0px;
+    margin-left: 0;
     color: white;
 }
-/**
-*Layouts for text input
-*/
 textarea {
     margin: 0;
     resize: none;
@@ -671,8 +678,8 @@ textarea[readonly] {
 }
 .textareaWrapper {
     position: absolute;
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
     right: 10px;
     bottom: 10px;
     overflow: visible;
@@ -689,6 +696,9 @@ textarea[readonly] {
     border-bottom-left-radius: 16px;
     border-bottom-right-radius: 16px;
 }
+/**
+*Popup for threads
+*/
 ul {
     list-style: none;
     padding: 0;
@@ -696,16 +706,6 @@ ul {
     width: 100%;
     overflow: auto;
 }
-/*.messageHeading {
-    display:block;
-    height: 30px;
-    line-height:30px;
-    left:0;right:0;
-    padding:5px 10px;
-    border-bottom: solid 1px #222222;
-    cursor: pointer;
-
-}*/
 .thread {
     padding: 0 10px;
     height: 40px;
@@ -765,6 +765,9 @@ ul {
     position: relative;
     float: right;
 }
+/**
+*Popup for messages
+*/
 .message {
     text-align: left;
     position: relative;
@@ -846,7 +849,7 @@ ul {
     text-align: center;
     overflow: hidden;
     line-height: 50px;
-    text-shadow: -2px 0 #222222, 0 2px #222222, 2px 0 #222222, 0 -2px #222222;
+    text-shadow: -1px 0 #222222, 0 1px #222222, 1px 0 #222222, 0 -1px #222222;
 }
 .imagePopupTop {
     top: 0;
@@ -975,6 +978,9 @@ ul {
 #btn_history {
     top: 50%;
 }
+/**
+*Background elements
+*/
 #sun {
     display: block;
     margin-left: auto;
@@ -1058,33 +1064,25 @@ ul {
 /* Styles for desktop and large screen ----------- */
 /*styles for 800px and up!*/
 @media only screen and (min-width: 800px) {
+    /*@popup-innerPadding: 8px;
     .popup-content-bordered {
-        top: 8px;
-        bottom: 8px;
-        left: 8px;
-        right: 8px;
+        top:@popup-innerPadding;bottom:@popup-innerPadding;left:@popup-innerPadding;right:@popup-innerPadding;
     }
     .popup-content-scrollableRecievedBottle {
-        top: 8px;
-        left: 8px;
-        right: 8px;
+        top:@popup-innerPadding;left:@popup-innerPadding;right:@popup-innerPadding;
     }
     .message-sender {
-        left: 8px;
-        margin-right: 40px;
+        left:@popup-innerPadding;margin-right:32px + @popup-innerPadding;
     }
     .message-reciever {
-        margin-left: 40px;
-        right: 8px;
+        margin-left:32px + @popup-innerPadding;right:@popup-innerPadding;
     }
     .message-reply {
-        left: 8px;
-        right: 8px;
+        left:@popup-innerPadding;right:@popup-innerPadding;
     }
     .message-reply div {
-        top: 8px;
-        bottom: 18px;
-    }
+        top:@popup-innerPadding;bottom:@popup-innerPadding+10px;
+    }*/
     .side_button {
         width: 128px;
         height: 128px;

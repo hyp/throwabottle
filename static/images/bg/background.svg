@@ -16,7 +16,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="background.svg">
+   sodipodi:docname="background.svg"
+   inkscape:export-filename="D:\Alex\projects\college\throwabottle\static\images\background.png"
+   inkscape:export-xdpi="60"
+   inkscape:export-ydpi="60">
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -24,17 +27,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.49497475"
-     inkscape:cx="802.38186"
-     inkscape:cy="749.2381"
+     inkscape:zoom="0.35"
+     inkscape:cx="527.3548"
+     inkscape:cy="566.39316"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1680"
-     inkscape:window-height="1028"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1">
+     inkscape:window-width="1170"
+     inkscape:window-height="888"
+     inkscape:window-x="387"
+     inkscape:window-y="85"
+     inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
        id="grid5906"
@@ -45,6 +48,62 @@
   </sodipodi:namedview>
   <defs
      id="defs4">
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect3331"
+       is_visible="true"
+       pattern="m -3.7896395,13.134718 c -0.25613,-4.5753002 13.59377,-29.8428 14.1421395,-29.2944 0.73587,0.7359 6.56303,21.7211997 8.08122,20.2029997 34.78483,-34.7847997 0.83938,-29.4650997 28.28427,-2.0203 0.61052,0.6106 18.43296,-23.7431997 20.20305,-20.2029997 3.87302,7.746 35.71461,24.8944997 22.22335,38.3858 -14.15026,14.1502 -76.81317,-2.7722 -92.9340295,-7.0711 z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       fuse_tolerance="0" />
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect3298"
+       is_visible="true"
+       pattern="M 108.06595,426.78437 C 85.723153,375.26892 74.254673,321.04297 53.517723,269.20058 -64.212397,-25.124712 45.358493,251.01783 83.822293,251.01783 168.10935,251.01783 33.880423,0.5 118.16748,0.5 c 1.64682,0 -3.75296,60.622619 -4.04061,64.649763 -0.7764,10.869638 37.26869,189.908677 44.44671,189.908677 11.79481,0 159.28682,-250.835107 165.66502,-244.456915 13.10041,13.100416 -58.58452,262.639665 -48.48733,262.639665 31.45626,0 112.46526,-142.54429 163.64472,-159.60411 46.86062,-15.620205 -31.83322,96.42153 -64.64977,133.34014 -72.6489,81.73001 -169.76694,185.86424 -266.68027,179.80715 z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       fuse_tolerance="0" />
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect3288"
+       is_visible="true"
+       pattern="M 108.06595,426.78437 C 85.723153,375.26892 74.254673,321.04297 53.517723,269.20058 -64.212397,-25.124712 45.358493,251.01783 83.822293,251.01783 168.10935,251.01783 33.880423,0.5 118.16748,0.5 c 1.64682,0 -3.75296,60.622619 -4.04061,64.649763 -0.7764,10.869638 37.26869,189.908677 44.44671,189.908677 11.79481,0 159.28682,-250.835107 165.66502,-244.456915 13.10041,13.100416 -58.58452,262.639665 -48.48733,262.639665 31.45626,0 112.46526,-142.54429 163.64472,-159.60411 46.86062,-15.620205 -31.83322,96.42153 -64.64977,133.34014 -72.6489,81.73001 -169.76694,185.86424 -266.68027,179.80715 z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       fuse_tolerance="0" />
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect3238"
+       is_visible="true"
+       pattern="M 108.06595,426.78437 C 85.723153,375.26892 74.254673,321.04297 53.517723,269.20058 -64.212397,-25.124712 45.358493,251.01783 83.822293,251.01783 168.10935,251.01783 33.880423,0.5 118.16748,0.5 c 1.64682,0 -3.75296,60.622619 -4.04061,64.649763 -0.7764,10.869638 37.26869,189.908677 44.44671,189.908677 11.79481,0 159.28682,-250.835107 165.66502,-244.456915 13.10041,13.100416 -58.58452,262.639665 -48.48733,262.639665 31.45626,0 112.46526,-142.54429 163.64472,-159.60411 46.86062,-15.620205 -31.83322,96.42153 -64.64977,133.34014 -72.6489,81.73001 -169.76694,185.86424 -266.68027,179.80715 z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       fuse_tolerance="0" />
     <linearGradient
        id="linearGradient35694"
        osb:paint="gradient">
@@ -340,19 +399,6 @@
        xlink:href="#linearGradient2987"
        inkscape:collect="always" />
     <filter
-       height="11.61202"
-       y="-5.3060098"
-       width="1.2642859"
-       x="-0.13214293"
-       id="filter7737"
-       inkscape:collect="always"
-       color-interpolation-filters="sRGB">
-      <feGaussianBlur
-         id="feGaussianBlur7739"
-         stdDeviation="17.686699"
-         inkscape:collect="always" />
-    </filter>
-    <filter
        id="filter7757"
        inkscape:collect="always"
        inkscape:label="Drop shadow"
@@ -558,6 +604,34 @@
          stdDeviation="48.53783"
          id="feGaussianBlur6457" />
     </filter>
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect3331-1"
+       is_visible="true"
+       pattern="m 9.5421186,12.484148 c -0.25613,-4.5752998 13.5937704,-29.842799 14.1421404,-29.294399 0.73587,0.7359 6.56303,21.7211992 8.08122,20.2029992 34.78483,-34.7847992 0.83938,-29.4650992 28.28427,-2.0203 0.61052,0.6106 18.43296,-23.7431992 20.20305,-20.2029992 3.87302,7.746 35.714601,24.8944992 22.223341,38.3858 -14.150251,14.1501 -76.813161,-2.772201 -92.9340214,-7.071101 z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       fuse_tolerance="0" />
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect3331-4"
+       is_visible="true"
+       pattern="m 19.391106,11.979072 c -0.25613,-4.5753 13.59377,-29.8428 14.14214,-29.2944 0.73587,0.7359 6.56303,21.7211999 8.08122,20.203 34.78483,-34.7848 0.83938,-29.4651 28.28427,-2.02030004 0.61052,0.61060004 18.43296,-23.74319996 20.20305,-20.20299996 3.87302,7.746 35.714604,24.8944999 22.223344,38.3858 -14.150254,14.1501 -76.813164,-2.7722 -92.934024,-7.0711 z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       fuse_tolerance="0" />
   </defs>
   <metadata
      id="metadata7">
@@ -629,12 +703,5 @@
        id="path35212"
        inkscape:connector-curvature="0"
        transform="translate(0,572.36218)" />
-    <image
-       y="403.59045"
-       x="-629.30969"
-       id="image6448"
-       xlink:href="file:///D:/Alex/projects/college/codeninja/3d1813ec8200bf4196c61eda70298633.jpg"
-       height="348"
-       width="600" />
   </g>
 </svg>

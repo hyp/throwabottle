@@ -1,3 +1,4 @@
+
 //app globals
 var netCount = 0;
 var bottleCount = 0;
