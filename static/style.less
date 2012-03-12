@@ -392,6 +392,8 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 @popup-borderRadius:16px;
 @popup-contentBottomHeight:30%;
 
+@popup-innerPadding:5px;
+
 // the parent div of all popups which defines the dimmer
 .popup {
     background: transparent; //fallback
@@ -453,6 +455,14 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 }
 .popup-content-scrollable { bottom:@popup-borderRadius; }
 .popup-content-scrollableRaised { bottom:@popup-contentBottomHeight; }
+.popup-content-scrollableRecievedBottle {
+    position:absolute;
+    top:@popup-innerPadding;bottom:@popup-contentBottomHeight;left:@popup-innerPadding;right:@popup-innerPadding;
+    overflow:hidden;
+    background-color:@recievedMessageColor;
+    border:solid 1px @messageBorderColor;
+    .popup-roundedCorners;
+}
 
 //footer for 2 buttons
 .popup-footer {
@@ -632,7 +642,7 @@ ul {
     padding:10px 10px;
     margin-bottom:5px;
 
-    box-shadow:0 0 6px rgba(0,0,0,0.2);
+    //box-shadow:0 0 6px rgba(0,0,0,0.2);
 }
 
 .message p {
@@ -642,35 +652,30 @@ ul {
 
 .message-sender {
     background-color:@sentMessageColor;
-    left:8px;margin-right:37px;
+    left:@popup-innerPadding;margin-right:32px + @popup-innerPadding;
 }
 
 .message-reciever {
     background-color:@recievedMessageColor;
-    margin-left:37px;right:8px;
+    margin-left:32px + @popup-innerPadding;right:@popup-innerPadding;
 }
 
-.recievedBottle {
-    position:absolute;
-    top:8px;bottom:@popup-contentBottomHeight;left:8px;right:8px;
+.popup-content-scrollableRecievedBottle p {
+    padding: 4px;
+    font-size:20px;
+    margin:0;
 }
 
-.recievedBottle textarea {
-    background-color:@recievedMessageColor;
-    border:solid 1px #ccc;
-}
 
 //reply textbox
 .message-reply {
     position:absolute;
-    bottom:0px;height:@popup-contentBottomHeight;left:8px;right:8px;
+    bottom:0;height:@popup-contentBottomHeight;left:@popup-innerPadding;right:@popup-innerPadding;
 }
-
 
 .message-reply div {
-    top:8px;bottom:18px;
+    top:@popup-innerPadding;bottom:@popup-innerPadding+10px;
 }
-
 
 .message-reply textarea {
     box-shadow:inset 0  8px 5px -8px #222222;
@@ -685,10 +690,10 @@ ul {
     border:solid 1px #ccc;
     border-top-color:@messageBorderColor;
     .bottom-rounded-corners(16px);
-    //color:#222222;
-    //margin:0;
 }
 
+
+//
 #imagePopup {
     display:none;
     position:fixed;
@@ -697,6 +702,7 @@ ul {
     margin:0;
     width:0;height:0;
 }
+
 
 
 
@@ -724,13 +730,13 @@ ul {
     left: 5px;
 }
 .left_side:hover {
-    left:0px;
+    left:0;
 }
 .right_side {
     right: 5px;
 }
 .right_side:hover {
-    right:0px;
+    right:0;
 }
 
 .side_note {
@@ -830,6 +836,13 @@ margin-right: auto;
 }
 
 
+.cloudContainer {
+    position: fixed;
+    left:0;width:100%;
+    top:0;height:30%;
+    overflow:hidden;
+}
+
 @keyframes cloudAnimation {
     0% { left:0;margin-right:128px;margin-left:0; }
     100% { left:100%;margin-right:0;margin-left:128px; }
@@ -843,8 +856,27 @@ margin-right: auto;
     100% { left:100%;margin-right:0;margin-left:128px; }
 }
 
-#cloud1 {
+.cloud,.cloudFast,.cloudSlow {
     position: absolute;
+}
+
+.cloudSlowAnimated {
+     animation: cloudAnimation 70s linear infinite normal;
+     -moz-animation: cloudAnimation 70s linear infinite normal;
+     -webkit-animation: cloudAnimation 70s linear infinite normal;
+ }
+.cloudAnimated {
+     animation: cloudAnimation 45s linear infinite normal;
+     -moz-animation: cloudAnimation 45s linear infinite normal;
+     -webkit-animation: cloudAnimation 45s linear infinite normal;
+}
+.cloudFastAnimated {
+    animation: cloudAnimation 30s linear infinite normal;
+    -moz-animation: cloudAnimation 30s linear infinite normal;
+    -webkit-animation: cloudAnimation 30s linear infinite normal;
+}
+
+#cloud1 {
     top: 10px;
     left:10%;
     width:164px;
@@ -852,20 +884,18 @@ margin-right: auto;
 }
 
 #cloud2 {
-position: absolute;
-top: 60px;
-left:30%;
-height: 128px
-width: 92px;
+    top: 60px;
+    left:30%;
+    height: 128px;
+    width: 92px;
 //.opacity(0.85);
 }
 
 #cloud3 {
-position: absolute;
-top: 30px;
-left:70%;
-height: 62px;
-width: 72px;
+    top: 30px;
+    left:70%;
+    height: 62px;
+    width: 72px;
 //.opacity(0.6);
 }
 
@@ -878,7 +908,24 @@ width: 72px;
 
 /*styles for 800px and up!*/
 @media only screen and (min-width: 800px) {
-  /* Styles */
+
+  @popup-innerPadding: 8px;
+  .popup-content-scrollableRecievedBottle {
+      top:@popup-innerPadding;left:@popup-innerPadding;right:@popup-innerPadding;
+  }
+  .message-sender {
+      left:@popup-innerPadding;margin-right:32px + @popup-innerPadding;
+  }
+  .message-reciever {
+      margin-left:32px + @popup-innerPadding;right:@popup-innerPadding;
+  }
+  .message-reply {
+      left:@popup-innerPadding;right:@popup-innerPadding;
+  }
+  .message-reply div {
+      top:@popup-innerPadding;bottom:@popup-innerPadding+10px;
+  }
+
   @sideButtonSize: 128px;
  .side_button {
     width: @sideButtonSize;
@@ -898,22 +945,6 @@ width: 72px;
    left: @sideButtonSize - 20px;
    margin:  -(@sideButtonSize / 2)-10px 0 0 0;
  }
-
- #cloud1 {
-     animation: cloudAnimation 50s linear 10s infinite normal;
-     -moz-animation: cloudAnimation 50s linear 10s infinite normal;
-     -webkit-animation: cloudAnimation 50s linear 10s infinite normal;
- }
- #cloud2 {
-     animation: cloudAnimation 40s linear 5s infinite normal;
-     -moz-animation: cloudAnimation 40s linear 5s infinite normal;
-     -webkit-animation: cloudAnimation 40s linear 5s infinite normal;
- }
-  #cloud3 {
-    animation: cloudAnimation 30s linear infinite normal;
-    -moz-animation: cloudAnimation 30s linear infinite normal;
-    -webkit-animation: cloudAnimation 30s linear infinite normal;
-  }
 }/*/mediaquery*/
 
 
