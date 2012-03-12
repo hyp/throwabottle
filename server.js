@@ -182,7 +182,10 @@ app.on('/api/register',function(request,response,data){
             if(user !== null) hackError(response);
             else{
                 user = addUser(userid,data.pwd);
-                response.writeHead(200, {'Content-Type':'text/json'});
+                response.writeHead(200, {
+                    'Content-Type': 'text/json',
+                    'Set-Cookie':genSessionCookie('u'+userid,3600)
+                });
                 response.end('{"r":0,"b":'+user.b+',"n":'+user.n+',"e":'+(user.e?user.e:'0')+'}');
             }
         });
@@ -192,7 +195,8 @@ app.on('/api/register',function(request,response,data){
 //onLogin - data := { userid , pwd }
 app.on('/api/login',function(request,response,data){
     var userid = data.userid;
-    var hash = crypto.createHmac('sha1',userid).update(data.pwd).digest('base64');
+    var hash = crypto.createHmac('sha1',userid).update(pwd).update(passwordSecret).digest('base64');
+    console.log(hash);
 
     //Query user collection for the appropriate user
     users.findOne({_id:userid},function(err,user){
