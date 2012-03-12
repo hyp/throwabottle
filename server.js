@@ -1,3 +1,40 @@
+/**
+ * The server code for message in a bottle
+ * Note:
+ *  This file is concatenated on the server with a small js file containing
+ *  sensitive settings like facebook developer sercret code and the MongoDB url.
+ *
+ * The server stores website user passwords and all messages using MongoDB database.
+ *  The users are stored as {_id:userid,p:hashed password}
+ *
+ *  The threads of messages are stored as {
+ *      _id:unique thread Id,t:last modification datestamp,
+ *      r: reciever of the initial message(bottle), s: sender of the initial message(bottle)
+ *      er: number of new messages the reciever has in this thread(optional),
+ *      es: number of new messages the sender has in this thread,
+ *      d: array of messages in the form of
+ *          {s:sender,m:message}
+ *  }
+ *
+ * All other data is stored using Redis for fast access and modification times.
+ *  The userdata is stored as a hash of keys in a form of {
+ *      b: number of bottles user has remaining,n: number of nest user has remaining,
+ *      t: the timestamp of when the number of bottles and nets will be reset,
+ *      e: number of new events(messages) the user has,
+ *      c: the body of a just caught bottle (created on a bottle catch and deleted when user decides to recycle or to reply to the bottle)
+ *  }
+ *  The userdata hash is accessed by the userid with an added prefix letter which is determined as - normal user: 'u' , facebook user:'x'
+ *
+ *  The sessions are stored in a form of simple key which is a generated session id, and it has a value
+ *  representing the userid.(This userid has the prefix letter added to it)
+ *
+ *  The bottles are stored in the list _bottles where each bottle is in the form {s:sender of the bottle,m:message}
+ *
+ *  Also redis has an integer counter _mid for generating the unique id's for message threads.
+ *
+ *  All objects are saved using short field names for maximum efficiency and storage saving.
+ */
+
 var http = require("http");
 var url = require('url');
 var qs = require('querystring');
@@ -8,42 +45,46 @@ var fbapi = require('fbgraph');
 
 //settings
 //the secret settings are added on the server automatically
-var refreshTime = 10 * 60 * 1000; //ms
+var refreshTime = 16 * 60 * 60 * 1000; //in ms
 
 //
 var appHandlers = {};
 var app = {};
-app.on = function(name,callback){
+app.on = function (name, callback) {
     appHandlers[name] = callback;
 };
 
-function errorHandler(err,data){
-    if(err) console.error((new Date()).toString() + ' - Error!\n' + err + err.stack + '\ndata:' + data);
+function errorHandler(err, data) {
+    if (err) console.error((new Date()).toString() + ' - Error!\n' + err + err.stack + '\ndata:' + data);
 }
 
 //Connect to MongoDB data
-var mongoData= mongo.db(mongourl);
+var mongoData = mongo.db(mongourl);
 var users = mongoData.collection('user');
 var messages = mongoData.collection('messages');
 
 //Connect to Redis data
 var redisData = redis.createClient();
-redisData.on("connect",function(reply){ console.log("Redis is connected!"); });
-redisData.on("end",function(reply){ console.log("Redis connection was closed!"); });
+redisData.on("connect", function (reply) {
+    console.log("Redis is connected!");
+});
+redisData.on("end", function (reply) {
+    console.log("Redis connection was closed!");
+});
 redisData.on("error", function (err) {
     console.error('Redis Error!\n' + err + err.stack);
 });
 
-function info(){
+function info() {
     console.log("\n# Server info:");
-	console.log('It is ' + Date.now() + ' - ' + (new Date()).toString());
-    redisData.info(function(err,reply){
+    console.log('It is ' + Date.now() + ' - ' + (new Date()).toString());
+    redisData.info(function (err, reply) {
         console.log("## Redis info");
         console.log(reply);
     });
 }
 
-function exit(){
+function exit() {
 
     info();
     console.log('\n# Exiting server');
@@ -53,51 +94,51 @@ function exit(){
     process.exit(0);
 }
 
-process.on('SIGTERM',exit);
+process.on('SIGTERM', exit);
 
-function hackError(response){
-	response.writeHead(200, {'Content-Type':'text/json'});
-	response.end('{"r":-1,"error":"hackz"}');
-}
-
-function errorResponse(response,err){
+function hackError(response) {
     response.writeHead(200, {'Content-Type':'text/json'});
-    response.end(JSON.stringify({r:-1,error:err.toString(),stack:err.stack.toString()}));
+    response.end('{"r":-1,"error":"hackz"}');
 }
 
-function sessionExpired(response){
-	response.writeHead(200, {'Content-Type':'text/json'});
-	response.end('{"r":-1,"error":"sessionExpired"}');
+function errorResponse(response, err) {
+    response.writeHead(200, {'Content-Type':'text/json'});
+    response.end(JSON.stringify({r:-1, error:err.toString(), stack:err.stack.toString()}));
 }
 
-function addUser(userid,pwd){
+function sessionExpired(response) {
+    response.writeHead(200, {'Content-Type':'text/json'});
+    response.end('{"r":-1,"error":"sessionExpired"}');
+}
+
+function addUser(userid, pwd) {
     console.log('Adding new user' + userid);
-    var hash = crypto.createHmac('sha1',userid).update(pwd).update(passwordSecret).digest('base64');
-    users.insert({_id:userid,p:hash},{safe:true},errorHandler);
-    var user = {"t": Date.now() + refreshTime,"b":6,"n":4};
-    redisData.hmset('u' + userid,user);
+    var hash = crypto.createHmac('sha1', userid).update(pwd).update(passwordSecret).digest('base64');
+    users.insert({_id:userid, p:hash}, {safe:true}, errorHandler);
+    var user = {"t":Date.now() + refreshTime, "b":6, "n":4};
+    redisData.hmset('u' + userid, user);
     return user;
 }
 
 
-function addExternalUser(id,callback){
-    redisData.exists(id,function(err,exists){
-        if(!exists){
+function addExternalUser(id, callback) {
+    redisData.exists(id, function (err, exists) {
+        if (!exists) {
             console.log('New external user' + id);
-            redisData.hmset(id,{"t": Date.now() + refreshTime,"b":6,"n":4});
+            redisData.hmset(id, {"t":Date.now() + refreshTime, "b":6, "n":4});
         }
     });
 }
 
 //touches user's data
-function touchUserData(userid,handler){
+function touchUserData(userid, handler) {
     console.log("Touching user " + userid);
-    redisData.hgetall(userid,function(err,data){
+    redisData.hgetall(userid, function (err, data) {
         var t = Date.now();
-        if(data.t <= t){
+        if (data.t <= t) {
             console.log(userid + " - refreshing data.");
-            var d = {"t":t+refreshTime,"b":6,"n":4};
-            redisData.hmset(userid,d);
+            var d = {"t":t + refreshTime, "b":6, "n":4};
+            redisData.hmset(userid, d);
             data.t = d.t;
             data.b = d.b;
             data.n = d.n;
@@ -107,14 +148,13 @@ function touchUserData(userid,handler){
 }
 
 
-
 //returns the userid from session cookie
-function getUserId(request,response,handler){
+function getUserId(request, response, handler) {
     var sid = request.cookies['sid'];
-    if(sid){
+    if (sid) {
         console.log('SID - ' + sid);
-        redisData.get(sid,function(err,userid){
-            if(userid !== null){
+        redisData.get(sid, function (err, userid) {
+            if (userid !== null) {
                 handler(userid);
             }
             else sessionExpired(response);
@@ -124,95 +164,74 @@ function getUserId(request,response,handler){
 }
 
 
-function getUser(request,response,handler){
-    getUserId(request,response,function(userid){
-        touchUserData(userid,function(userdata){
-            handler(userid,userdata);
+function getUser(request, response, handler) {
+    getUserId(request, response, function (userid) {
+        touchUserData(userid, function (userdata) {
+            handler(userid, userdata);
         });
     });
 }
 
-app.on('/api/debug',function(request,response){
-    getUserId(request,response,function(userid){
-        if(userid=='uadmin'){
-            response.writeHead(200,{'Content-type':'text/html'});
 
-            response.write('It is ' + Date.now() + ' - ' + (new Date()).toString());
-            redisData.keys("*", function (err, keys) {
-                response.write('<h2>Redis keys:</h2><br>\n');
-                keys.forEach(function (key, pos) {
-                    redisData.type(key, function (err, keytype) {
-                        response.write(key + " : " + keytype + '<br>\n');
-
-                    });
-
-                });
-            });
-            setTimeout('response.end()',150);
-        }
-        else request.connection.destroy();
-    });
-});
-
-app.on('/api/query',function(request,response){
-    getUserId(request,response,function(userid){
-        touchUserData(userid,function(user){
+app.on('/api/query', function (request, response) {
+    getUserId(request, response, function (userid) {
+        touchUserData(userid, function (user) {
             console.log(' Logged in as ' + userid);
             response.writeHead(200, {'Content-Type':'text/json'});
-            response.end('{"r":0,"b":'+user.b+',"n":'+user.n+',"e":'+(user.e?user.e:'0')+'}');
+            response.end('{"r":0,"b":' + user.b + ',"n":' + user.n + ',"e":' + (user.e ? user.e : '0') + '}');
         });
     });
 });
 
-function genSessionCookie(uid,expires){
+function genSessionCookie(uid, expires) {
     var sid = crypto.createHash('md5').update(uid).update(sessionSecret).update(Date.now().toString()).digest('hex');
     console.log("New session created - " + sid + ':' + uid);
-	//TODO check for collisions
-    redisData.set(sid,uid);
-    redisData.expire(sid,expires); //session expiration (seconds)
-    return 'sid='+sid+'; Path=/api/; Max-Age='+expires+'; HttpOnly';//TODO update for expires
+    //TODO check for collisions
+    redisData.set(sid, uid);
+    redisData.expire(sid, expires); //session expiration (seconds)
+    return 'sid=' + sid + '; Path=/api/; Max-Age=' + expires + '; HttpOnly';//TODO update for expires
 }
 
-app.on('/api/register',function(request,response,data){
-    if(request.cookies['sid'] || data.userid==='' || data.pwd==='') hackError(response);
-    else{
+app.on('/api/register', function (request, response, data) {
+    if (request.cookies['sid'] || data.userid === '' || data.pwd === '') hackError(response);
+    else {
         var userid = data.userid;
         console.log('Registering a user' + userid);
-        users.findOne({_id:userid},function(err,user){
-            if(user !== null) hackError(response);
-            else{
-                user = addUser(userid,data.pwd);
+        users.findOne({_id:userid}, function (err, user) {
+            if (user !== null) hackError(response);
+            else {
+                user = addUser(userid, data.pwd);
                 response.writeHead(200, {
-                    'Content-Type': 'text/json',
-                    'Set-Cookie':genSessionCookie('u'+userid,3600)
+                    'Content-Type':'text/json',
+                    'Set-Cookie':genSessionCookie('u' + userid, 3600)
                 });
-                response.end('{"r":0,"b":'+user.b+',"n":'+user.n+',"e":'+(user.e?user.e:'0')+'}');
+                response.end('{"r":0,"b":' + user.b + ',"n":' + user.n + ',"e":' + (user.e ? user.e : '0') + '}');
             }
         });
     }
 });
 
 //onLogin - data := { userid , pwd }
-app.on('/api/login',function(request,response,data){
-    if(data.userid==='' || data.pwd==='') hackError(response);
+app.on('/api/login', function (request, response, data) {
+    if (data.userid === '' || data.pwd === '') hackError(response);
     var userid = data.userid;
-    var hash = crypto.createHmac('sha1',userid).update(data.pwd).update(passwordSecret).digest('base64');
+    var hash = crypto.createHmac('sha1', userid).update(data.pwd).update(passwordSecret).digest('base64');
 
     //Query user collection for the appropriate user
-    users.findOne({_id:userid},function(err,user){
-        if(err){
-            errorResponse(response,err);
+    users.findOne({_id:userid}, function (err, user) {
+        if (err) {
+            errorResponse(response, err);
         }
-        else if(user !== null && user.p == hash){
+        else if (user !== null && user.p == hash) {
             userid = 'u' + userid;
             //Query userdata collection for relevent userdata
-            touchUserData(userid,function(userdata){
+            touchUserData(userid, function (userdata) {
                 response.writeHead(200, {
-                    'Content-Type': 'text/json',
-                    'Set-Cookie':genSessionCookie(userid,3600)
+                    'Content-Type':'text/json',
+                    'Set-Cookie':genSessionCookie(userid, 3600)
                 });
 
-                response.end('{"r":0,"b":'+userdata.b+',"n":'+userdata.n+',"e":'+(userdata.e?userdata.e:'0')+'}');
+                response.end('{"r":0,"b":' + userdata.b + ',"n":' + userdata.n + ',"e":' + (userdata.e ? userdata.e : '0') + '}');
             });
         }
         else {
@@ -223,42 +242,42 @@ app.on('/api/login',function(request,response,data){
 });
 
 //onBottle - data := { msg }
-app.on('/api/throw',function(request,response,data){
-	getUser(request,response,function(userid,user){
-        if(data.m && data.m !== ''){
-            redisData.hincrby(userid,'b',-1,function(err,bottles){
-                if(bottles >= 0) {
+app.on('/api/throw', function (request, response, data) {
+    getUser(request, response, function (userid, user) {
+        if (data.m && data.m !== '') {
+            redisData.hincrby(userid, 'b', -1, function (err, bottles) {
+                if (bottles >= 0) {
                     response.writeHead(200, {'Content-Type':'text/json'});
-                    response.end('{"r":'+bottles+'}');
+                    response.end('{"r":' + bottles + '}');
 
-                    var bottle = JSON.stringify({s:userid,m:data.m});
-                    redisData.lpush('_bottles',bottle);
-                    console.log(' Submitted new bottle - usr: ' + JSON.stringify(user) +' msg: ' + bottle);
+                    var bottle = JSON.stringify({s:userid, m:data.m});
+                    redisData.lpush('_bottles', bottle);
+                    console.log(' Submitted new bottle - usr: ' + JSON.stringify(user) + ' msg: ' + bottle);
                 }
                 else hackError(response);
             });
-        }else request.connection.destroy();
-	});
+        } else request.connection.destroy();
+    });
 });
 
 
-function catchJunk(){
+function catchJunk() {
     console.log('Junk caught instead.');
     return {j:'A fish'};
 }
 
-function popBottle(userid,handler,probability){
-    if(!probability) probability = 0.2;
+function popBottle(userid, handler, probability) {
+    if (!probability) probability = 0.2;
     console.log('Trying to catch a bottle with probability of ' + probability + ' by ' + userid);
-    if(Math.random() > probability){
-        redisData.rpop('_bottles',function(err,bottle){
-            if(bottle !== null){
+    if (Math.random() > probability) {
+        redisData.rpop('_bottles', function (err, bottle) {
+            if (bottle !== null) {
                 console.log(' bottle popped ' + bottle);
                 bottle = JSON.parse(bottle);
-                if(bottle.s === userid){
+                if (bottle.s === userid) {
                     console.log(' Sender is reciever! - going for one more round');
-                    redisData.lpush('_bottles',JSON.stringify(bottle));
-                    popBottle(userid,handler,probability + 0.3);
+                    redisData.lpush('_bottles', JSON.stringify(bottle));
+                    popBottle(userid, handler, probability + 0.3);
                 }
                 else handler(bottle);
             }
@@ -268,32 +287,32 @@ function popBottle(userid,handler,probability){
     else handler(catchJunk());
 }
 
-app.on('/api/catch',function (request,response){
-	getUser(request,response,function(userid,user){
-        redisData.hincrby(userid,'n',-1,function(err,nets){
-            if(nets >= 0) popBottle(userid,function(bottle){
+app.on('/api/catch', function (request, response) {
+    getUser(request, response, function (userid, user) {
+        redisData.hincrby(userid, 'n', -1, function (err, nets) {
+            if (nets >= 0) popBottle(userid, function (bottle) {
                 response.writeHead(200, { 'Content-Type':'text/json' });
-                if(bottle.m){
-                    response.end(JSON.stringify({r:nets,m:bottle.m}));
-                    redisData.hset(userid,'c',JSON.stringify(bottle));
+                if (bottle.m) {
+                    response.end(JSON.stringify({r:nets, m:bottle.m}));
+                    redisData.hset(userid, 'c', JSON.stringify(bottle));
                 }
                 else
-                    response.end(JSON.stringify({r:nets,j:bottle.j}));
+                    response.end(JSON.stringify({r:nets, j:bottle.j}));
             });
             else hackError(response);
         });
-	});
+    });
 });
 
 //Recycle a bottle
-app.on('/api/bottle/recycle',function (request,response){
-    getUserId(request,response,function(userid){
+app.on('/api/bottle/recycle', function (request, response) {
+    getUserId(request, response, function (userid) {
         console.log('Recycling a bottle by ' + userid);
-        redisData.hget(userid,'c',function(err,bottle){
-            if(bottle !== null){
+        redisData.hget(userid, 'c', function (err, bottle) {
+            if (bottle !== null) {
                 console.log(' Bottle recovered ' + bottle);
-                redisData.hdel(userid,'c');
-                redisData.lpush('_bottles',bottle);
+                redisData.hdel(userid, 'c');
+                redisData.lpush('_bottles', bottle);
             }
         });
         response.writeHead(200);
@@ -302,26 +321,26 @@ app.on('/api/bottle/recycle',function (request,response){
 });
 
 //Reply to a bottle
-app.on('/api/bottle/reply',function(request,response,data){
-    getUserId(request,response,function(userid){
-        if(data.m && data.m !== ''){
+app.on('/api/bottle/reply', function (request, response, data) {
+    getUserId(request, response, function (userid) {
+        if (data.m && data.m !== '') {
             console.log('Reply to a bottle by user ' + userid + ' : ' + data.m);
-            redisData.hget(userid,'c',function(err,bottle){
-                if(bottle !== null){
+            redisData.hget(userid, 'c', function (err, bottle) {
+                if (bottle !== null) {
                     console.log(' Bottle recovered ' + bottle);
-                    redisData.hdel(userid,'c');
-                    redisData.incr('_mid',function(err,bottleId){
-                        if(!err){
+                    redisData.hdel(userid, 'c');
+                    redisData.incr('_mid', function (err, bottleId) {
+                        if (!err) {
                             bottle = JSON.parse(bottle);
                             messages.insert({
-                                _id:bottleId,t:Date.now(),
-                                r:userid,s:bottle.s,es:1,
+                                _id:bottleId, t:Date.now(),
+                                r:userid, s:bottle.s, es:1,
                                 d:[
-                                    {s:bottle.s,m:bottle.m},
-                                    {s:userid,m:data.m}
+                                    {s:bottle.s, m:bottle.m},
+                                    {s:userid, m:data.m}
                                 ]
                             });
-                            redisData.hincrby(bottle.s,'e',1);
+                            redisData.hincrby(bottle.s, 'e', 1);
                         }
                     });
                 }
@@ -333,28 +352,31 @@ app.on('/api/bottle/reply',function(request,response,data){
 });
 
 //Reply to a thread
-app.on('/api/reply',function(request,response,data){
+app.on('/api/reply', function (request, response, data) {
     //data.m
-    getUserId(request,response,function(userid){
+    getUserId(request, response, function (userid) {
         var query = request.parsedUrl.query;
-        if(query.i && data.m && data.m !== ''){
-            console.log('Reply to a message ' + query.i +' by ' + userid + ' : ' + data.m);
+        if (query.i && data.m && data.m !== '') {
+            console.log('Reply to a message ' + query.i + ' by ' + userid + ' : ' + data.m);
             var tid = Number(query.i);
-            messages.find({_id:tid,$or:[{r:userid},{s:userid}]},{s:true,r:true},{limit:1},function(err,cursor){
-                if(cursor) cursor.nextObject(function(err,thread){
-                    if(thread){
+            messages.find({_id:tid, $or:[
+                {r:userid},
+                {s:userid}
+            ]}, {s:true, r:true}, {limit:1}, function (err, cursor) {
+                if (cursor) cursor.nextObject(function (err, thread) {
+                    if (thread) {
                         console.log('Thread found');
-                        var reciever,eventInc;
-                        if(thread.s === userid){
+                        var reciever, eventInc;
+                        if (thread.s === userid) {
                             reciever = thread.r;
-                            eventInc = { er: 1 };
-                        }else{
+                            eventInc = { er:1 };
+                        } else {
                             reciever = thread.s;
-                            eventInc = { es: 1 };
+                            eventInc = { es:1 };
                         }
-                        messages.update({_id:tid,r:thread.r},
-                                {$set:{t:Date.now()},$inc: eventInc,$push: { d:{s:userid,m:data.m} }},{safe:true},errorHandler);
-                        redisData.hincrby(reciever,'e',1,errorHandler);
+                        messages.update({_id:tid, r:thread.r},
+                            {$set:{t:Date.now()}, $inc:eventInc, $push:{ d:{s:userid, m:data.m} }}, {safe:true}, errorHandler);
+                        redisData.hincrby(reciever, 'e', 1, errorHandler);
                     }
                 });
             });
@@ -366,32 +388,35 @@ app.on('/api/reply',function(request,response,data){
 });
 
 //Retrieve all messages from the specified thread
-app.on('/api/messages',function(request,response){
-    getUserId(request,response,function(userid){
+app.on('/api/messages', function (request, response) {
+    getUserId(request, response, function (userid) {
         var query = request.parsedUrl.query;
-        if(query.i){
+        if (query.i) {
             console.log('Retrieving messages, thread#' + query.i);
             var tid = Number(query.i);
-            messages.find({_id:tid,$or:[{r:userid},{s:userid}]},{limit:1},function(err,cursor){
-                if(cursor) cursor.nextObject(function(err,thread){
-                    if(thread){
+            messages.find({_id:tid, $or:[
+                {r:userid},
+                {s:userid}
+            ]}, {limit:1}, function (err, cursor) {
+                if (cursor) cursor.nextObject(function (err, thread) {
+                    if (thread) {
                         result = {r:[]};
-                        thread.d.forEach(function(msg){
+                        thread.d.forEach(function (msg) {
                             console.log(msg);
-                            result.r.push({s:msg.s === userid ? 1 : 0,m:msg.m});
+                            result.r.push({s:msg.s === userid ? 1 : 0, m:msg.m});
                         });
                         response.end(JSON.stringify(result));
 
-                        var eventReset,inc;
-                        if(thread.r === userid){
-                            eventReset = { er: 0 };
+                        var eventReset, inc;
+                        if (thread.r === userid) {
+                            eventReset = { er:0 };
                             inc = thread.er ? thread.er : 0;
-                        }else{
-                            eventReset = { es: 0 };
+                        } else {
+                            eventReset = { es:0 };
                             inc = thread.es ? thread.es : 0;
                         }
-                        messages.update({_id:tid,r:thread.r},{$set:eventReset},{safe:true},errorHandler);
-                        if(inc!==0) redisData.hincrby(userid,'e',-inc,errorHandler);
+                        messages.update({_id:tid, r:thread.r}, {$set:eventReset}, {safe:true}, errorHandler);
+                        if (inc !== 0) redisData.hincrby(userid, 'e', -inc, errorHandler);
                     }
                     else response.end('{"r":[]}');
                 });
@@ -403,59 +428,61 @@ app.on('/api/messages',function(request,response){
 });
 
 //Get message threads relevant to the user
-app.on('/api/threads',function(request,response){
-    getUserId(request,response,function(userid){
+app.on('/api/threads', function (request, response) {
+    getUserId(request, response, function (userid) {
         var query = request.parsedUrl.query;
-        var settings = {sort:[['t','desc']]};
-        if(query.to){
+        var settings = {sort:[
+            ['t', 'desc']
+        ]};
+        if (query.to) {
             settings.limit = Number(query.to);
-            if(query.from){
+            if (query.from) {
                 settings.skip = Number(query.from);
             }
         }
         console.log('Retrieving threads, settings:' + JSON.stringify(settings));
-        messages.find({$or:[{r:userid},{s:userid}]},settings,function(err,cursor){
+        messages.find({$or:[
+            {r:userid},
+            {s:userid}
+        ]}, settings, function (err, cursor) {
             response.writeHead(200, { 'Content-Type':'text/json' });
-            if(cursor){
-                cursor.toArray(function(err,threadsData){
+            if (cursor) {
+                cursor.toArray(function (err, threadsData) {
                     var threads = [];
-                    threadsData.forEach(function(thread){
+                    threadsData.forEach(function (thread) {
                         console.log(thread);
                         var msg = thread.d[0];
-                        threads.push({i:thread._id,e:(thread.s === userid ? thread.es : thread.er) || 0,s:msg.s === userid ? 1 : 0,m:msg.m});
+                        threads.push({i:thread._id, e:(thread.s === userid ? thread.es : thread.er) || 0, s:msg.s === userid ? 1 : 0, m:msg.m});
                     });
-                    response.end('{"r":'+JSON.stringify(threads)+'}');
+                    response.end('{"r":' + JSON.stringify(threads) + '}');
                 });
-            }else
+            } else
                 response.end('{"r":[]}');
         });
     });
 });
 
 //Login with facebook
-app.on('/api/fblogin',function(request,response){
+app.on('/api/fblogin', function (request, response) {
     var code = request.parsedUrl.query.code;
-    if(code){
+    if (code) {
         console.log('Successfull FB login with code: ' + code);
         fbapi.authorize({
-            "client_id":        '233473013410744'
-            , "redirect_uri":   'http://199.30.59.142/api/fblogin'
-            , "client_secret":  facebookSecret
-            , "code":           code
+            "client_id":'233473013410744', "redirect_uri":'http://199.30.59.142/api/fblogin', "client_secret":facebookSecret, "code":code
         }, function (err, fbres) {
-            if(err){
+            if (err) {
                 console.log("FB authorization failed!");
                 response.writeHead(200);
                 response.end("<script>window.location.href = 'http://199.30.59.142'</script>");
-            }else{
+            } else {
                 console.log("FB authorized - " + fbres.access_token + "; expires:" + fbres.expires);
-                fbapi.get('me',function(err,fbdata){
-                    if(err) console.log("FB me failed!");
+                fbapi.get('me', function (err, fbdata) {
+                    if (err) console.log("FB me failed!");
                     else {
                         console.log("FB me succedded - ");
                         var uid = 'x' + fbdata.id;
                         addExternalUser(uid);
-                        response.writeHead(200,{'Set-Cookie':genSessionCookie(uid,fbres.expires)});
+                        response.writeHead(200, {'Set-Cookie':genSessionCookie(uid, fbres.expires)});
                         response.end("<script>window.location.href = 'http://199.30.59.142'</script>");
                     }
                 });
@@ -464,27 +491,27 @@ app.on('/api/fblogin',function(request,response){
 
         });
     }
-    else{
+    else {
         console.log('FB login unsucessfull: ' + request.parsedUrl.query.error + request.parsedUrl.query.description);
         response.writeHead(200);
         response.end("<script>window.location.href = 'http://199.30.59.142'</script>");
     }
 });
 
-function respond(request,response){
+function respond(request, response) {
     try {
         console.log((new Date()).toString() + ' - Request recieved ' + request.url);
-        request.parsedUrl = url.parse(request.url,true);
+        request.parsedUrl = url.parse(request.url, true);
         var handler = appHandlers[request.parsedUrl.pathname];
-        if(handler){
+        if (handler) {
             //parse cookies
             request.cookies = {};
-            request.headers.cookie && request.headers.cookie.split(';').forEach(function( cookie ) {
+            request.headers.cookie && request.headers.cookie.split(';').forEach(function (cookie) {
                 var parts = cookie.split('=');
                 request.cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
             });
             //select method
-            if(request.method === 'POST'){
+            if (request.method === 'POST') {
                 var body = '';
                 request.on('data', function (data) {
                     body += data;
@@ -494,14 +521,14 @@ function respond(request,response){
                     }
                 });
                 request.on('end', function () {
-                    handler(request,response,qs.parse(body));
+                    handler(request, response, qs.parse(body));
                 });
             }
-            else handler(request,response);
+            else handler(request, response);
         }
         else request.connection.destroy();
     }
-    catch(exeption){
+    catch (exeption) {
         console.error('Exeption caught - ' + exeption.toString());
         request.connection.destroy();
         exit();
