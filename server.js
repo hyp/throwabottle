@@ -197,7 +197,6 @@ app.on('/api/login',function(request,response,data){
     if(data.userid==='' || data.pwd==='') hackError(response);
     var userid = data.userid;
     var hash = crypto.createHmac('sha1',userid).update(data.pwd).update(passwordSecret).digest('base64');
-    console.log(hash);
 
     //Query user collection for the appropriate user
     users.findOne({_id:userid},function(err,user){
@@ -249,7 +248,7 @@ function catchJunk(){
 }
 
 function popBottle(userid,handler,probability){
-    if(!probability) probability = 0.1;
+    if(!probability) probability = 0.2;
     console.log('Trying to catch a bottle with probability of ' + probability + ' by ' + userid);
     if(Math.random() > probability){
         redisData.rpop('_bottles',function(err,bottle){
