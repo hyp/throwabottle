@@ -50,8 +50,8 @@ ScrollablePopup.prototype = new Popup;
 ScrollablePopup.prototype.constructor = Popup;
 
 
-ScrollablePopup.native = false;
-ScrollablePopup.iscroll = true;
+ScrollablePopup.native = mobile ? false : true;
+ScrollablePopup.iscroll = !ScrollablePopup.native;
 
 function ScrollablePopup(title,body,innerBody){
     innerBody = innerBody ? innerBody : '';
