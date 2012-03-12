@@ -3,6 +3,7 @@ CACHE MANIFEST
 index.html
 favicon.ico
 css/main.css
+http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js
 js/libs/jquery-1.7.1.min.js
 js/libs/iscroll.js
 js/helper.js

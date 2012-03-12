@@ -193,9 +193,10 @@ function postTextarea(url,node,handler){
     node.val('');
 }
 
+//TODO new frame
 //views
 var welcome = new Popup('Welcome','<div class="popup-content popup-background">' +
-    '<p>What is message in a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>' + //'<p>This will be the main welcome page. In here the user will be asked to sign in. We also will have a description and shit</p>' +
+    '<p>What is message in a bottle? It is a simple service which allows you to throw anonymous bottles into the sea.</p>' +
     '<button type="button" class="centeredButton" onClick="welcome.transition(signin);">Sign in</button>' +
     '<button type="button" class="centeredButton" onClick="welcome.transition(registration);">Register</button>' +
     '<button type="button" class="centeredButton" id="facebook_signin">Sign in with facebook</button></div>');
@@ -209,9 +210,11 @@ var signin = new Popup('Log In','<div class="popup-content popup-background"><fo
 
 var registration = new Popup('Register','<div class="popup-content popup-background"><form id="registrationForm">' +
     '<label for="userid">User ID:</label>' +
-    '<input type="text" id="loginUser" name="userid" required autocapitalize="off"/>' +
+    '<input type="text" id="regUser" name="userid" required autocapitalize="off"/>' +
     '<label for="password">Password:</label>'+
-    '<input type="password" id="loginPassword" name="password" required autocapitalize="off"/>' +
+    '<input type="password" id="regPassword" name="password" required autocapitalize="off"/>' +
+    '<label for="password">Confirm password:</label>'+
+    '<input type="password" id="regPasswordConfirm" name="password" required autocapitalize="off"/>'+
     '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form></div>');
 
 var newBottle = new Popup('Say something:','<form id="newBottleForm"><div class="popup-contentRaised">'+
@@ -268,7 +271,7 @@ messages.showReply = function() {
     $.post('api/reply?i='+messages.threadId, $('#replyToMessage').serialize());
     reply = $('#replyToMessage').val().replace(/\n/g,'<br/>');
     messages.messages.push({s:1,m:reply});
-    messages.update(messages.messages);
+    messages.update(messages.messages);//TODO fix
     messages.refresh();
     messages.scrollToBottom();
     $('#replyToMessage').val('');
@@ -311,8 +314,14 @@ $('#loginForm').submit(function(){
 });
 
 $('#registrationForm').submit(function(){
-    var userid = $('#loginUser').val();
-    var password = $('#loginPassword').val();
+    var userid = $('regUser').val();
+    var password = $('#regPassword').val();
+    if(password != $('#regPasswordConfirm').val()){
+        alert("The passwords don't match!\nPlease try again.");
+        $('#regPassword').val('');
+        $('#regPasswordConfirm').val('');
+        return false;
+    }
     $.post('api/register','userid='+userid+'&pwd='+password,function(response){
         if(response.r === 0){
             handleQuery(response);

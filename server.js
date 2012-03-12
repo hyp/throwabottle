@@ -7,7 +7,7 @@ var mongo = require('mongoskin');
 var fbapi = require('fbgraph');
 
 //settings
-//more settings are on the server
+//the secret settings are added on the server automatically
 var refreshTime = 10 * 60 * 1000; //ms
 
 //
@@ -158,8 +158,7 @@ app.on('/api/query',function(request,response){
         touchUserData(userid,function(user){
             console.log(' Logged in as ' + userid);
             response.writeHead(200, {'Content-Type':'text/json'});
-            if(user.e) response.end('{"r":0,"b":'+user.b+',"n":'+user.n+',"e":'+user.e+'}');
-            else response.end('{"r":0,"b":'+user.b+',"n":'+user.n+'}');
+            response.end('{"r":0,"b":'+user.b+',"n":'+user.n+',"e":'+(user.e?user.e:'0')+'}');
         });
     });
 });
@@ -170,7 +169,7 @@ function genSessionCookie(uid,expires){
 	//TODO check for collisions
     redisData.set(sid,uid);
     redisData.expire(sid,expires); //session expiration (seconds)
-    return 'sid='+sid+'; Path=/api/; Max-Age='+expires+'; HttpOnly';
+    return 'sid='+sid+'; Path=/api/; Max-Age='+expires+'; HttpOnly';//TODO update for expires
 }
 
 app.on('/api/register',function(request,response,data){
@@ -182,8 +181,7 @@ app.on('/api/register',function(request,response,data){
             else{
                 user = addUser(userid,data.pwd);
                 response.writeHead(200, {'Content-Type':'text/json'});
-                if(user.e) response.end('{"r":0,"b":'+user.b+',"n":'+user.n+',"e":'+user.e+'}');
-                else response.end('{"r":0,"b":'+user.b+',"n":'+user.n+'}');
+                response.end('{"r":0,"b":'+user.b+',"n":'+user.n+',"e":'+(user.e?user.e:'0')+'}');
             }
         });
     }
@@ -207,8 +205,8 @@ app.on('/api/login',function(request,response,data){
                     'Content-Type': 'text/json',
                     'Set-Cookie':genSessionCookie(userid,3600)
                 });
-                if(userdata.e) response.end('{"r":0,"b":'+userdata.b+',"n":'+userdata.n+',"e":'+userdata.e+'}');
-                else response.end('{"r":0,"b":'+userdata.b+',"n":'+userdata.n+'}');
+
+                response.end('{"r":0,"b":'+userdata.b+',"n":'+userdata.n+',"e":'+(userdata.e?userdata.e:'0')+'}');
             });
         }
         else {
@@ -240,7 +238,7 @@ app.on('/api/throw',function(request,response,data){
 
 function catchJunk(){
     console.log('Junk caught instead.');
-    return {j:'An old shoe'};
+    return {j:'A fish'};
 }
 
 function popBottle(userid,handler,probability){
