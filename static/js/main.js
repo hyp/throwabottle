@@ -215,7 +215,7 @@ var registration = new Popup('Register','<div class="popup-content popup-backgro
     '<input type="password" id="regPassword" name="password" required autocapitalize="off"/>' +
     '<label for="password">Confirm password:</label>'+
     '<input type="password" id="regPasswordConfirm" name="password" required autocapitalize="off"/>'+
-    '<input type="submit" style="float:none;margin:20px auto" value="Log in"/></form></div>');
+    '<input type="submit" style="float:none;margin:20px auto" value="Register"/></form></div>');
 
 var newBottle = new Popup('Say something:','<form id="newBottleForm"><div class="popup-contentRaised popup-background">'+
     '<div class="popup-content-bordered"><div class="textareaWrapper"><textarea name="m" id="newBottleText" maxlength="500" required></textarea></div></div></div>' +
@@ -322,6 +322,7 @@ $('#registrationForm').submit(function(){
         $('#regPasswordConfirm').val('');
         return false;
     }
+    console.log(userid)
     $.post('api/register','userid='+userid+'&pwd='+password,function(response){
         if(response.r === 0){
             handleQuery(response);

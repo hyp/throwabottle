@@ -71,6 +71,7 @@ function sessionExpired(response){
 }
 
 function addUser(userid,pwd){
+    console.log('Adding new user' + userid);
     var hash = crypto.createHmac('sha1',userid).update(pwd).update(passwordSecret).digest('base64');
     users.insert({_id:userid,p:hash},{safe:true},errorHandler);
     var user = {"t": Date.now() + refreshTime,"b":6,"n":4};
