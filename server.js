@@ -177,6 +177,7 @@ app.on('/api/register',function(request,response,data){
     if(request.cookies['sid'] || data.userid==='' || data.pwd==='') hackError(response);
     else{
         var userid = data.userid;
+        console.log('Registering a user' + userid);
         users.findOne({_id:userid},function(err,user){
             if(user !== null) hackError(response);
             else{

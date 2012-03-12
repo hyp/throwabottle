@@ -170,7 +170,6 @@ if(ScrollablePopup.native){
     ScrollablePopup.prototype.scrollToBottom = function(){
         var dh=$('#data'+this.id).height();
         var ch=$('#scroll'+this.id).height();
-        console.log('Scrolling by s' + dh + ':' + ch + ':' + (dh-ch));
         if(dh>ch) $('#scroll'+this.id).scrollTop(dh-ch);
     };
 }
@@ -181,7 +180,6 @@ else if(ScrollablePopup.iscroll){
     ScrollablePopup.prototype.scrollToBottom = function(){
         var dh=$('#data'+this.id).height();
         var ch=$('#scroll'+this.id).height();
-        console.log('Scrolling by s' + dh + ':' + ch + ':' + (dh-ch));
         if(dh>ch) this.scrollbar.scrollTo(0,-(dh-ch),0);
     }
 }
@@ -314,7 +312,7 @@ $('#loginForm').submit(function(){
 });
 
 $('#registrationForm').submit(function(){
-    var userid = $('regUser').val();
+    var userid = $('#regUser').val();
     var password = $('#regPassword').val();
     if(password != $('#regPasswordConfirm').val()){
         alert("The passwords don't match!\nPlease try again.");
@@ -322,7 +320,6 @@ $('#registrationForm').submit(function(){
         $('#regPasswordConfirm').val('');
         return false;
     }
-    console.log(userid)
     $.post('api/register','userid='+userid+'&pwd='+password,function(response){
         if(response.r === 0){
             handleQuery(response);
@@ -339,7 +336,10 @@ $('#btn_bottle').click(function(){
 });
 
 $('#btn_net').click(function(){
-
+    if(mobile){
+        animatedImagePopup();
+        return;
+    }
     function bottleCaught(data){
         if(data.r >= 0){
             if(data.m){
@@ -423,6 +423,6 @@ function disableBackgroundAnimations(){
 
 $(document).ready(function(){
     query();
-    handleQuery({r:0,b:6,n:4,e:2});
+    //handleQuery({r:0,b:6,n:4,e:2});
     if(!mobile) enableBackgroundAnimations();
 });
