@@ -49,6 +49,7 @@ Popup.prototype.transition = function(other){
 ScrollablePopup.prototype = new Popup;
 ScrollablePopup.prototype.constructor = Popup;
 
+
 ScrollablePopup.native = false;
 ScrollablePopup.iscroll = true;
 
@@ -174,7 +175,8 @@ if(ScrollablePopup.native){
     };
 }
 else if(ScrollablePopup.iscroll){
-    document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+    //IE crashes on adding listener
+    if(!$.browser.msie) document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
     ScrollablePopup.prototype.refresh = function(){ this.scrollbar.refresh(); };
     ScrollablePopup.prototype.scrollToBottom = function(){
         var dh=$('#data'+this.id).height();
